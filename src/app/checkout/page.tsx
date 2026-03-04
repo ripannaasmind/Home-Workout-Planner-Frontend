@@ -70,7 +70,7 @@ export default function CheckoutPage() {
                   <h2 className="text-lg font-semibold text-foreground mb-4">
                     Billing Details
                   </h2>
-                  
+
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName" className="text-sm">
@@ -126,7 +126,7 @@ export default function CheckoutPage() {
                   <h2 className="text-lg font-semibold text-foreground mb-4">
                     Shipping Address
                   </h2>
-                  
+
                   <div className="flex items-center space-x-2 mb-4">
                     <Checkbox
                       id="sameAsBilling"
@@ -161,7 +161,7 @@ export default function CheckoutPage() {
                   <h2 className="text-lg font-semibold text-foreground mb-4">
                     Delivery Method
                   </h2>
-                  
+
                   <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod}>
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
@@ -199,7 +199,7 @@ export default function CheckoutPage() {
                   <h2 className="text-lg font-semibold text-foreground mb-4">
                     Payment Method
                   </h2>
-                  
+
                   <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                     <div className="space-y-3">
                       <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
@@ -261,17 +261,19 @@ export default function CheckoutPage() {
 
                   {/* PayPal Option */}
                   <div className="mt-3">
-                    <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
-                      <RadioGroupItem value="paypal" id="paypal" checked={paymentMethod === "paypal"} onClick={() => setPaymentMethod("paypal")} />
-                      <Label htmlFor="paypal" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                          <svg className="h-5 w-20" viewBox="0 0 101 32" fill="none">
-                            <path d="M12.237 6.364h-6.89c-.47 0-.87.34-.944.8L1.99 23.12c-.055.34.208.647.554.647h3.29c.47 0 .87-.34.943-.8l.913-5.794c.074-.46.473-.8.944-.8h2.177c4.534 0 7.15-2.194 7.835-6.538.308-1.9.012-3.393-.88-4.438-.98-1.15-2.716-1.782-5.03-1.782z" fill="#003087"/>
-                            <path d="M38.5 6.364h-6.89c-.47 0-.87.34-.943.8l-2.413 15.957c-.055.34.208.647.554.647h3.53c.327 0 .606-.238.658-.56l.687-4.352c.073-.46.473-.8.943-.8h2.178c4.534 0 7.15-2.194 7.835-6.538.308-1.9.013-3.393-.88-4.438-.98-1.15-2.716-1.782-5.03-1.782z" fill="#009CDE"/>
-                          </svg>
-                        </div>
-                      </Label>
-                    </div>
+                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                      <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
+                        <RadioGroupItem value="paypal" id="paypal" />
+                        <Label htmlFor="paypal" className="flex-1 cursor-pointer">
+                          <div className="flex items-center gap-2">
+                            <svg className="h-5 w-20" viewBox="0 0 101 32" fill="none">
+                              <path d="M12.237 6.364h-6.89c-.47 0-.87.34-.944.8L1.99 23.12c-.055.34.208.647.554.647h3.29c.47 0 .87-.34.943-.8l.913-5.794c.074-.46.473-.8.944-.8h2.177c4.534 0 7.15-2.194 7.835-6.538.308-1.9.012-3.393-.88-4.438-.98-1.15-2.716-1.782-5.03-1.782z" fill="#003087" />
+                              <path d="M38.5 6.364h-6.89c-.47 0-.87.34-.943.8l-2.413 15.957c-.055.34.208.647.554.647h3.53c.327 0 .606-.238.658-.56l.687-4.352c.073-.46.473-.8.943-.8h2.178c4.534 0 7.15-2.194 7.835-6.538.308-1.9.013-3.393-.88-4.438-.98-1.15-2.716-1.782-5.03-1.782z" fill="#009CDE" />
+                            </svg>
+                          </div>
+                        </Label>
+                      </div>
+                    </RadioGroup>
                   </div>
                 </CardContent>
               </Card>
@@ -368,3 +370,4 @@ export default function CheckoutPage() {
     </div>
   );
 }
+
