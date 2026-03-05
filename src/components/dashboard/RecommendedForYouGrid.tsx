@@ -1,12 +1,30 @@
+"use client";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useCart } from "@/context/CartContext";
+import { toast } from "sonner";
 
 export function RecommendedForYouGrid() {
+    const { addToCart } = useCart();
+
     const rec = {
+        id: "prod-dumbbell-001",
         title: "Adjustable Dumbbell",
         price: "$89.00",
-        image: "/images/products/dumbbells.jpg",
-        action: "Add to Cart",
+        image: "/adjustabble dumbble.jpg",
+        category: "equipment",
+    };
+
+    const handleAddToCart = () => {
+        addToCart({
+            id: rec.id,
+            name: rec.title,
+            price: parseFloat(rec.price.replace("$", "")),
+            image: rec.image,
+            category: rec.category,
+        });
+        toast.success(`${rec.title} added to cart!`);
     };
 
     return (
@@ -20,8 +38,8 @@ export function RecommendedForYouGrid() {
                     <h4 className="font-semibold text-foreground text-sm">{rec.title}</h4>
                     <p className="text-sm font-bold text-foreground mt-0.5 mb-3">{rec.price}</p>
                 </div>
-                <Button size="sm" className="bg-[#5d8b63] hover:bg-[#4a724f] text-white rounded-full h-8 px-6 text-xs font-medium w-auto">
-                    {rec.action}
+                <Button size="sm" onClick={handleAddToCart} className="bg-[#5d8b63] hover:bg-[#4a724f] text-white rounded-full h-8 px-6 text-xs font-medium w-auto">
+                    Add to Cart
                 </Button>
             </div>
         </div>

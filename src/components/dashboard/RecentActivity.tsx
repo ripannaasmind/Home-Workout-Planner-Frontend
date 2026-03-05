@@ -8,19 +8,19 @@ export function RecentActivity() {
             title: "Supplements",
             subtitle: "Order #FH1834",
             action: "Order Details",
-            image: "/images/products/whey-protein.png", // Using a product image
+            image: "/suppliment.jpg", // Using a product image
         },
         {
             title: "Muscle Building",
             subtitle: "Workout Completed",
             action: "View Workout",
-            image: "/images/workouts/muscle-building.jpg", // Using a workout image
+            image: "/muscle building.jpg", // Using a workout image
         },
         {
             title: "Protein Powder",
             subtitle: "Order #FH1817",
             action: "Order Details",
-            image: "/images/products/whey-protein-2.png", // Alternative product image maybe or same
+            image: "/protien powder.jpg", // Alternative product image maybe or same
         },
     ];
 
