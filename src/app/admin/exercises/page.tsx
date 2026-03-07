@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Plus, Trash2, Edit2, Loader2, Search } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Plus, Trash2, Edit2, Loader2, Search, Upload } from "lucide-react";
 import { adminApi, Exercise } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
+import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { uploadImage, validateImageFile } from "@/services/imageUploadService";
 
 const difficultyColor: Record<string, string> = {
   beginner: "bg-green-100 text-green-700",
@@ -25,6 +27,7 @@ const emptyForm = {
   muscleGroup: "",
   equipment: "no equipment",
   difficulty: "beginner" as "beginner" | "intermediate" | "advanced",
+  image: "",
 };
 
 export default function AdminExercisesPage() {
@@ -36,7 +39,9 @@ export default function AdminExercisesPage() {
   const [editTarget, setEditTarget] = useState<Exercise | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Exercise | null>(null);
+  const imageFileRef = useRef<HTMLInputElement>(null);
 
   const fetchExercises = useCallback(() => {
     if (!token) return;
@@ -71,6 +76,7 @@ export default function AdminExercisesPage() {
       muscleGroup: e.muscleGroup,
       equipment: e.equipment,
       difficulty: e.difficulty,
+      image: (e as Exercise & { image?: string }).image ?? "",
     });
     setDialogOpen(true);
   };
@@ -214,6 +220,54 @@ export default function AdminExercisesPage() {
                   <SelectItem value="advanced">Advanced</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label className="text-sm text-gray-700 mb-1.5 block">Image</Label>
+              <div className="space-y-2">
+                {form.image && (
+                  <Image src={form.image} alt="Exercise" width={80} height={80} className="h-20 w-20 object-cover rounded-lg border border-gray-200" unoptimized />
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    value={form.image}
+                    onChange={(e) => setForm({ ...form, image: e.target.value })}
+                    placeholder="Paste URL or upload a file"
+                    className="border-gray-200 flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={uploadingImage}
+                    onClick={() => imageFileRef.current?.click()}
+                    className="shrink-0"
+                  >
+                    {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  </Button>
+                  <input
+                    ref={imageFileRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const validation = validateImageFile(file, 5);
+                      if (!validation.isValid) { toast.error(validation.error); return; }
+                      setUploadingImage(true);
+                      try {
+                        const url = await uploadImage(file);
+                        setForm((prev) => ({ ...prev, image: url }));
+                      } catch {
+                        toast.error("Failed to upload image");
+                      } finally {
+                        setUploadingImage(false);
+                        if (imageFileRef.current) imageFileRef.current.value = "";
+                      }
+                    }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
           <DialogFooter>

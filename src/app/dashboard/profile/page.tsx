@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AuthContext";
 import { userApi } from "@/services/api";
+import { uploadImage, validateImageFile } from "@/services/imageUploadService";
 
 export default function ProfilePage() {
   const { user, token, updateUser } = useAuth();
@@ -18,6 +19,7 @@ export default function ProfilePage() {
   const [name, setName] = useState(user?.name ?? "");
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar);
   const [saving, setSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync on initial load if auth was still loading when component first mounted
@@ -29,16 +31,25 @@ export default function ProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?._id]);
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Image must be smaller than 2 MB");
+    const validation = validateImageFile(file, 5);
+    if (!validation.isValid) {
+      toast.error(validation.error);
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setAvatarPreview(reader.result as string);
-    reader.readAsDataURL(file);
+    setUploadingAvatar(true);
+    try {
+      const url = await uploadImage(file);
+      setAvatarPreview(url);
+    } catch {
+      toast.error("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingAvatar(false);
+      // Reset input so the same file can be re-selected if needed
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
   };
 
   const handleSave = async () => {
@@ -98,14 +109,17 @@ export default function ProfilePage() {
             </Avatar>
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-primary flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors"
+              disabled={uploadingAvatar}
+              className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-primary flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors disabled:opacity-70"
             >
-              <Camera className="h-3.5 w-3.5 text-white" />
+              {uploadingAvatar
+                ? <Loader2 className="h-3.5 w-3.5 text-white animate-spin" />
+                : <Camera className="h-3.5 w-3.5 text-white" />}
             </button>
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/png,image/jpeg,image/webp"
+              accept="image/jpeg,image/png,image/gif,image/webp"
               className="hidden"
               onChange={handleAvatarChange}
             />
@@ -129,10 +143,12 @@ export default function ProfilePage() {
               size="sm"
               className="mt-3 border-gray-200 text-gray-600 hover:bg-gray-50"
               onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingAvatar}
             >
-              Upload new photo
+              {uploadingAvatar && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
+              {uploadingAvatar ? "Uploading..." : "Upload new photo"}
             </Button>
-            <p className="text-xs text-gray-400 mt-1">PNG, JPG, WebP · max 2 MB</p>
+            <p className="text-xs text-gray-400 mt-1">JPEG, PNG, GIF, WebP · max 5 MB</p>
           </div>
         </div>
       </section>
