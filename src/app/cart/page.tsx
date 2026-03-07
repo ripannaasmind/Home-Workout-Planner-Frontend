@@ -18,6 +18,7 @@ import {
   CreditCard,
   Tag,
   Dumbbell,
+  Star,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -286,35 +287,45 @@ export default function CartPage() {
                   <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">
                     You might also like
                   </h2>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                     {relatedProducts.map((product) => (
-                      <Card key={product.id} className="overflow-hidden group">
-                        <div className="aspect-square bg-muted relative overflow-hidden">
+                      <div key={product.id} className="rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow overflow-hidden">
+                        {/* Image */}
+                        <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
                           {product.image && product.image.startsWith("http") ? (
-                            <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
+                            <Image src={product.image} alt={product.name} fill className="object-cover hover:scale-105 transition-transform duration-500" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30">
-                              <Dumbbell className="w-8 h-8 sm:w-10 sm:h-10 text-primary/60" />
+                            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20">
+                              <Dumbbell className="w-10 h-10 text-primary/40" />
                             </div>
                           )}
                         </div>
-                        <CardContent className="p-3">
-                          <h3 className="font-medium text-foreground text-xs sm:text-sm line-clamp-1">
+                        {/* Body */}
+                        <div className="p-4 flex flex-col gap-2 flex-1">
+                          <span className="self-start text-xs bg-primary/10 text-primary font-medium px-2 py-0.5 rounded-full">
+                            {product.category}
+                          </span>
+                          <h3 className="font-bold text-gray-800 text-sm leading-tight line-clamp-1">
                             {product.name}
                           </h3>
-                          <p className="text-sm font-bold text-primary mt-1">
-                            ${product.price.toFixed(2)}
-                          </p>
+                          <p className="text-xs text-gray-400 line-clamp-1">{product.description}</p>
+                          <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                            <span className="text-base font-bold text-primary">${product.price.toFixed(2)}</span>
+                            <div className="flex items-center gap-1">
+                              <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                              <span className="text-xs text-gray-500">4.8</span>
+                            </div>
+                          </div>
                           <Button
-                            variant="outline"
                             size="sm"
-                            className="w-full mt-2 h-8 text-xs"
+                            className="w-full bg-primary hover:bg-primary/90 text-white gap-1.5 h-8 text-xs"
                             onClick={() => addToCart(product)}
                           >
+                            <ShoppingCart className="h-3.5 w-3.5" />
                             Add to Cart
                           </Button>
-                        </CardContent>
-                      </Card>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>

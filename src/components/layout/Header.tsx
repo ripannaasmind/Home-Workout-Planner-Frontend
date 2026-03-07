@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { Dumbbell, Menu, Search, ShoppingCart, X } from "lucide-react";
+import { Dumbbell, Menu, Search, ShoppingCart, X, Bell } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useCart } from "@/context/CartContext";
 
 const navLinks = [
@@ -25,6 +27,7 @@ export function Header() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
   const { totalItems } = useCart();
+  const { user } = useAuth();
 
   // Focus search input when opened
   useEffect(() => {
@@ -136,11 +139,28 @@ export function Header() {
             </Button>
           </Link>
 
-          <Link href="/login">
-            <Button className="bg-primary hover:bg-primary-dark text-white font-medium px-4 lg:px-5 text-sm">
-              Get Started
-            </Button>
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+                <Bell className="h-4 w-4" />
+                <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-primary text-white border-0">3</Badge>
+              </Button>
+              <Link href="/dashboard/profile">
+                <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-gray-200 hover:ring-primary transition-all">
+                  <AvatarImage src={user?.avatar} />
+                  <AvatarFallback className="bg-primary text-white text-xs">
+                    {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+            </div>
+          ) : (
+            <Link href="/login">
+              <Button className="bg-primary hover:bg-primary-dark text-white font-medium px-4 lg:px-5 text-sm">
+                Get Started
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Actions */}
@@ -207,16 +227,26 @@ export function Header() {
 
                 {/* Mobile CTA */}
                 <div className="flex flex-col gap-3 mt-4">
-                  <Link href="/login">
-                    <Button variant="outline" className="w-full h-11">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link href="/signup">
-                    <Button className="w-full bg-primary hover:bg-primary-dark text-white h-11">
-                      Get Started
-                    </Button>
-                  </Link>
+                  {user ? (
+                    <Link href="/dashboard">
+                      <Button className="w-full bg-primary hover:bg-primary-dark text-white h-11">
+                        Go to Dashboard
+                      </Button>
+                    </Link>
+                  ) : (
+                    <>
+                      <Link href="/login">
+                        <Button variant="outline" className="w-full h-11">
+                          Login
+                        </Button>
+                      </Link>
+                      <Link href="/signup">
+                        <Button className="w-full bg-primary hover:bg-primary-dark text-white h-11">
+                          Get Started
+                        </Button>
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>

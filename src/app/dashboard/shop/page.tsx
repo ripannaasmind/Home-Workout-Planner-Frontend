@@ -1,7 +1,6 @@
 "use client";
 
 import { ShoppingCart, Star, Search, Filter } from "lucide-react";
-import { DashboardTopBar } from "@/components/dashboard/DashboardTopBar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +18,6 @@ const products = [
 export default function ShopPage() {
   return (
     <div className="space-y-6">
-      <DashboardTopBar title="Shop" />
       <DashboardHeader
         title="Shop"
         description="Browse fitness equipment, nutrition, and programs"

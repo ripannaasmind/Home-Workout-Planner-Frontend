@@ -1,7 +1,6 @@
 "use client";
 
 import { Dumbbell, Plus, Search, Filter } from "lucide-react";
-import { DashboardTopBar } from "@/components/dashboard/DashboardTopBar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +24,6 @@ const difficultyColor: Record<string, string> = {
 export default function WorkoutsPage() {
   return (
     <div className="space-y-6">
-      <DashboardTopBar title="Workouts" />
       <DashboardHeader
         title="My Workouts"
         description="Manage and track your workout routines"

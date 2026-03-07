@@ -35,7 +35,7 @@ export function DashboardSidebar() {
   };
 
   return (
-    <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white border-r border-gray-200 min-h-[calc(100vh-64px)] py-4">
+    <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white border-r border-gray-200 h-full overflow-y-auto py-4">
       {/* Nav items */}
       <nav className="flex-1 px-3 space-y-0.5">
         {navItems.map(({ href, label, icon: Icon }) => (

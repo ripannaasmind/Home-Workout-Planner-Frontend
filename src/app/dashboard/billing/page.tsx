@@ -1,7 +1,6 @@
 "use client";
 
 import { CreditCard, Plus } from "lucide-react";
-import { DashboardTopBar } from "@/components/dashboard/DashboardTopBar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +29,6 @@ const plans = [
 export default function BillingPage() {
   return (
     <div className="space-y-6">
-      <DashboardTopBar title="Billing" />
       <DashboardHeader title="Billing & Plans" description="Manage your subscription and payment methods" />
 
       {/* Plans */}

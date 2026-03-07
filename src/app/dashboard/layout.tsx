@@ -16,11 +16,11 @@ export default function DashboardLayout({
                 backgroundAttachment: "fixed",
             }}
         >
-            <div className="flex flex-col flex-1">
+            <div className="flex flex-col h-screen overflow-hidden">
                 <Header />
-                <div className="flex flex-1">
+                <div className="flex flex-1 overflow-hidden">
                     <DashboardSidebar />
-                    <main className="flex-1 min-w-0 p-6">{children}</main>
+                    <main className="flex-1 min-w-0 p-6 overflow-y-auto">{children}</main>
                 </div>
             </div>
         </div>
