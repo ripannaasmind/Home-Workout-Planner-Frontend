@@ -201,4 +201,25 @@ export interface Exercise {
   video?: string;
 }
 
+// User / Profile API
+export const userApi = {
+  updateProfile: (data: { name: string; avatar?: string }, token: string) =>
+    apiRequest<{ success: boolean; data: { _id: string; name: string; email: string; avatar?: string; role: "user" | "admin"; isVerified: boolean } }>(
+      "/auth/profile",
+      { method: "PUT", body: data, token }
+    ),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(
+      "/auth/change-password",
+      { method: "PUT", body: data, token }
+    ),
+
+  deleteAccount: (token: string) =>
+    apiRequest<{ success: boolean; message: string }>(
+      "/auth/account",
+      { method: "DELETE", token }
+    ),
+};
+
 export default apiRequest;

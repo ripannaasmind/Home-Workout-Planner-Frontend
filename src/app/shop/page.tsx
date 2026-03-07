@@ -6,7 +6,6 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -450,75 +449,65 @@ export default function ShopPage() {
                       transition={{ duration: 0.2, delay: index * 0.05 }}
                     >
                       {viewMode === "grid" ? (
-                        <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300">
+                        <div className="rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow overflow-hidden">
                           {/* Product Image */}
-                          <div className="relative aspect-[3/2] bg-muted overflow-hidden">
+                          <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
                             {product.image && product.image.startsWith("http") ? (
                               <Image
                                 src={product.image}
                                 alt={product.name}
                                 fill
-                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
                               />
                             ) : (
-                              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30">
-                                <Dumbbell className="w-10 h-10 sm:w-12 sm:h-12 text-primary/60" />
+                              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20">
+                                <Dumbbell className="w-12 h-12 text-primary/40" />
                               </div>
                             )}
-                            {/* Hover overlay */}
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <Button
-                                onClick={() => handleAddToCart(product)}
-                                className="bg-primary hover:bg-primary-dark text-white"
-                                disabled={addedToCart === product.id}
-                              >
-                                {addedToCart === product.id ? (
-                                  <>
-                                    <Check className="h-4 w-4 mr-2" /> Added
-                                  </>
-                                ) : (
-                                  <>
-                                    <ShoppingCart className="h-4 w-4 mr-2" /> Add to Cart
-                                  </>
-                                )}
-                              </Button>
-                            </div>
                             {/* In Cart Badge */}
                             {isInCart(product.id) && (
-                              <Badge className="absolute top-2 right-2 bg-accent text-white text-xs">
+                              <Badge className="absolute top-2 right-2 bg-accent text-white text-xs shadow">
                                 In Cart
                               </Badge>
                             )}
                           </div>
-                          <CardContent className="p-2.5 sm:p-3">
-                            <Badge variant="outline" className="mb-1.5 text-xs">
+
+                          {/* Card body */}
+                          <div className="p-4 flex flex-col gap-2 flex-1">
+                            <Badge className="self-start bg-primary/10 text-primary border-0 text-xs">
                               {product.category}
                             </Badge>
-                            <h3 className="font-semibold text-foreground text-sm line-clamp-1 mb-0.5">
+                            <h3 className="font-bold text-gray-800 text-sm leading-tight line-clamp-1">
                               {product.name}
                             </h3>
-                            <p className="text-xs text-text-secondary line-clamp-1 mb-1.5">
-                              {product.description}
-                            </p>
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm sm:text-base font-bold text-primary">
-                                ${product.price.toFixed(2)}
-                              </span>
+                            <p className="text-xs text-gray-400 line-clamp-1">{product.description}</p>
+
+                            <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-base font-bold text-primary">
+                                  ${product.price.toFixed(2)}
+                                </span>
+                              </div>
                               <div className="flex items-center gap-1">
-                                <Star className="h-3 w-3 sm:h-4 sm:w-4 fill-yellow-400 text-yellow-400" />
-                                <span className="text-xs sm:text-sm text-text-secondary">4.8</span>
+                                <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                                <span className="text-xs text-gray-500">4.8</span>
                               </div>
                             </div>
-                            {/* Mobile Add to Cart */}
+
                             <Button
                               onClick={() => handleAddToCart(product)}
-                              className="w-full mt-2 sm:hidden bg-primary hover:bg-primary-dark text-white h-8 text-xs"
+                              size="sm"
+                              className="w-full bg-primary hover:bg-primary/90 text-white gap-1.5 h-8 text-xs"
                               disabled={addedToCart === product.id}
                             >
-                              {addedToCart === product.id ? "Added!" : "Add to Cart"}
+                              {addedToCart === product.id ? (
+                                <><Check className="h-3.5 w-3.5" /> Added!</>
+                              ) : (
+                                <><ShoppingCart className="h-3.5 w-3.5" /> Add to Cart</>
+                              )}
                             </Button>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </div>
                       ) : (
                         /* List View */
                         <Card className="overflow-hidden">
