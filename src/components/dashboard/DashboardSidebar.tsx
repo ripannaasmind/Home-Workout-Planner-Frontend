@@ -11,6 +11,7 @@ import {
   Settings,
   CreditCard,
   LogOut,
+  Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -19,7 +20,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell },
   { href: "/dashboard/shop", label: "Shop", icon: ShoppingBag },
-  { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/dashboard/orders", label: "Sessions", icon: ShoppingCart },
   { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
   { href: "/dashboard/profile", label: "Profile", icon: User },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
@@ -27,7 +28,7 @@ const navItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
@@ -35,7 +36,7 @@ export function DashboardSidebar() {
   };
 
   return (
-    <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white border-r border-gray-200 min-h-[calc(100vh-64px)] py-4">
+    <aside className="hidden lg:flex flex-col w-52 shrink-0 bg-white border-r border-gray-200 sticky top-16 h-[calc(100vh-80px)] overflow-y-auto py-4">
       {/* Nav items */}
       <nav className="flex-1 px-3 space-y-0.5">
         {navItems.map(({ href, label, icon: Icon }) => (
@@ -57,6 +58,15 @@ export function DashboardSidebar() {
 
       {/* Log Out */}
       <div className="px-3 mt-2 border-t border-gray-100 pt-2">
+        {user?.role === "admin" && (
+          <Link
+            href="/admin"
+            className="flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 transition-all mb-1"
+          >
+            <Shield className="h-4 w-4 shrink-0" />
+            Admin Panel
+          </Link>
+        )}
         <button
           onClick={logout}
           className="flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all"

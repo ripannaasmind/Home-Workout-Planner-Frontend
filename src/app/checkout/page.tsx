@@ -15,10 +15,22 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
 import {
+  sanitize,
+  validateName,
+  validateEmail,
+  validatePhone,
+  validateAddress,
+  validateZip,
+  validateCardNumber,
+  validateCardExpiry,
+  validateCVC,
+} from "@/lib/validation";
+import {
   CreditCard,
   Truck,
   ChevronRight,
   Dumbbell,
+  AlertCircle,
 } from "lucide-react";
 
 export default function CheckoutPage() {
@@ -27,8 +39,69 @@ export default function CheckoutPage() {
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("card");
 
+  // Billing
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [billingEmail, setBillingEmail] = useState("");
+  const [phone, setPhone] = useState("");
+
+  // Shipping
+  const [shipFirstName, setShipFirstName] = useState("");
+  const [shipLastName, setShipLastName] = useState("");
+  const [shipAddress, setShipAddress] = useState("");
+  const [shipCity, setShipCity] = useState("");
+  const [shipState, setShipState] = useState("");
+  const [shipZip, setShipZip] = useState("");
+
+  // Card
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvc, setCvc] = useState("");
+
+  const [error, setError] = useState("");
+
   const shippingCost = deliveryMethod === "express" ? 15.00 : totalPrice >= 100 ? 0 : 5.00;
   const total = totalPrice + shippingCost;
+
+  const handlePlaceOrder = () => {
+    setError("");
+
+    let check = validateName(firstName);
+    if (!check.valid) { setError("First Name: " + check.message); return; }
+    check = validateName(lastName);
+    if (!check.valid) { setError("Last Name: " + check.message); return; }
+    check = validateEmail(billingEmail);
+    if (!check.valid) { setError(check.message); return; }
+    check = validatePhone(phone);
+    if (!check.valid) { setError(check.message); return; }
+
+    if (!sameAsBilling) {
+      check = validateName(shipFirstName);
+      if (!check.valid) { setError("Shipping First Name: " + check.message); return; }
+      check = validateName(shipLastName);
+      if (!check.valid) { setError("Shipping Last Name: " + check.message); return; }
+      check = validateAddress(shipAddress, "Street Address");
+      if (!check.valid) { setError(check.message); return; }
+      check = validateAddress(shipCity, "City");
+      if (!check.valid) { setError(check.message); return; }
+      check = validateAddress(shipState, "State");
+      if (!check.valid) { setError(check.message); return; }
+      check = validateZip(shipZip);
+      if (!check.valid) { setError(check.message); return; }
+    }
+
+    if (paymentMethod === "card") {
+      check = validateCardNumber(cardNumber);
+      if (!check.valid) { setError(check.message); return; }
+      check = validateCardExpiry(expiry);
+      if (!check.valid) { setError(check.message); return; }
+      check = validateCVC(cvc);
+      if (!check.valid) { setError(check.message); return; }
+    }
+
+    // All valid — proceed (placeholder for actual order API)
+    alert("Order placed successfully!");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -64,6 +137,18 @@ export default function CheckoutPage() {
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Left Column - Form */}
             <div className="flex-1 space-y-6">
+              {/* Error */}
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-2 text-destructive text-sm"
+                >
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  {error}
+                </motion.div>
+              )}
+
               {/* Billing Details */}
               <Card>
                 <CardContent className="p-4 sm:p-6">
@@ -80,6 +165,8 @@ export default function CheckoutPage() {
                         id="firstName"
                         placeholder="First Name"
                         className="h-11"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
                       />
                     </div>
                     <div className="space-y-2">
@@ -90,6 +177,8 @@ export default function CheckoutPage() {
                         id="lastName"
                         placeholder="Last Name"
                         className="h-11"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
                       />
                     </div>
                   </div>
@@ -103,6 +192,8 @@ export default function CheckoutPage() {
                       type="email"
                       placeholder="Email Address"
                       className="h-11"
+                      value={billingEmail}
+                      onChange={(e) => setBillingEmail(e.target.value)}
                     />
                   </div>
 
@@ -115,6 +206,8 @@ export default function CheckoutPage() {
                       type="tel"
                       placeholder="Phone Number"
                       className="h-11"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
                     />
                   </div>
                 </CardContent>
@@ -141,14 +234,14 @@ export default function CheckoutPage() {
                   {!sameAsBilling && (
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Input placeholder="First Name" className="h-11" />
-                        <Input placeholder="Last Name" className="h-11" />
+                        <Input placeholder="First Name" className="h-11" value={shipFirstName} onChange={(e) => setShipFirstName(e.target.value)} />
+                        <Input placeholder="Last Name" className="h-11" value={shipLastName} onChange={(e) => setShipLastName(e.target.value)} />
                       </div>
-                      <Input placeholder="Street Address" className="h-11" />
+                      <Input placeholder="Street Address" className="h-11" value={shipAddress} onChange={(e) => setShipAddress(e.target.value)} />
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        <Input placeholder="City" className="h-11" />
-                        <Input placeholder="State" className="h-11" />
-                        <Input placeholder="ZIP Code" className="h-11 col-span-2 sm:col-span-1" />
+                        <Input placeholder="City" className="h-11" value={shipCity} onChange={(e) => setShipCity(e.target.value)} />
+                        <Input placeholder="State" className="h-11" value={shipState} onChange={(e) => setShipState(e.target.value)} />
+                        <Input placeholder="ZIP Code" className="h-11 col-span-2 sm:col-span-1" value={shipZip} onChange={(e) => setShipZip(e.target.value)} />
                       </div>
                     </div>
                   )}
@@ -216,6 +309,19 @@ export default function CheckoutPage() {
                           </div>
                         </Label>
                       </div>
+
+                      {/* PayPal Option */}
+                      <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
+                        <RadioGroupItem value="paypal" id="paypal" />
+                        <Label htmlFor="paypal" className="flex-1 cursor-pointer">
+                          <div className="flex items-center gap-2">
+                            <svg className="h-5 w-20" viewBox="0 0 101 32" fill="none">
+                              <path d="M12.237 6.364h-6.89c-.47 0-.87.34-.944.8L1.99 23.12c-.055.34.208.647.554.647h3.29c.47 0 .87-.34.943-.8l.913-5.794c.074-.46.473-.8.944-.8h2.177c4.534 0 7.15-2.194 7.835-6.538.308-1.9.012-3.393-.88-4.438-.98-1.15-2.716-1.782-5.03-1.782z" fill="#003087"/>
+                              <path d="M38.5 6.364h-6.89c-.47 0-.87.34-.943.8l-2.413 15.957c-.055.34.208.647.554.647h3.53c.327 0 .606-.238.658-.56l.687-4.352c.073-.46.473-.8.943-.8h2.178c4.534 0 7.15-2.194 7.835-6.538.308-1.9.013-3.393-.88-4.438-.98-1.15-2.716-1.782-5.03-1.782z" fill="#009CDE"/>
+                            </svg>
+                          </div>
+                        </Label>
+                      </div>
                     </div>
                   </RadioGroup>
 
@@ -231,6 +337,8 @@ export default function CheckoutPage() {
                             id="cardNumber"
                             placeholder="Card Number"
                             className="pl-10 h-11"
+                            value={cardNumber}
+                            onChange={(e) => setCardNumber(e.target.value)}
                           />
                         </div>
                       </div>
@@ -243,6 +351,8 @@ export default function CheckoutPage() {
                             id="expiry"
                             placeholder="MM / YY"
                             className="h-11"
+                            value={expiry}
+                            onChange={(e) => setExpiry(e.target.value)}
                           />
                         </div>
                         <div className="space-y-2">
@@ -253,26 +363,13 @@ export default function CheckoutPage() {
                             id="cvc"
                             placeholder="CVC"
                             className="h-11"
+                            value={cvc}
+                            onChange={(e) => setCvc(e.target.value)}
                           />
                         </div>
                       </div>
                     </div>
                   )}
-
-                  {/* PayPal Option */}
-                  <div className="mt-3">
-                    <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
-                      <RadioGroupItem value="paypal" id="paypal" checked={paymentMethod === "paypal"} onClick={() => setPaymentMethod("paypal")} />
-                      <Label htmlFor="paypal" className="flex-1 cursor-pointer">
-                        <div className="flex items-center gap-2">
-                          <svg className="h-5 w-20" viewBox="0 0 101 32" fill="none">
-                            <path d="M12.237 6.364h-6.89c-.47 0-.87.34-.944.8L1.99 23.12c-.055.34.208.647.554.647h3.29c.47 0 .87-.34.943-.8l.913-5.794c.074-.46.473-.8.944-.8h2.177c4.534 0 7.15-2.194 7.835-6.538.308-1.9.012-3.393-.88-4.438-.98-1.15-2.716-1.782-5.03-1.782z" fill="#003087"/>
-                            <path d="M38.5 6.364h-6.89c-.47 0-.87.34-.943.8l-2.413 15.957c-.055.34.208.647.554.647h3.53c.327 0 .606-.238.658-.56l.687-4.352c.073-.46.473-.8.943-.8h2.178c4.534 0 7.15-2.194 7.835-6.538.308-1.9.013-3.393-.88-4.438-.98-1.15-2.716-1.782-5.03-1.782z" fill="#009CDE"/>
-                          </svg>
-                        </div>
-                      </Label>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>
@@ -299,7 +396,7 @@ export default function CheckoutPage() {
                               className="w-full h-full object-cover"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30">
+                            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
                               <Dumbbell className="w-6 h-6 text-primary/60" />
                             </div>
                           )}
@@ -350,7 +447,7 @@ export default function CheckoutPage() {
                     </span>
                   </div>
 
-                  <Button className="w-full h-12 bg-primary hover:bg-primary-dark text-white font-semibold">
+                  <Button onClick={handlePlaceOrder} className="w-full h-12 bg-primary hover:bg-primary-dark text-white font-semibold">
                     Place Order
                   </Button>
 

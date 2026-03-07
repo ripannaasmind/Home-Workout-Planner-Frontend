@@ -148,14 +148,13 @@ export default function WorkoutDetailsPage() {
   const CategoryIcon = getCategoryIcon(workout.category);
   const videoId = getWorkoutVideo(workout.category, workout.name);
   const totalSets = workout.exercises?.reduce((sum, ex) => sum + (ex.sets || 0), 0) || 0;
-  const totalReps = workout.exercises?.reduce((sum, ex) => sum + ((ex.sets || 0) * (ex.reps || 0)), 0) || 0;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1">
         {/* Hero Section with Video */}
-        <section className="relative bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+        <section className="relative bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
           {/* Back Button */}
           <div className="absolute top-4 left-4 z-20">
             <Button 
@@ -244,7 +243,7 @@ export default function WorkoutDetailsPage() {
                 <div className="flex items-center gap-4 mt-6 pt-6 border-t border-white/10">
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent border-2 border-gray-900 flex items-center justify-center text-xs text-white font-bold">
+                      <div key={i} className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-accent border-2 border-gray-900 flex items-center justify-center text-xs text-white font-bold">
                         {String.fromCharCode(64 + i)}
                       </div>
                     ))}
@@ -347,7 +346,7 @@ export default function WorkoutDetailsPage() {
                                   className="object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30">
+                                <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
                                   <Dumbbell className="w-10 h-10 text-primary/60" />
                                 </div>
                               )}
@@ -463,7 +462,7 @@ export default function WorkoutDetailsPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-12 sm:py-16 bg-gradient-to-r from-primary via-primary-dark to-primary">
+        <section className="py-12 sm:py-16 bg-linear-to-r from-primary via-primary-dark to-primary">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Ready to Start?</h2>
             <p className="text-white/80 mb-6 max-w-xl mx-auto">Begin this workout now and take the first step towards achieving your fitness goals.</p>
@@ -473,12 +472,12 @@ export default function WorkoutDetailsPage() {
                 Start Workout
               </Button>
               <Link href="/workouts">
-                <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10">
+                <Button size="lg" variant="outline" className="border-white/30 bg-white/10 text-white hover:bg-white/30">
                   Browse More Workouts
                 </Button>
               </Link>
             </div>
-          </div>
+          </div>         
         </section>
       </main>
       <Footer />
