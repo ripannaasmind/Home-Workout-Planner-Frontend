@@ -1,3 +1,4 @@
+import { Header } from "@/components/layout/Header";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
 export default function DashboardLayout({
@@ -7,11 +8,21 @@ export default function DashboardLayout({
 }) {
     return (
         <div
-            className="flex min-h-screen p-4 gap-6 font-sans bg-cover bg-center bg-fixed"
-            style={{ backgroundImage: "url('/bg.png')" }}
+            className="relative min-h-screen flex flex-col"
+            style={{
+                backgroundImage: "url('/bg.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                backgroundAttachment: "fixed",
+            }}
         >
-            <DashboardSidebar />
-            <main className="flex-1 w-full">{children}</main>
+            <div className="flex flex-col flex-1">
+                <Header />
+                <div className="flex flex-1">
+                    <DashboardSidebar />
+                    <main className="flex-1 min-w-0 p-6">{children}</main>
+                </div>
+            </div>
         </div>
     );
 }

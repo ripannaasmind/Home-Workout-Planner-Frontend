@@ -1,15 +1,28 @@
-import React from "react";
+import { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
-export function DashboardHeader() {
-    return (
-        <div className="mb-8 flex flex-col gap-2">
-            <h1 className="text-3xl font-semibold text-foreground">Dashboard</h1>
-            <div className="mt-4">
-                <h2 className="text-2xl text-foreground font-medium">Welcome back, Justin!</h2>
-                <p className="text-muted-foreground mt-1">
-                    Here&apos;s a quick overview of your fitness journey.
-                </p>
-            </div>
-        </div>
-    );
+interface DashboardHeaderProps {
+  title: string;
+  description?: string;
+  action?: ReactNode;
+  className?: string;
+}
+
+export function DashboardHeader({
+  title,
+  description,
+  action,
+  className,
+}: DashboardHeaderProps) {
+  return (
+    <div className={cn("flex items-start justify-between gap-4 mb-6", className)}>
+      <div>
+        <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+        {description && (
+          <p className="text-gray-500 text-sm mt-1">{description}</p>
+        )}
+      </div>
+      {action && <div className="shrink-0">{action}</div>}
+    </div>
+  );
 }

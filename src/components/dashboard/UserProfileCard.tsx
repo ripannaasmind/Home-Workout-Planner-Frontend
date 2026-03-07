@@ -1,39 +1,51 @@
 "use client";
 
-import Image from "next/image";
-import { CreditCard } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { PenLine } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/context/AuthContext";
+import Link from "next/link";
 
 export function UserProfileCard() {
-    const router = useRouter();
-    return (
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-border mb-8 text-center flex flex-col items-center">
-            <div className="relative w-20 h-20 rounded-full overflow-hidden mb-4 border-2 border-primary/20">
-                <Image
-                    src="/profile.jpg"
-                    alt="Justin Carter"
-                    fill
-                    className="object-cover"
-                />
-            </div>
-            <h3 className="text-xl font-semibold text-foreground">Justin Carter</h3>
-            <p className="text-sm text-muted-foreground mb-6">justin@example.com</p>
+  const { user } = useAuth();
 
-            {/* Progress tracking fake */}
-            <div className="w-full flex items-center justify-between gap-1 mb-8">
-                <div className="h-1.5 flex-1 bg-primary rounded-full"></div>
-                <div className="h-1.5 flex-[0.3] bg-primary rounded-full"></div>
-                <div className="h-1.5 w-1.5 bg-border rounded-full"></div>
-                <div className="h-1.5 w-1.5 bg-border rounded-full"></div>
-            </div>
-
-            <button
-                onClick={() => router.push("/dashboard/profile")}
-                className="flex items-center justify-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary transition-colors w-full border border-border/60 hover:border-primary/30 rounded-2xl py-2.5"
-            >
-                <CreditCard className="w-4 h-4" />
-                Edit Profile
-            </button>
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+      <div className="flex items-center gap-3">
+        <Avatar className="h-14 w-14 ring-2 ring-primary/20 shrink-0">
+          <AvatarImage src={user?.avatar} />
+          <AvatarFallback className="bg-primary text-white text-lg font-bold">
+            {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-gray-800 text-sm truncate">{user?.name ?? "User"}</p>
+          <p className="text-gray-500 text-xs truncate">{user?.email ?? "user@example.com"}</p>
         </div>
-    );
+      </div>
+
+      <div className="mt-3 flex items-center gap-2">
+        <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div className="h-full w-2/3 bg-primary rounded-full" />
+        </div>
+        <div className="flex gap-1">
+          {[0, 1, 2].map((i) => (
+            <span
+              key={i}
+              className={`h-1.5 w-1.5 rounded-full ${
+                i === 0 ? "bg-gray-400" : "bg-gray-200"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      <Link
+        href="/dashboard/profile"
+        className="mt-3 flex items-center gap-2 text-xs text-gray-500 hover:text-primary transition-colors"
+      >
+        <PenLine className="h-3.5 w-3.5" />
+        Edit Profile
+      </Link>
+    </div>
+  );
 }

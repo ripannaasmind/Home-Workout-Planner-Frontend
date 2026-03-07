@@ -1,80 +1,100 @@
 "use client";
 
-import Image from "next/image";
+import { Dumbbell, Package, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
-import Link from "next/link";
 
-export function RecommendedForYouList() {
-    const { addToCart } = useCart();
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  iconBg: string;
+  icon: React.ElementType;
+  iconColor: string;
+  type: "cart" | "view";
+}
 
-    const recommendations = [
-        {
-            id: "prod-dumbbell-002",
-            title: "Adjustable Dumbbell",
-            price: "$39.00",
-            image: "/adjustabble dumbble.jpg",
-            category: "equipment",
-            type: "cart" as const,
-        },
-        {
-            id: "prod-protein-001",
-            title: "Whey Protein Powder",
-            price: "$49.00",
-            image: "/protien powder.jpg",
-            category: "supplement",
-            type: "workout" as const,
-        },
-    ];
+const defaultProducts: Product[] = [
+  {
+    id: "1",
+    name: "Adjustable Dumbbell",
+    price: 39.00,
+    image: "",
+    category: "Equipment",
+    iconBg: "bg-gray-100",
+    icon: Dumbbell,
+    iconColor: "text-gray-600",
+    type: "cart",
+  },
+  {
+    id: "2",
+    name: "Whey Protein Powder",
+    price: 49.00,
+    image: "",
+    category: "Supplements",
+    iconBg: "bg-blue-50",
+    icon: Package,
+    iconColor: "text-blue-500",
+    type: "view",
+  },
+];
 
-    const handleAddToCart = (rec: typeof recommendations[number]) => {
-        addToCart({
-            id: rec.id,
-            name: rec.title,
-            price: parseFloat(rec.price.replace("$", "")),
-            image: rec.image,
-            category: rec.category,
-        });
-        toast.success(`${rec.title} added to cart!`);
-    };
+export function RecommendedForYouList({ products = defaultProducts }: { products?: Product[] }) {
+  const { addToCart } = useCart();
 
-    return (
-        <div className="bg-[#f9fbf9] rounded-3xl p-6 mb-8 border border-border/50">
-            <h3 className="text-lg font-semibold mb-4 text-foreground">Recommended for You</h3>
-            <div className="space-y-4">
-                {recommendations.map((rec) => (
-                    <div key={rec.id} className="flex gap-4 p-3 bg-white rounded-2xl shadow-sm border border-border/50 hover:shadow-md transition-shadow">
-                        <div className="w-20 h-20 bg-neutral-100 rounded-xl overflow-hidden relative flex-shrink-0">
-                            <Image
-                                src={rec.image}
-                                alt={rec.title}
-                                fill
-                                className="object-cover"
-                            />
-                        </div>
-                        <div className="flex flex-col justify-between py-1">
-                            <div>
-                                <h4 className="font-semibold text-foreground text-sm">{rec.title}</h4>
-                                <p className="text-sm font-bold text-foreground mt-0.5">{rec.price}</p>
-                            </div>
-                            {rec.type === "cart" ? (
-                                <Button
-                                    size="sm"
-                                    onClick={() => handleAddToCart(rec)}
-                                    className="h-7 px-3 text-xs rounded-full shadow-none bg-[#5d8b63] hover:bg-[#4a724f] text-white"
-                                >
-                                    Add to Cart
-                                </Button>
-                            ) : (
-                                <Button asChild size="sm" className="h-7 px-3 text-xs rounded-full shadow-none bg-white hover:bg-neutral-50 text-foreground border border-border">
-                                    <Link href="/dashboard/workouts">View Workout</Link>
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                ))}
+  const handleAddToCart = (product: Product) => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      category: product.category,
+    });
+    toast.success(`${product.name} added to cart`);
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+      <h3 className="text-sm font-semibold text-gray-800 mb-3">Recommended for You</h3>
+      <div className="space-y-3">
+        {products.map((product) => {
+          const Icon = product.icon;
+          return (
+            <div key={product.id} className="flex items-center gap-3">
+              <div
+                className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${product.iconBg}`}
+              >
+                <Icon className={`h-6 w-6 ${product.iconColor}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-800 truncate">{product.name}</p>
+                <p className="text-sm font-bold text-gray-700">${product.price.toFixed(2)}</p>
+              </div>
+              {product.type === "cart" ? (
+                <Button
+                  size="sm"
+                  className="bg-primary hover:bg-primary/90 text-white text-xs h-8 px-3 gap-1 shrink-0"
+                  onClick={() => handleAddToCart(product)}
+                >
+                  <ShoppingCart className="h-3.5 w-3.5" />
+                  Add
+                </Button>
+              ) : (
+                <Link
+                  href="/dashboard/workouts"
+                  className="text-xs text-gray-500 hover:text-primary whitespace-nowrap transition-colors"
+                >
+                  View Workout
+                </Link>
+              )}
             </div>
-        </div>
-    );
+          );
+        })}
+      </div>
+    </div>
+  );
 }

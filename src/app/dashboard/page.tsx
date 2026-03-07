@@ -1,48 +1,66 @@
-import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
+"use client";
+
+import { Dumbbell, BookOpen, ShoppingBag, DollarSign } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 import { StatCards } from "@/components/dashboard/StatCards";
 import { UpcomingWorkout } from "@/components/dashboard/UpcomingWorkout";
-import { RecentOrdersTable } from "@/components/dashboard/RecentOrdersTable";
-import { RecentOrdersGrid } from "@/components/dashboard/RecentOrdersGrid";
 import { UserProfileCard } from "@/components/dashboard/UserProfileCard";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
+import { RecentOrdersTable } from "@/components/dashboard/RecentOrdersTable";
 import { RecommendedForYouList } from "@/components/dashboard/RecommendedForYouList";
+import { RecentOrdersGrid } from "@/components/dashboard/RecentOrdersGrid";
 import { RecommendedForYouGrid } from "@/components/dashboard/RecommendedForYouGrid";
-import { DashboardTopBar } from "@/components/dashboard/DashboardTopBar";
+
+const stats = [
+  { label: "Workouts Completed", value: 12, icon: Dumbbell },
+  { label: "Active Programs", value: 2, icon: BookOpen },
+  { label: "Orders Placed", value: 5, icon: ShoppingBag },
+  { label: "Total Spend", value: "$299.00", icon: DollarSign },
+];
 
 export default function DashboardPage() {
-    return (
-        <div className="flex flex-col h-full bg-[#f4f7f4] rounded-3xl p-6 relative overflow-hidden">
-            {/* Background Decor */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[url('/images/decor/leaf-pattern.png')] bg-no-repeat bg-right-top opacity-10 pointer-events-none -z-10 mix-blend-multiply"></div>
+  const { user } = useAuth();
 
-            {/* Top action bar */}
-            <DashboardTopBar />
-
-            <div className="flex flex-col lg:flex-row gap-8">
-                {/* Main Content Area (Left/Center) */}
-                <div className="flex-1 min-w-0">
-                    <DashboardHeader />
-                    <StatCards />
-                    <UpcomingWorkout />
-                    <RecentOrdersTable />
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="lg:col-span-2">
-                            <RecentOrdersGrid />
-                        </div>
-                        <div className="lg:col-span-1">
-                            <RecommendedForYouGrid />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Right Sidebar Area */}
-                <div className="w-full lg:w-80 shrink-0">
-                    <UserProfileCard />
-                    <RecentActivity />
-                    <RecommendedForYouList />
-                </div>
-            </div>
+  return (
+    <div className="flex gap-6">
+      {/* Main content */}
+      <div className="flex-1 min-w-0 space-y-5">
+        {/* Welcome section */}
+        <div>
+          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
+          <h2 className="text-base font-semibold text-gray-700 mt-0.5">
+            Welcome back, {user?.name ?? "User"}!
+          </h2>
+          <p className="text-gray-400 text-sm">Here&apos;s a quick overview of your fitness journey.</p>
         </div>
-    );
+
+        {/* Profile card — visible only on small screens (right panel hidden on < lg) */}
+        <div className="lg:hidden">
+          <UserProfileCard />
+        </div>
+
+        {/* Stats 2×2 grid */}
+        <StatCards stats={stats} />
+
+        {/* Upcoming Workout carousel card */}
+        <UpcomingWorkout />
+
+        {/* Recent Orders table */}
+        <RecentOrdersTable />
+
+        {/* Bottom 2-col grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <RecentOrdersGrid />
+          <RecommendedForYouGrid />
+        </div>
+      </div>
+
+      {/* Right panel */}
+      <div className="hidden lg:flex flex-col w-72 shrink-0 space-y-4">
+        <UserProfileCard />
+        <RecentActivity />
+        <RecommendedForYouList />
+      </div>
+    </div>
+  );
 }

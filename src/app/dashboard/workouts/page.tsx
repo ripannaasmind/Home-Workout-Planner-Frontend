@@ -1,107 +1,84 @@
-import Link from "next/link";
-import Image from "next/image";
+"use client";
+
+import { Dumbbell, Plus, Search, Filter } from "lucide-react";
+import { DashboardTopBar } from "@/components/dashboard/DashboardTopBar";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Flame, PlayCircle } from "lucide-react";
 
 const workouts = [
-    {
-        id: "hiit-burn",
-        title: "HIIT Burn",
-        duration: "45 min",
-        intensity: "High",
-        category: "Cardio",
-        image: "/hiit.jpg",
-        completed: true,
-        scheduledDate: "Apr 25 • 9:00 AM",
-    },
-    {
-        id: "muscle-building",
-        title: "Muscle Building",
-        duration: "60 min",
-        intensity: "Medium",
-        category: "Strength",
-        image: "/muscle building.jpg",
-        completed: true,
-        scheduledDate: "Apr 22 • 7:00 AM",
-    },
-    {
-        id: "core-strength",
-        title: "Core Strength",
-        duration: "30 min",
-        intensity: "Medium",
-        category: "Core",
-        image: "/hiit.jpg",
-        completed: false,
-        scheduledDate: "Apr 28 • 8:00 AM",
-    },
-    {
-        id: "full-body-stretch",
-        title: "Full Body Stretch",
-        duration: "20 min",
-        intensity: "Low",
-        category: "Flexibility",
-        image: "/muscle building.jpg",
-        completed: false,
-        scheduledDate: "Apr 30 • 6:30 AM",
-    },
+  { id: 1, title: "Full Body HIIT", duration: 40, calories: 350, difficulty: "Intermediate", category: "HIIT", lastDone: "2 days ago" },
+  { id: 2, title: "Upper Body Blast", duration: 45, calories: 280, difficulty: "Advanced", category: "Strength", lastDone: "4 days ago" },
+  { id: 3, title: "Morning Yoga Flow", duration: 30, calories: 120, difficulty: "Beginner", category: "Yoga", lastDone: "Today" },
+  { id: 4, title: "Core Crusher", duration: 25, calories: 200, difficulty: "Intermediate", category: "Core", lastDone: "6 days ago" },
+  { id: 5, title: "Leg Day Power", duration: 50, calories: 400, difficulty: "Advanced", category: "Strength", lastDone: "1 week ago" },
+  { id: 6, title: "Cardio Burnout", duration: 35, calories: 320, difficulty: "Intermediate", category: "Cardio", lastDone: "3 days ago" },
 ];
 
+const difficultyColor: Record<string, string> = {
+  Beginner: "bg-green-100 text-green-700",
+  Intermediate: "bg-yellow-100 text-yellow-700",
+  Advanced: "bg-red-100 text-red-600",
+};
+
 export default function WorkoutsPage() {
-    return (
-        <div className="flex flex-col h-full bg-[#f4f7f4] rounded-3xl p-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-semibold text-foreground">Workouts</h1>
-                <p className="text-muted-foreground mt-1">Track your fitness programs and upcoming sessions.</p>
-            </div>
+  return (
+    <div className="space-y-6">
+      <DashboardTopBar title="Workouts" />
+      <DashboardHeader
+        title="My Workouts"
+        description="Manage and track your workout routines"
+        action={
+          <Button className="bg-primary hover:bg-primary/90 text-white gap-2">
+            <Plus className="h-4 w-4" /> New Workout
+          </Button>
+        }
+      />
 
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-4 mb-8">
-                {[
-                    { label: "Completed", value: "12", color: "bg-emerald-50 text-emerald-600" },
-                    { label: "Scheduled", value: "2", color: "bg-blue-50 text-blue-600" },
-                    { label: "Active Programs", value: "2", color: "bg-teal-50 text-teal-600" },
-                ].map((stat) => (
-                    <div key={stat.label} className={`${stat.color} rounded-3xl p-5 border border-border/50`}>
-                        <p className="text-2xl font-bold">{stat.value}</p>
-                        <p className="text-sm font-medium mt-1 opacity-80">{stat.label}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* Workout cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4">
-                {workouts.map((workout) => (
-                    <div key={workout.id} className="bg-white rounded-3xl overflow-hidden border border-border/50 shadow-sm hover:shadow-md transition-shadow">
-                        <div className="relative h-36 w-full">
-                            <Image src={workout.image} alt={workout.title} fill className="object-cover" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                            <div className="absolute bottom-3 left-4 text-white">
-                                <h3 className="font-bold text-base drop-shadow">{workout.title}</h3>
-                                <p className="text-xs text-white/80">{workout.scheduledDate}</p>
-                            </div>
-                            {workout.completed && (
-                                <Badge className="absolute top-3 right-3 bg-[#5d8b63] text-white text-xs border-0">
-                                    Completed
-                                </Badge>
-                            )}
-                        </div>
-                        <div className="p-4">
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
-                                <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{workout.duration}</span>
-                                <span className="flex items-center gap-1"><Flame className="w-3.5 h-3.5 text-orange-400" />{workout.intensity}</span>
-                                <Badge variant="outline" className="text-xs">{workout.category}</Badge>
-                            </div>
-                            <Button asChild size="sm" className="rounded-full bg-[#5d8b63] hover:bg-[#4a724f] text-white px-4 text-xs gap-1.5">
-                                <Link href={`/workouts/${workout.id}`}>
-                                    <PlayCircle className="w-3.5 h-3.5" />
-                                    {workout.completed ? "View Details" : "Start Workout"}
-                                </Link>
-                            </Button>
-                        </div>
-                    </div>
-                ))}
-            </div>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-3">
+        <div className="relative flex-1 min-w-48">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input placeholder="Search workouts..." className="pl-9 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400" />
         </div>
-    );
+        <Button variant="outline" className="border-gray-200 text-gray-600 hover:bg-gray-100 gap-2">
+          <Filter className="h-4 w-4" /> Filter
+        </Button>
+      </div>
+
+      {/* Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {workouts.map((workout) => (
+          <div
+            key={workout.id}
+            className="rounded-2xl bg-white border border-gray-200 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
+          >
+            <div className="flex items-start justify-between">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Dumbbell className="h-5 w-5 text-primary" />
+              </div>
+              <Badge className={`border-0 ${difficultyColor[workout.difficulty]}`}>
+                {workout.difficulty}
+              </Badge>
+            </div>
+            <div>
+              <h3 className="text-gray-800 font-semibold">{workout.title}</h3>
+              <p className="text-gray-500 text-sm">{workout.category}</p>
+            </div>
+            <div className="flex gap-4 text-sm text-gray-500">
+              <span>{workout.duration} min</span>
+              <span>~{workout.calories} kcal</span>
+            </div>
+            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+              <span className="text-xs text-gray-400">Last: {workout.lastDone}</span>
+              <Button size="sm" className="bg-primary/80 hover:bg-primary text-white h-7 px-3">
+                Start
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

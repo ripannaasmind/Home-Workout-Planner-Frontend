@@ -1,53 +1,88 @@
-import Image from "next/image";
-import { ChevronRight } from "lucide-react";
-import Link from "next/link";
+import { ChevronRight, Dumbbell, ShoppingBag, Package } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export function RecentActivity() {
-    const activities = [
-        {
-            title: "Supplements",
-            subtitle: "Order #FH1834",
-            action: "Order Details",
-            image: "/suppliment.jpg", // Using a product image
-        },
-        {
-            title: "Muscle Building",
-            subtitle: "Workout Completed",
-            action: "View Workout",
-            image: "/muscle building.jpg", // Using a workout image
-        },
-        {
-            title: "Protein Powder",
-            subtitle: "Order #FH1817",
-            action: "Order Details",
-            image: "/protien powder.jpg", // Alternative product image maybe or same
-        },
-    ];
+interface ActivityItem {
+  id: string;
+  type: "order" | "workout" | "purchase";
+  title: string;
+  subtitle: string;
+  linkLabel: string;
+  linkHref: string;
+  iconBg: string;
+  icon: React.ElementType;
+  iconColor: string;
+}
 
-    return (
-        <div className="bg-white rounded-3xl p-6 shadow-sm border border-border mb-8">
-            <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Activity</h3>
-            <div className="space-y-4">
-                {activities.map((activity, i) => (
-                    <div key={i} className="flex items-center gap-4 p-2 hover:bg-neutral-50 rounded-2xl transition-colors group">
-                        <div className="w-12 h-12 bg-neutral-100 rounded-xl overflow-hidden relative flex-shrink-0">
-                            <Image
-                                src={activity.image}
-                                alt={activity.title}
-                                fill
-                                className="object-cover"
-                            />
-                        </div>
-                        <div className="flex-1">
-                            <h4 className="font-semibold text-foreground text-sm">{activity.title}</h4>
-                            <p className="text-xs text-muted-foreground mb-1">{activity.subtitle}</p>
-                            <Link href="#" className="text-xs font-medium text-primary flex items-center gap-0.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                                {activity.action} <ChevronRight className="w-3 h-3" />
-                            </Link>
-                        </div>
-                    </div>
-                ))}
+const defaultActivities: ActivityItem[] = [
+  {
+    id: "1",
+    type: "order",
+    title: "Supplements",
+    subtitle: "Order #FH1834",
+    linkLabel: "Order Details",
+    linkHref: "/dashboard/orders",
+    iconBg: "bg-amber-100",
+    icon: Package,
+    iconColor: "text-amber-600",
+  },
+  {
+    id: "2",
+    type: "workout",
+    title: "Muscle Building",
+    subtitle: "Workout Completed",
+    linkLabel: "View Workout",
+    linkHref: "/dashboard/workouts",
+    iconBg: "bg-green-100",
+    icon: Dumbbell,
+    iconColor: "text-green-700",
+  },
+  {
+    id: "3",
+    type: "purchase",
+    title: "Protein Powder Purchased",
+    subtitle: "Order #FH1817",
+    linkLabel: "Order Details",
+    linkHref: "/dashboard/orders",
+    iconBg: "bg-blue-100",
+    icon: ShoppingBag,
+    iconColor: "text-blue-600",
+  },
+];
+
+export function RecentActivity({ activities = defaultActivities }: { activities?: ActivityItem[] }) {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
+      <h3 className="text-sm font-semibold text-gray-800 mb-3">Recent Activity</h3>
+      <div className="space-y-3">
+        {activities.map((item) => {
+          const Icon = item.icon;
+          return (
+            <div key={item.id} className="flex items-start gap-3">
+              {/* Icon square */}
+              <div
+                className={cn(
+                  "h-10 w-10 rounded-lg flex items-center justify-center shrink-0",
+                  item.iconBg
+                )}
+              >
+                <Icon className={cn("h-5 w-5", item.iconColor)} />
+              </div>
+              {/* Text */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-800 truncate">{item.title}</p>
+                <p className="text-xs text-gray-500">{item.subtitle}</p>
+                <a
+                  href={item.linkHref}
+                  className="text-xs text-gray-400 hover:text-primary flex items-center gap-0.5 mt-0.5 transition-colors"
+                >
+                  {item.linkLabel}
+                  <ChevronRight className="h-3 w-3" />
+                </a>
+              </div>
             </div>
-        </div>
-    );
+          );
+        })}
+      </div>
+    </div>
+  );
 }

@@ -4,67 +4,67 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
-  Activity,
+  Dumbbell,
   ShoppingBag,
-  Package,
-  CreditCard,
+  ShoppingCart,
   User,
   Settings,
+  CreditCard,
   LogOut,
-  Leaf
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+
+const navItems = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell },
+  { href: "/dashboard/shop", label: "Shop", icon: ShoppingBag },
+  { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
+  { href: "/dashboard/profile", label: "Profile", icon: User },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+];
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const { logout } = useAuth();
 
-  const navItems = [
-    { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { name: "Workouts", href: "/dashboard/workouts", icon: Activity },
-    { name: "Shop", href: "/dashboard/shop", icon: ShoppingBag },
-    { name: "Orders", href: "/dashboard/orders", icon: Package },
-    { name: "Billing", href: "/dashboard/billing", icon: CreditCard },
-    { name: "Profile", href: "/dashboard/profile", icon: User },
-    { name: "Settings", href: "/dashboard/settings", icon: Settings },
-  ];
+  const isActive = (href: string) => {
+    if (href === "/dashboard") return pathname === "/dashboard";
+    return pathname.startsWith(href);
+  };
 
   return (
-    <div className="w-64 bg-white/80 backdrop-blur-md rounded-3xl p-6 flex flex-col h-[calc(100vh-2rem)] sticky top-4 shadow-sm border border-border">
-      {/* Logo */}
-      <div className="flex items-center gap-2 mb-8 px-4">
-        <div className="bg-primary/20 p-2 rounded-lg">
-          <Leaf className="w-6 h-6 text-primary" />
-        </div>
-        <span className="text-xl font-bold text-foreground">FitHome</span>
-      </div>
+    <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white border-r border-gray-200 min-h-[calc(100vh-64px)] py-4">
+      {/* Nav items */}
+      <nav className="flex-1 px-3 space-y-0.5">
+        {navItems.map(({ href, label, icon: Icon }) => (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+              isActive(href)
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            )}
+          >
+            <Icon className="h-4 w-4 shrink-0" />
+            {label}
+          </Link>
+        ))}
+      </nav>
 
-      {/* Navigation */}
-      <div className="flex-1 space-y-2">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.name}
-              href={item.href}
-              className={`flex items-center gap-4 px-4 py-3 rounded-2xl transition-all duration-300 ${
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                  : "text-muted-foreground hover:bg-neutral-100 hover:text-foreground"
-              }`}
-            >
-              <item.icon className="w-5 h-5" />
-              <span className="font-medium">{item.name}</span>
-            </Link>
-          );
-        })}
-      </div>
-
-      {/* Logout */}
-      <div className="pt-6 border-t border-border mt-auto">
-        <button className="flex items-center gap-4 px-4 py-3 rounded-2xl text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all duration-300 w-full text-left">
-          <LogOut className="w-5 h-5" />
-          <span className="font-medium">Log Out</span>
+      {/* Log Out */}
+      <div className="px-3 mt-2 border-t border-gray-100 pt-2">
+        <button
+          onClick={logout}
+          className="flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          Log Out
         </button>
       </div>
-    </div>
+    </aside>
   );
 }

@@ -1,82 +1,74 @@
 "use client";
 
-import Image from "next/image";
+import { ShoppingCart, Star, Search, Filter } from "lucide-react";
+import { DashboardTopBar } from "@/components/dashboard/DashboardTopBar";
+import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useCart } from "@/context/CartContext";
-import { toast } from "sonner";
-import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
 
 const products = [
-    { id: "prod-dumbbell-001", name: "Adjustable Dumbbell", price: 89, image: "/adjustabble dumbble.jpg", category: "Equipment", badge: "Best Seller" },
-    { id: "prod-protein-001", name: "Whey Protein Powder", price: 49, image: "/protien powder.jpg", category: "Supplements", badge: null },
-    { id: "prod-bands-001", name: "Resistance Bands Set", price: 29, image: "/adjustabble dumbble.jpg", category: "Equipment", badge: "New" },
-    { id: "prod-yoga-001", name: "Premium Yoga Mat", price: 39, image: "/muscle building.jpg", category: "Equipment", badge: null },
+  { id: 1, name: "Adjustable Dumbbell Set", price: 129.99, originalPrice: 159.99, rating: 4.8, reviews: 124, category: "Equipment", inStock: true },
+  { id: 2, name: "Premium Whey Protein", price: 39.99, originalPrice: 49.99, rating: 4.6, reviews: 89, category: "Nutrition", inStock: true },
+  { id: 3, name: "Pro Yoga Mat", price: 49.99, rating: 4.7, reviews: 67, category: "Equipment", inStock: true },
+  { id: 4, name: "Resistance Bands Set", price: 24.99, originalPrice: 34.99, rating: 4.5, reviews: 103, category: "Equipment", inStock: false },
+  { id: 5, name: "HIIT Program Pack", price: 29.99, rating: 4.9, reviews: 212, category: "Program", inStock: true },
+  { id: 6, name: "Muscle Recovery Cream", price: 19.99, originalPrice: 24.99, rating: 4.4, reviews: 58, category: "Recovery", inStock: true },
 ];
 
-export default function DashboardShopPage() {
-    const { addToCart, totalItems } = useCart();
+export default function ShopPage() {
+  return (
+    <div className="space-y-6">
+      <DashboardTopBar title="Shop" />
+      <DashboardHeader
+        title="Shop"
+        description="Browse fitness equipment, nutrition, and programs"
+      />
 
-    const handleAddToCart = (product: typeof products[number]) => {
-        addToCart({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            category: product.category.toLowerCase(),
-        });
-        toast.success(`${product.name} added to cart!`);
-    };
-
-    return (
-        <div className="flex flex-col h-full bg-[#f4f7f4] rounded-3xl p-6">
-            <div className="mb-8 flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-semibold text-foreground">Shop</h1>
-                    <p className="text-muted-foreground mt-1">Equipment and supplements for your fitness journey.</p>
-                </div>
-                <Button asChild variant="outline" className="rounded-full gap-2">
-                    <Link href="/cart">
-                        <ShoppingCart className="w-4 h-4" />
-                        Cart {totalItems > 0 && <span className="bg-[#5d8b63] text-white rounded-full px-1.5 py-0.5 text-xs ml-1">{totalItems}</span>}
-                    </Link>
-                </Button>
-            </div>
-
-            {/* Category tabs */}
-            <div className="flex gap-2 mb-6 flex-wrap">
-                {["All", "Equipment", "Supplements", "Apparel"].map((cat) => (
-                    <button key={cat} className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${cat === "All" ? "bg-[#5d8b63] text-white" : "bg-white text-muted-foreground hover:bg-neutral-100 border border-border/60"}`}>
-                        {cat}
-                    </button>
-                ))}
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-                {products.map((product) => (
-                    <div key={product.id} className="bg-white rounded-3xl overflow-hidden border border-border/50 shadow-sm hover:shadow-md transition-shadow flex flex-col">
-                        <div className="relative h-40 w-full bg-neutral-100">
-                            <Image src={product.image} alt={product.name} fill className="object-cover" />
-                            {product.badge && (
-                                <Badge className="absolute top-3 left-3 bg-[#5d8b63] text-white text-xs border-0">{product.badge}</Badge>
-                            )}
-                        </div>
-                        <div className="p-4 flex flex-col flex-1">
-                            <p className="text-xs text-muted-foreground mb-1">{product.category}</p>
-                            <h3 className="font-semibold text-foreground text-sm flex-1">{product.name}</h3>
-                            <p className="text-base font-bold text-foreground mt-2 mb-3">${product.price.toFixed(2)}</p>
-                            <Button
-                                size="sm"
-                                onClick={() => handleAddToCart(product)}
-                                className="rounded-full bg-[#5d8b63] hover:bg-[#4a724f] text-white text-xs w-full"
-                            >
-                                Add to Cart
-                            </Button>
-                        </div>
-                    </div>
-                ))}
-            </div>
+      <div className="flex flex-wrap gap-3">
+        <div className="relative flex-1 min-w-48">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input placeholder="Search products..." className="pl-9 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400" />
         </div>
-    );
+        <Button variant="outline" className="border-gray-200 text-gray-600 hover:bg-gray-100 gap-2">
+          <Filter className="h-4 w-4" /> Filter
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {products.map((product) => (
+          <div key={product.id} className="rounded-2xl bg-white border border-gray-200 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+            <div className="h-32 rounded-xl bg-gray-50 flex items-center justify-center">
+              <ShoppingCart className="h-10 w-10 text-gray-200" />
+            </div>
+            <div>
+              <Badge className="bg-primary/10 text-primary border-0 text-xs mb-1">{product.category}</Badge>
+              <h3 className="text-gray-800 font-semibold">{product.name}</h3>
+              <div className="flex items-center gap-1 mt-1">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                <span className="text-xs text-yellow-600">{product.rating}</span>
+                <span className="text-xs text-gray-400">({product.reviews} reviews)</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+              <div>
+                <span className="text-gray-800 font-bold">${product.price}</span>
+                {product.originalPrice && (
+                  <span className="text-gray-400 text-sm line-through ml-2">${product.originalPrice}</span>
+                )}
+              </div>
+              <Button
+                size="sm"
+                disabled={!product.inStock}
+                className="bg-primary hover:bg-primary/90 text-white gap-1 disabled:opacity-40"
+              >
+                <ShoppingCart className="h-3 w-3" />
+                {product.inStock ? "Add" : "Out of stock"}
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }

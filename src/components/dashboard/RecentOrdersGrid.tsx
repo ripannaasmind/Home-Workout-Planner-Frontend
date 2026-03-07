@@ -1,85 +1,89 @@
-"use client";
-
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useCart } from "@/context/CartContext";
+import { Package, ShoppingBag } from "lucide-react";
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 
-export function RecentOrdersGrid() {
-    const { addToCart } = useCart();
+interface Order {
+  id: string;
+  date: string;
+  product: string;
+  total: string;
+  status: "Delivered" | "Shipped" | "Processing" | "Cancelled";
+  iconBg: string;
+  icon: React.ElementType;
+  iconColor: string;
+}
 
-    const orders = [
-        {
-            id: "FH1834",
-            date: "Apr 25, 2024",
-            image: "/protien powder.jpg",
-            title: "Whey Protein Powder",
-            price: "$49.00",
-            status: "Shipped" as const,
-        },
-        {
-            id: "FH1817",
-            date: "Apr 20, 2024",
-            image: "/protien powder.jpg",
-            title: "Whey Protein Powder",
-            price: "$49.00",
-            status: null,
-        },
-    ];
+const defaultOrders: Order[] = [
+  {
+    id: "FH1834",
+    date: "Apr 25, 2024",
+    product: "Supplement Pack",
+    total: "$89.00",
+    status: "Shipped",
+    iconBg: "bg-amber-50",
+    icon: Package,
+    iconColor: "text-amber-600",
+  },
+  {
+    id: "FH1817",
+    date: "Apr 18, 2024",
+    product: "Whey Protein Powder",
+    total: "$49.00",
+    status: "Delivered",
+    iconBg: "bg-blue-50",
+    icon: ShoppingBag,
+    iconColor: "text-blue-600",
+  },
+];
 
-    const handleAddToCart = (order: typeof orders[number]) => {
-        addToCart({
-            id: order.id,
-            name: order.title,
-            price: parseFloat(order.price.replace("$", "")),
-            image: order.image,
-            category: "supplement",
-        });
-    };
+const statusStyle = {
+  Delivered: "bg-green-100 text-green-700 hover:bg-green-100",
+  Shipped: "bg-green-600 text-white hover:bg-green-600",
+  Processing: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
+  Cancelled: "bg-gray-100 text-gray-500 hover:bg-gray-100",
+};
 
-    return (
-        <div className="bg-[#f9fbf9] rounded-3xl p-6 border border-border/50 h-full">
-            <h3 className="text-lg font-semibold mb-4 text-foreground">Recent Orders</h3>
-            <div className="grid grid-cols-2 gap-4 items-stretch">
-                {orders.map((order) => (
-                    <div key={order.id} className="bg-white p-4 rounded-2xl shadow-sm border border-border/50 flex flex-col min-w-0">
-                        {/* Image + Info row */}
-                        <div className="flex flex-col items-start gap-3 mb-auto">
-                            <div className="w-14 h-14 bg-neutral-100 rounded-xl overflow-hidden relative flex-shrink-0">
-                                <Image src={order.image} alt={order.title} fill className="object-cover" />
-                            </div>
-                            <div className="flex flex-col justify-center min-h-[56px] w-full">
-                                <h4 className="font-semibold text-foreground text-sm leading-tight">{order.id}</h4>
-                                <p className="text-xs text-muted-foreground mt-0.5">{order.date}</p>
-                                <p className="text-sm font-bold text-foreground mt-1">{order.price}</p>
-                            </div>
-                        </div>
+interface RecentOrdersGridProps {
+  orders?: Order[];
+}
 
-                        {/* Action */}
-                        <div className="mt-4 pt-3 border-t border-border/40">
-                            {order.status ? (
-                                <Badge className="bg-[#5d8b63]/10 text-[#5d8b63] border-[#5d8b63]/20 hover:bg-[#5d8b63]/20 text-xs px-3 py-1 rounded-full">
-                                    {order.status}
-                                </Badge>
-                            ) : (
-                                <Button
-                                    size="sm"
-                                    className="bg-[#5d8b63] hover:bg-[#4a724f] text-white rounded-full h-8 px-4 text-xs font-medium"
-                                    onClick={() => handleAddToCart(order)}
-                                >
-                                    Add to Cart
-                                </Button>
-                            )}
-                        </div>
-                    </div>
-                ))}
+export function RecentOrdersGrid({ orders = defaultOrders }: RecentOrdersGridProps) {
+  return (
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+      <h3 className="text-base font-semibold text-gray-800 mb-4">Recent Orders</h3>
+      <div className="space-y-3">
+        {orders.map((order) => {
+          const Icon = order.icon;
+          return (
+            <div
+              key={order.id}
+              className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+            >
+              <div
+                className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${order.iconBg}`}
+              >
+                <Icon className={`h-6 w-6 ${order.iconColor}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-gray-800 truncate">{order.product}</p>
+                <p className="text-xs text-gray-500">{order.id} · {order.date}</p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-sm font-bold text-gray-800">{order.total}</p>
+                <Badge className={cn("border-0 text-xs mt-1", statusStyle[order.status])}>
+                  {order.status}
+                </Badge>
+              </div>
             </div>
-            <div className="mt-4 text-right">
-                <Link href="/dashboard/orders" className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1">
-                    View All Orders →
-                </Link>
-            </div>
-        </div>
-    );
+          );
+        })}
+      </div>
+      <div className="mt-3 text-right">
+        <Link href="/dashboard/orders" className="text-xs text-gray-500 hover:text-primary transition-colors">
+          View All
+        </Link>
+      </div>
+    </div>
+  );
 }

@@ -1,86 +1,188 @@
 "use client";
 
-import Image from "next/image";
+import { useState, useRef, useEffect } from "react";
+import { Camera, Loader2, CheckCircle2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { useAuth } from "@/context/AuthContext";
+import { userApi } from "@/services/api";
 
 export default function ProfilePage() {
-    const [form, setForm] = useState({
-        name: "Justin Carter",
-        email: "justin@example.com",
-        phone: "+1 (555) 000-0000",
-        bio: "Fitness enthusiast on a journey to build strength and endurance.",
-    });
+  const { user, token, updateUser } = useAuth();
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    };
+  const [name, setName] = useState(user?.name ?? "");
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar);
+  const [saving, setSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const handleSave = () => {
-        toast.success("Profile updated successfully!");
-    };
+  // Sync on initial load if auth was still loading when component first mounted
+  useEffect(() => {
+    if (user) {
+      if (!name) setName(user.name);
+      if (avatarPreview === undefined) setAvatarPreview(user.avatar);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?._id]);
 
-    return (
-        <div className="flex flex-col h-full bg-[#f4f7f4] rounded-3xl p-6">
-            <div className="mb-8">
-                <h1 className="text-3xl font-semibold text-foreground">Profile</h1>
-                <p className="text-muted-foreground mt-1">Manage your personal information.</p>
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Image must be smaller than 2 MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => setAvatarPreview(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSave = async () => {
+    if (!name.trim()) {
+      toast.error("Name cannot be empty");
+      return;
+    }
+    if (!user) return;
+    setSaving(true);
+
+    // Update locally immediately so the UI reflects changes right away
+    const updatedUser = { ...user, name: name.trim(), avatar: avatarPreview };
+    updateUser(updatedUser);
+    // Persist to localStorage directly as well (backup if the useEffect hasn't fired yet)
+    localStorage.setItem("fithome-user", JSON.stringify(updatedUser));
+
+    toast.success("Profile updated successfully");
+
+    // Best-effort sync with backend (non-blocking)
+    if (token) {
+      try {
+        const res = await userApi.updateProfile(
+          { name: name.trim(), avatar: avatarPreview },
+          token
+        );
+        // Merge any server-side fields back (e.g. updated avatar URL)
+        updateUser({ ...updatedUser, ...res.data });
+        localStorage.setItem("fithome-user", JSON.stringify({ ...updatedUser, ...res.data }));
+      } catch {
+        // Backend sync failed – local update already applied, no need to show error
+      }
+    }
+
+    setSaving(false);
+  };
+
+  const isDirty = name.trim() !== (user?.name ?? "") || avatarPreview !== user?.avatar;
+
+  return (
+    <div className="space-y-6 max-w-2xl">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
+        <p className="text-gray-400 text-sm mt-0.5">Manage your personal information</p>
+      </div>
+
+      {/* Profile photo */}
+      <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6">
+        <h3 className="text-gray-800 font-semibold mb-4">Profile Photo</h3>
+        <Separator className="bg-gray-100 mb-4" />
+        <div className="flex items-center gap-6">
+          <div className="relative shrink-0">
+            <Avatar className="h-24 w-24 ring-4 ring-primary/20">
+              <AvatarImage src={avatarPreview} />
+              <AvatarFallback className="bg-primary text-white text-2xl font-bold">
+                {name.charAt(0).toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-primary flex items-center justify-center shadow-md hover:bg-primary/90 transition-colors"
+            >
+              <Camera className="h-3.5 w-3.5 text-white" />
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              className="hidden"
+              onChange={handleAvatarChange}
+            />
+          </div>
+          <div>
+            <p className="text-gray-800 font-semibold">{name || user?.name}</p>
+            <p className="text-gray-500 text-sm">{user?.email}</p>
+            <div className="flex items-center gap-2 mt-2">
+              <Badge className="bg-primary/10 text-primary border-0 capitalize">
+                {user?.role ?? "user"}
+              </Badge>
+              {user?.isVerified && (
+                <span className="flex items-center gap-1 text-xs text-green-600">
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  Verified
+                </span>
+              )}
             </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Avatar card */}
-                <div className="bg-white rounded-3xl p-6 border border-border/50 shadow-sm flex flex-col items-center text-center gap-4">
-                    <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-primary/20">
-                        <Image src="/profile.jpg" alt="Profile" fill className="object-cover" />
-                    </div>
-                    <div>
-                        <h3 className="font-semibold text-foreground text-lg">{form.name}</h3>
-                        <p className="text-sm text-muted-foreground">{form.email}</p>
-                    </div>
-                    <Button variant="outline" size="sm" className="rounded-full text-xs">
-                        Change Photo
-                    </Button>
-                    <div className="w-full border-t border-border/40 pt-4 space-y-1.5 text-left">
-                        <p className="text-xs text-muted-foreground">Member since <span className="font-medium text-foreground">Jan 2024</span></p>
-                        <p className="text-xs text-muted-foreground">Workouts completed <span className="font-medium text-foreground">12</span></p>
-                        <p className="text-xs text-muted-foreground">Orders placed <span className="font-medium text-foreground">5</span></p>
-                    </div>
-                </div>
-
-                {/* Edit form */}
-                <div className="lg:col-span-2 bg-white rounded-3xl p-6 border border-border/50 shadow-sm">
-                    <h3 className="font-semibold text-foreground text-lg mb-6">Personal Information</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-1.5">
-                            <Label htmlFor="name" className="text-sm">Full Name</Label>
-                            <Input id="name" name="name" value={form.name} onChange={handleChange} className="rounded-xl" />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="email" className="text-sm">Email</Label>
-                            <Input id="email" name="email" type="email" value={form.email} onChange={handleChange} className="rounded-xl" />
-                        </div>
-                        <div className="space-y-1.5">
-                            <Label htmlFor="phone" className="text-sm">Phone</Label>
-                            <Input id="phone" name="phone" value={form.phone} onChange={handleChange} className="rounded-xl" />
-                        </div>
-                        <div className="space-y-1.5 sm:col-span-2">
-                            <Label htmlFor="bio" className="text-sm">Bio</Label>
-                            <Input id="bio" name="bio" value={form.bio} onChange={handleChange} className="rounded-xl" />
-                        </div>
-                    </div>
-                    <div className="mt-6 flex gap-3">
-                        <Button onClick={handleSave} className="rounded-full bg-[#5d8b63] hover:bg-[#4a724f] text-white px-6">
-                            Save Changes
-                        </Button>
-                        <Button variant="outline" className="rounded-full px-6">
-                            Cancel
-                        </Button>
-                    </div>
-                </div>
-            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="mt-3 border-gray-200 text-gray-600 hover:bg-gray-50"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Upload new photo
+            </Button>
+            <p className="text-xs text-gray-400 mt-1">PNG, JPG, WebP · max 2 MB</p>
+          </div>
         </div>
-    );
+      </section>
+
+      {/* Personal info */}
+      <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6">
+        <h3 className="text-gray-800 font-semibold mb-4">Personal Information</h3>
+        <Separator className="bg-gray-100 mb-4" />
+        <div className="space-y-4">
+          <div>
+            <Label className="text-gray-600 mb-1.5 block text-sm">Full Name</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Your full name"
+              className="bg-white border-gray-200 text-gray-800"
+            />
+          </div>
+          <div>
+            <Label className="text-gray-600 mb-1.5 block text-sm">Email Address</Label>
+            <Input
+              value={user?.email ?? ""}
+              readOnly
+              className="bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+            />
+            <p className="text-xs text-gray-400 mt-1">
+              Email address cannot be changed.{" "}
+              <a href="/dashboard/settings" className="text-primary hover:underline">
+                Manage in Settings
+              </a>
+            </p>
+          </div>
+          <div>
+            <Label className="text-gray-600 mb-1.5 block text-sm">Account Role</Label>
+            <Input
+              value={user?.role === "admin" ? "Administrator" : "Member"}
+              readOnly
+              className="bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed capitalize"
+            />
+          </div>
+          <Button
+            onClick={handleSave}
+            disabled={saving || !isDirty}
+            className="bg-primary hover:bg-primary/90 text-white"
+          >
+            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save Changes
+          </Button>
+        </div>
+      </section>
+    </div>
+  );
 }
