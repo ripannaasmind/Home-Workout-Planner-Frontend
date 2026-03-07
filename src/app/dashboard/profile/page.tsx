@@ -127,7 +127,7 @@ export default function ProfilePage() {
             <Button
               variant="outline"
               size="sm"
-              className="mt-3 border-gray-200 text-gray-600 hover:bg-gray-50"
+              className="mt-3 border-gray-200 text-gray-600 hover:bg-[#4caf50] hover:text-white gap-2"
               onClick={() => fileInputRef.current?.click()}
             >
               Upload new photo

@@ -79,7 +79,7 @@ export default function BillingPage() {
                   ))}
                 </ul>
                 <Button
-                  className={isCurrent ? "bg-gray-100 text-gray-500 hover:bg-gray-200" : "bg-primary hover:bg-primary/90 text-white"}
+                  className={isCurrent ? "bg-white text-gray-800 hover:bg-gray-200 border border-gray-300 cursor-pointer" : "bg-primary hover:bg-primary/90 text-white"}
                   disabled={isCurrent}
                 >
                   {isCurrent ? "Active Plan" : "Upgrade"}
