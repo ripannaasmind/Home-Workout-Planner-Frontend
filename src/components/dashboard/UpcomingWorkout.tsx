@@ -1,43 +1,52 @@
 "use client";
 
-import { useState } from "react";
-import { Calendar, Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Calendar, Clock, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { workoutsApi, Workout } from "@/services/api";
 
-const upcomingWorkouts = [
-  {
-    id: "1",
-    title: "HIIT Burn",
-    date: "Apr 25",
-    time: "9:00 AM",
-    duration: 40,
-    difficulty: "Intermediate" as const,
-    gradient: "from-gray-700 via-gray-600 to-gray-800",
-  },
-  {
-    id: "2",
-    title: "Strength Training",
-    date: "Apr 26",
-    time: "7:00 AM",
-    duration: 50,
-    difficulty: "Advanced" as const,
-    gradient: "from-green-800 via-green-700 to-green-900",
-  },
-  {
-    id: "3",
-    title: "Morning Yoga",
-    date: "Apr 27",
-    time: "6:30 AM",
-    duration: 30,
-    difficulty: "Beginner" as const,
-    gradient: "from-teal-700 via-teal-600 to-teal-800",
-  },
+const GRADIENTS = [
+  "from-gray-700 via-gray-600 to-gray-800",
+  "from-green-800 via-green-700 to-green-900",
+  "from-teal-700 via-teal-600 to-teal-800",
+  "from-blue-800 via-blue-700 to-blue-900",
+  "from-purple-800 via-purple-700 to-purple-900",
 ];
 
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}
+
 export function UpcomingWorkout() {
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [active, setActive] = useState(0);
-  const workout = upcomingWorkouts[active];
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    workoutsApi.getLibrary()
+      .then((res) => {
+        setWorkouts(res.data.slice(0, 5));
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center h-52">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!workouts.length) return null;
+
+  const workout = workouts[active];
+  const gradient = GRADIENTS[active % GRADIENTS.length];
+  const today = new Date();
+  const scheduledDate = new Date(today);
+  scheduledDate.setDate(today.getDate() + active);
 
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
@@ -45,7 +54,7 @@ export function UpcomingWorkout() {
 
       <div className="mx-5 rounded-xl overflow-hidden relative">
         <div
-          className={`h-52 w-full bg-gradient-to-br ${workout.gradient} flex items-end`}
+          className={`h-52 w-full bg-linear-to-br ${gradient} flex items-end`}
         >
           <div className="absolute inset-0 opacity-10">
             <div className="w-full h-full flex items-center justify-center">
@@ -55,16 +64,16 @@ export function UpcomingWorkout() {
 
           <div className="absolute top-3 right-3">
             <span className="bg-white/90 text-gray-800 text-xs font-semibold px-3 py-1.5 rounded-lg shadow">
-              {workout.date}
+              {formatDate(scheduledDate)}
             </span>
           </div>
 
-          <div className="w-full bg-gradient-to-t from-black/70 to-transparent px-4 pb-4 pt-8">
-            <p className="text-white font-bold text-lg">{workout.title}</p>
+          <div className="w-full bg-linear-to-t from-black/70 to-transparent px-4 pb-4 pt-8">
+            <p className="text-white font-bold text-lg">{workout.name}</p>
             <div className="flex items-center gap-3 mt-1">
               <span className="text-white/80 text-sm flex items-center gap-1">
                 <Calendar className="h-3.5 w-3.5" />
-                {workout.date} · {workout.time}
+                {workout.category}
               </span>
               <span className="text-white/80 text-sm flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
@@ -81,7 +90,7 @@ export function UpcomingWorkout() {
       </div>
 
       <div className="flex items-center justify-center gap-2 py-3">
-        {upcomingWorkouts.map((_, i) => (
+        {workouts.map((_, i) => (
           <button
             key={i}
             onClick={() => setActive(i)}

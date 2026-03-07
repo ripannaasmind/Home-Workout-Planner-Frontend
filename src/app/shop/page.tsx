@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { Card } from "@/components/ui/card";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useCart, Product } from "@/context/CartContext";
@@ -33,105 +34,6 @@ import {
   Loader2,
 } from "lucide-react";
 
-// Fallback products data
-const fallbackProducts: Product[] = [
-  {
-    id: "1",
-    name: "Adjustable Dumbbell Set",
-    price: 299.99,
-    image: "https://images.unsplash.com/photo-1638536532686-d610adfc8e5c?w=400&h=400&fit=crop",
-    category: "Dumbbells",
-    description: "Professional adjustable dumbbells 5-52.5 lbs",
-  },
-  {
-    id: "2",
-    name: "Premium Yoga Mat",
-    price: 49.99,
-    image: "https://images.unsplash.com/photo-1592432678016-e910b452f9a2?w=400&h=400&fit=crop",
-    category: "Yoga Mats",
-    description: "Extra thick eco-friendly yoga mat",
-  },
-  {
-    id: "3",
-    name: "Resistance Bands Set",
-    price: 29.99,
-    image: "https://images.unsplash.com/photo-1598289431512-b97b0917affc?w=400&h=400&fit=crop",
-    category: "Resistance Bands",
-    description: "5-piece resistance bands with handles",
-  },
-  {
-    id: "4",
-    name: "Protein Powder - Chocolate",
-    price: 54.99,
-    image: "https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400&h=400&fit=crop",
-    category: "Supplements",
-    description: "25g protein per serving, 2lb container",
-  },
-  {
-    id: "5",
-    name: "Cast Iron Kettlebell 20lb",
-    price: 44.99,
-    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=400&h=400&fit=crop",
-    category: "Dumbbells",
-    description: "Solid cast iron with vinyl coating",
-  },
-  {
-    id: "6",
-    name: "Foam Roller Pro",
-    price: 34.99,
-    image: "https://images.unsplash.com/photo-1600881333168-2ef49b341f30?w=400&h=400&fit=crop",
-    category: "Accessories",
-    description: "High density foam for muscle recovery",
-  },
-  {
-    id: "7",
-    name: "Cork Yoga Block Set",
-    price: 24.99,
-    image: "https://images.unsplash.com/photo-1599447421416-3414500d18a5?w=400&h=400&fit=crop",
-    category: "Yoga Mats",
-    description: "Set of 2 natural cork yoga blocks",
-  },
-  {
-    id: "8",
-    name: "Pre-Workout Energy",
-    price: 39.99,
-    image: "https://images.unsplash.com/photo-1579722820903-96078fb7d59d?w=400&h=400&fit=crop",
-    category: "Supplements",
-    description: "Maximum energy and focus formula",
-  },
-  {
-    id: "9",
-    name: "Pull-Up Resistance Bands",
-    price: 35.99,
-    image: "https://images.unsplash.com/photo-1616279969096-54b228f5f889?w=400&h=400&fit=crop",
-    category: "Resistance Bands",
-    description: "Heavy duty bands for pull-up assist",
-  },
-  {
-    id: "10",
-    name: "Hex Dumbbell Pair 25lb",
-    price: 79.99,
-    image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=400&fit=crop",
-    category: "Dumbbells",
-    description: "Rubber coated hex dumbbells",
-  },
-  {
-    id: "11",
-    name: "BCAA Recovery Powder",
-    price: 44.99,
-    image: "https://images.unsplash.com/photo-1579722821273-0f6c1c4e4e88?w=400&h=400&fit=crop",
-    category: "Supplements",
-    description: "Branch chain amino acids for recovery",
-  },
-  {
-    id: "12",
-    name: "Travel Yoga Mat",
-    price: 39.99,
-    image: "https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=400&h=400&fit=crop",
-    category: "Yoga Mats",
-    description: "Foldable lightweight travel mat",
-  },
-];
 
 const categories = ["All", "Dumbbells", "Yoga Mats", "Resistance Bands", "Supplements", "Accessories", "Equipment"];
 
@@ -139,7 +41,7 @@ const ITEMS_PER_PAGE = 8;
 
 export default function ShopPage() {
   const { addToCart, cart } = useCart();
-  const [allProducts, setAllProducts] = useState<Product[]>(fallbackProducts);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -227,7 +129,7 @@ export default function ShopPage() {
       <Header />
 
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary/10 via-accent/5 to-primary/10 py-8 sm:py-12 lg:py-16">
+      <section className="bg-linear-to-r from-primary/10 via-accent/5 to-primary/10 py-8 sm:py-12 lg:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -252,7 +154,7 @@ export default function ShopPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
             {/* Sidebar Filters - Desktop */}
-            <aside className="hidden lg:block w-64 flex-shrink-0">
+            <aside className="hidden lg:block w-64 shrink-0">
               <div className="sticky top-24 space-y-6">
                 {/* Categories */}
                 <div className="bg-card rounded-xl p-5 border border-border">
@@ -451,7 +353,7 @@ export default function ShopPage() {
                       {viewMode === "grid" ? (
                         <div className="rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow overflow-hidden">
                           {/* Product Image */}
-                          <div className="relative aspect-[4/3] bg-gray-50 overflow-hidden">
+                          <div className="relative aspect-4/3 bg-gray-50 overflow-hidden">
                             {product.image && product.image.startsWith("http") ? (
                               <Image
                                 src={product.image}
@@ -460,7 +362,7 @@ export default function ShopPage() {
                                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                               />
                             ) : (
-                              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20">
+                              <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/20">
                                 <Dumbbell className="w-12 h-12 text-primary/40" />
                               </div>
                             )}
@@ -521,7 +423,7 @@ export default function ShopPage() {
                                   className="object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30">
+                                <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
                                   <Dumbbell className="w-10 h-10 sm:w-12 sm:h-12 text-primary/60" />
                                 </div>
                               )}

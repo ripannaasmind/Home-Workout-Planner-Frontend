@@ -16,63 +16,7 @@ interface Testimonial {
   size: "small" | "medium" | "large";
 }
 
-// Fallback data in case API is unavailable
-const fallbackTestimonials: Testimonial[] = [
-  {
-    id: 1,
-    name: "Sarah Mitchell",
-    role: "Nutrition Coach",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
-    comment: "FitHome has completely transformed my fitness routine. The personalized workouts are amazing and the progress tracking keeps me accountable. I've lost 15 pounds in just 3 months!",
-    size: "large",
-  },
-  {
-    id: 2,
-    name: "Mark Andersen",
-    role: "Sales Manager",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
-    comment: "I love how easy it is to track my progress. The app keeps me motivated every day.",
-    size: "small",
-  },
-  {
-    id: 3,
-    name: "Laura Simmons",
-    role: "Registered Nurse",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-    comment: "Best fitness app I've ever used. The variety of workouts is incredible!",
-    size: "small",
-  },
-  {
-    id: 4,
-    name: "James Wilson",
-    role: "Software Engineer",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    comment: "As someone who works from home, staying active was a challenge. FitHome's quick workouts fit perfectly into my schedule. The AI recommendations are spot on!",
-    size: "medium",
-  },
-  {
-    id: 5,
-    name: "Emily Chen",
-    role: "Yoga Instructor",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face",
-    comment: "The workout plans are well-designed and effective. Highly recommend!",
-    size: "small",
-  },
-  {
-    id: 6,
-    name: "David Brown",
-    role: "Personal Trainer",
-    rating: 5,
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    comment: "I recommend FitHome to all my clients. The exercise library is comprehensive and the form videos are excellent. It's like having a virtual trainer in your pocket.",
-    size: "large",
-  },
-];
+
 
 function StarRating({ rating }: { rating: number }) {
   return (
@@ -90,7 +34,7 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export function Testimonials() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>(fallbackTestimonials);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -98,7 +42,12 @@ export function Testimonials() {
       try {
         const response = await testimonialsApi.getAll();
         if (response.success && response.data && response.data.length > 0) {
-          setTestimonials(response.data);
+          const sizes: Testimonial["size"][] = ["large", "small", "small", "medium", "small", "large"];
+          const mapped = response.data.map((t, i) => ({
+            ...t,
+            size: t.size || sizes[i % sizes.length],
+          }));
+          setTestimonials(mapped);
         }
       } catch (error) {
         console.error("Failed to fetch testimonials:", error);

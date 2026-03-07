@@ -11,6 +11,13 @@ export interface User {
   isVerified: boolean;
 }
 
+interface GoogleAuthPayload {
+  googleId: string;
+  email: string;
+  name: string;
+  avatar: string;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -18,7 +25,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-  googleLogin: (idToken: string) => Promise<void>;
+  googleLogin: (payload: GoogleAuthPayload) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -71,8 +78,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data.message || "Login failed");
     }
 
-    setToken(data.token);
-    setUser(data.user);
+    setToken(data.data.token);
+    setUser(data.data.user);
+    localStorage.setItem("fithome-refresh-token", data.data.refreshToken);
   };
 
   const register = async (name: string, email: string, password: string) => {
@@ -88,15 +96,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data.message || "Registration failed");
     }
 
-    setToken(data.token);
-    setUser(data.user);
+    setToken(data.data.token);
+    setUser(data.data.user);
+    localStorage.setItem("fithome-refresh-token", data.data.refreshToken);
   };
 
-  const googleLogin = async (idToken: string) => {
+  const googleLogin = async (payload: GoogleAuthPayload) => {
     const res = await fetch(`${API_URL}/auth/google`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ idToken }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
@@ -105,8 +114,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(data.message || "Google login failed");
     }
 
-    setToken(data.token);
-    setUser(data.user);
+    setToken(data.data.token);
+    setUser(data.data.user);
+    localStorage.setItem("fithome-refresh-token", data.data.refreshToken);
   };
 
   const logout = () => {

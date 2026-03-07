@@ -21,49 +21,30 @@ import {
   Star,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-
-// Related products for upselling
-const relatedProducts: Product[] = [
-  {
-    id: "rel-1",
-    name: "Workout Gloves",
-    price: 24.99,
-    image: "/products/gloves.jpg",
-    category: "Accessories",
-    description: "Padded workout gloves",
-  },
-  {
-    id: "rel-2",
-    name: "Shaker Bottle",
-    price: 14.99,
-    image: "/products/shaker.jpg",
-    category: "Accessories",
-    description: "BPA-free protein shaker",
-  },
-  {
-    id: "rel-3",
-    name: "Gym Towel",
-    price: 19.99,
-    image: "/products/towel.jpg",
-    category: "Accessories",
-    description: "Quick-dry microfiber towel",
-  },
-  {
-    id: "rel-4",
-    name: "Jump Rope Pro",
-    price: 18.99,
-    image: "/products/jumprope.jpg",
-    category: "Accessories",
-    description: "Speed jump rope with counter",
-  },
-];
+import { useState, useEffect } from "react";
+import { productsApi } from "@/services/api";
 
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, addToCart } = useCart();
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoDiscount, setPromoDiscount] = useState(0);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    productsApi.getAll({ limit: 4 }).then((res) => {
+      setRelatedProducts(
+        res.data.map((p) => ({
+          id: p._id || p.id || "",
+          name: p.name,
+          price: p.price,
+          image: p.image,
+          category: p.category,
+          description: p.description || "",
+        }))
+      );
+    }).catch(() => {});
+  }, []);
 
   const shippingCost = totalPrice >= 100 ? 0 : 9.99;
   const tax = (totalPrice - promoDiscount) * 0.08;
@@ -137,7 +118,7 @@ export default function CartPage() {
                                 {item.image && item.image.startsWith("http") ? (
                                   <Image src={item.image} alt={item.name} fill className="object-cover" />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30">
+                                  <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
                                     <Dumbbell className="w-8 h-8 text-primary/60" />
                                   </div>
                                 )}
@@ -156,7 +137,7 @@ export default function CartPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-destructive hover:text-destructive flex-shrink-0"
+                                className="h-8 w-8 text-destructive hover:text-destructive shrink-0"
                                 onClick={() => removeFromCart(item.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -199,7 +180,7 @@ export default function CartPage() {
                                 {item.image && item.image.startsWith("http") ? (
                                   <Image src={item.image} alt={item.name} fill className="object-cover" />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/30">
+                                  <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
                                     <Dumbbell className="w-8 h-8 lg:w-10 lg:h-10 text-primary/60" />
                                   </div>
                                 )}
@@ -295,8 +276,8 @@ export default function CartPage() {
                           {product.image && product.image.startsWith("http") ? (
                             <Image src={product.image} alt={product.name} fill className="object-cover hover:scale-105 transition-transform duration-500" />
                           ) : (
-                            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/20">
-                              <Dumbbell className="w-10 h-10 text-primary/40" />
+                            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
+                              <Dumbbell className="w-8 h-8 sm:w-10 sm:h-10 text-primary/60" />
                             </div>
                           )}
                         </div>

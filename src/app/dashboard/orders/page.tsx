@@ -7,8 +7,8 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6">
       <DashboardHeader
-        title="My Orders"
-        description="Track your purchase history and order status"
+        title="My Workout Sessions"
+        description="View your workout session history and progress"
       />
       <RecentOrdersTable />
     </div>

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Apple, Play, Flame, Dumbbell, User, Zap } from "lucide-react";
+import Image from "next/image";
 
 export function Hero() {
   return (
@@ -45,7 +46,8 @@ export function Hero() {
             {/* App Store Ratings */}
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 justify-center lg:justify-start mt-4">
               <div className="flex items-center gap-2">
-                <Apple className="h-5 w-5 text-text-secondary" />
+                <Image src="/Images/App_Store_(iOS).svg.png" alt="Apple Store" width={35} height={35}/>
+                   <span className="text-sm text-text-secondary font-medium">App Store</span>
                 <div className="flex items-center gap-1">
                   <span className="font-semibold text-foreground">4.8</span>
                   <div className="flex">
@@ -61,11 +63,11 @@ export function Hero() {
                     ))}
                   </div>
                 </div>
-                <span className="text-xs text-text-muted">App Store</span>
+             
               </div>
               
               <div className="flex items-center gap-2">
-                <Play className="h-5 w-5 text-primary" fill="currentColor" />
+                  <Image src="/Images/google_play.png" alt="Apple Store" width={35} height={35}/>
                 <span className="text-sm text-text-secondary font-medium">Google Play</span>
                 <span className="text-xs text-text-muted">5M+ downloads</span>
               </div>

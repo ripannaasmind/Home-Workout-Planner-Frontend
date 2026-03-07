@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuth } from "@/context/AuthContext";
 import { userApi } from "@/services/api";
 import { useRouter } from "next/navigation";
+import { sanitize, validateName, validatePassword, validateConfirmPassword } from "@/lib/validation";
 
 const NOTIF_KEY = "fithome-notifications";
 const PRIVACY_KEY = "fithome-privacy";
@@ -85,14 +86,15 @@ export default function SettingsPage() {
 
   // Update profile (name)
   const handleSaveProfile = async () => {
-    if (!name.trim()) {
-      toast.error("Name cannot be empty");
+    const nameCheck = validateName(name);
+    if (!nameCheck.valid) {
+      toast.error(nameCheck.message);
       return;
     }
     if (!token) return;
     setSavingProfile(true);
     try {
-      const res = await userApi.updateProfile({ name: name.trim() }, token);
+      const res = await userApi.updateProfile({ name: sanitize(name) }, token);
       updateUser(res.data);
       toast.success("Profile updated successfully");
     } catch (err) {
@@ -104,16 +106,18 @@ export default function SettingsPage() {
 
   // Change password
   const handleChangePassword = async () => {
-    if (!currentPassword || !newPassword || !confirmPassword) {
-      toast.error("Please fill in all password fields");
+    const passCheck = validatePassword(newPassword);
+    if (!currentPassword) {
+      toast.error("Please enter your current password");
       return;
     }
-    if (newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
+    if (!passCheck.valid) {
+      toast.error(passCheck.message);
       return;
     }
-    if (newPassword !== confirmPassword) {
-      toast.error("New passwords do not match");
+    const confirmCheck = validateConfirmPassword(newPassword, confirmPassword);
+    if (!confirmCheck.valid) {
+      toast.error(confirmCheck.message);
       return;
     }
     if (!token) return;

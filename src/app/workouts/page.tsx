@@ -10,19 +10,9 @@ import { CTA } from "@/components/home/CTA";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronRight, Dumbbell, Activity, Heart, Flame, Zap, Target, Loader2 } from "lucide-react";
+import { ChevronRight, Dumbbell, Activity, Loader2 } from "lucide-react";
 import { workoutsApi } from "@/services/api";
 
-// Icon mapping for workout types
-const getWorkoutIcon = (title: string) => {
-  const lower = title.toLowerCase();
-  if (lower.includes("strength") || lower.includes("body")) return Dumbbell;
-  if (lower.includes("yoga")) return Heart;
-  if (lower.includes("cardio") || lower.includes("hiit")) return Activity;
-  if (lower.includes("burn") || lower.includes("fire")) return Flame;
-  if (lower.includes("power") || lower.includes("energy")) return Zap;
-  return Target;
-};
 
 // Fallback images based on workout type
 const getFallbackImage = (title: string): string => {
@@ -54,77 +44,10 @@ interface WorkoutData {
   difficulty?: string;
   image?: string;
   color?: string;
+  category?: string;
 }
 
-const fallbackWorkouts: WorkoutData[] = [
-  {
-    id: 1,
-    title: "Full Body Strength",
-    duration: "30 min",
-    level: "Beginner",
-    image: "https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=400&h=300&fit=crop",
-    color: "from-blue-400 to-blue-600",
-  },
-  {
-    id: 2,
-    title: "Morning Yoga",
-    duration: "60 min",
-    level: "Beginner",
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
-    color: "from-purple-400 to-purple-600",
-  },
-  {
-    id: 3,
-    title: "Muscle Building",
-    duration: "45 min",
-    level: "Intermediate",
-    image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=300&fit=crop",
-    color: "from-orange-400 to-orange-600",
-  },
-  {
-    id: 4,
-    title: "HIIT Burn",
-    duration: "20 min",
-    level: "Advanced",
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop",
-    color: "from-red-400 to-red-600",
-  },
-];
 
-const fallbackPrograms: WorkoutData[] = [
-  {
-    id: 1,
-    title: "Weight Loss",
-    duration: "20 min",
-    level: "Intermediate",
-    image: "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&h=300&fit=crop",
-    color: "from-green-400 to-green-600",
-  },
-  {
-    id: 2,
-    title: "Strength Training",
-    duration: "60 min",
-    level: "Intermediate",
-    image: "https://images.unsplash.com/photo-1526506118085-60ce8714f8c5?w=400&h=300&fit=crop",
-    color: "from-blue-500 to-blue-700",
-  },
-  {
-    id: 3,
-    title: "Muscle Gain",
-    duration: "20 min",
-    level: "Advanced",
-    image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop",
-    color: "from-purple-400 to-purple-600",
-  },
-  {
-    id: 4,
-    title: "Legs & Glutes",
-    duration: "20 min",
-    level: "Advanced",
-    image: "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=400&h=300&fit=crop",
-    color: "from-pink-400 to-pink-600",
-  },
-];
 
 function getLevelColor(level: string) {
   const l = level?.toLowerCase();
@@ -141,10 +64,11 @@ function getLevelColor(level: string) {
 }
 
 export default function WorkoutsPage() {
-  const [workouts, setWorkouts] = useState<WorkoutData[]>(fallbackWorkouts);
-  const [popularPrograms, setPopularPrograms] = useState<WorkoutData[]>(fallbackPrograms);
+  const [workouts, setWorkouts] = useState<WorkoutData[]>([]);
+  const [popularPrograms, setPopularPrograms] = useState<WorkoutData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeLevel, setActiveLevel] = useState("All");
+  const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState("popularity");
 
   // Fetch workouts from API
@@ -164,12 +88,13 @@ export default function WorkoutsPage() {
           const mapped = response.data.map((w, i) => ({
             ...w,
             title: w.name,
-            level: w.difficulty || "Beginner",
+            level: w.difficulty,
             duration: typeof w.duration === "number" ? `${w.duration} min` : String(w.duration),
             color: colors[i % colors.length],
           }));
-          setWorkouts(mapped.slice(0, 4));
-          setPopularPrograms(mapped.slice(4, 8).length > 0 ? mapped.slice(4, 8) : fallbackPrograms);
+          setWorkouts(mapped);
+          // Popular programs: first 6 items shown in horizontal scroll
+          setPopularPrograms(mapped.slice(0, 6));
         }
       } catch (error) {
         console.error("Failed to fetch workouts:", error);
@@ -180,13 +105,24 @@ export default function WorkoutsPage() {
     fetchWorkouts();
   }, []);
 
+  // Dynamic filter options from actual data
+  const availableLevels = useMemo(() => {
+    const found = new Set(workouts.map((w) => (w.level || w.difficulty || "").toLowerCase()));
+    return ["All", ...levels.slice(1).filter((l) => found.has(l.toLowerCase()))];
+  }, [workouts]);
+
+  const availableCategories = useMemo(() => {
+    const cats = new Set(workouts.map((w) => w.category).filter(Boolean) as string[]);
+    return ["All", ...Array.from(cats).sort()];
+  }, [workouts]);
+
   const filteredWorkouts = useMemo(() => {
-    let filtered = activeLevel === "All" 
-      ? [...workouts] 
-      : workouts.filter(w => {
-          const level = (w.level || w.difficulty || "").toLowerCase();
-          return level === activeLevel.toLowerCase();
-        });
+    const filtered = workouts.filter((w) => {
+      const level = (w.level || w.difficulty || "").toLowerCase();
+      const matchLevel = activeLevel === "All" || level === activeLevel.toLowerCase();
+      const matchCat = activeCategory === "All" || w.category === activeCategory;
+      return matchLevel && matchCat;
+    });
 
     // Sort workouts
     switch (sortBy) {
@@ -208,14 +144,14 @@ export default function WorkoutsPage() {
     }
 
     return filtered;
-  }, [workouts, activeLevel, sortBy]);
+  }, [workouts, activeLevel, activeCategory, sortBy]);
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/5 py-10 sm:py-14 lg:py-16">
+        <section className="relative overflow-hidden bg-linear-to-br from-background via-background to-primary/5 py-10 sm:py-14 lg:py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
               {/* Left Content */}
@@ -257,41 +193,62 @@ export default function WorkoutsPage() {
         {/* Filters Section */}
         <section className="py-6 sm:py-8 bg-background border-b border-border">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-              {/* Level Tabs */}
-              <div className="flex flex-wrap gap-2">
-                {levels.map((level) => (
-                  <Button
-                    key={level}
-                    variant={activeLevel === level ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setActiveLevel(level)}
-                    className={`text-xs sm:text-sm px-3 sm:px-4 h-9 sm:h-10 ${
-                      activeLevel === level 
-                        ? "bg-primary hover:bg-primary-dark text-white" 
-                        : "hover:bg-primary/10"
-                    }`}
-                  >
-                    {level}
-                  </Button>
-                ))}
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap gap-3 items-center justify-between">
+                {/* Difficulty Tabs - dynamic from data */}
+                <div className="flex flex-wrap gap-2">
+                  {availableLevels.map((level) => (
+                    <Button
+                      key={level}
+                      variant={activeLevel === level ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setActiveLevel(level)}
+                      className={`text-xs sm:text-sm px-3 sm:px-4 h-9 sm:h-10 ${
+                        activeLevel === level
+                          ? "bg-primary hover:bg-primary-dark text-white"
+                          : "hover:bg-primary/10"
+                      }`}
+                    >
+                      {level}
+                    </Button>
+                  ))}
+                </div>
+
+                {/* Sort Dropdown */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs sm:text-sm text-text-muted whitespace-nowrap">Sort by:</span>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="w-35 sm:w-40 h-9 sm:h-10 text-xs sm:text-sm">
+                      <SelectValue placeholder="Sort by" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="popularity">Popularity</SelectItem>
+                      <SelectItem value="newest">Newest</SelectItem>
+                      <SelectItem value="duration">Duration</SelectItem>
+                      <SelectItem value="name">Name</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              {/* Sort Dropdown */}
-              <div className="flex items-center gap-2">
-                <span className="text-xs sm:text-sm text-text-muted whitespace-nowrap">Sort by:</span>
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[140px] sm:w-[160px] h-9 sm:h-10 text-xs sm:text-sm">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="popularity">Popularity</SelectItem>
-                    <SelectItem value="newest">Newest</SelectItem>
-                    <SelectItem value="duration">Duration</SelectItem>
-                    <SelectItem value="name">Name</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Category Tabs - dynamic from data */}
+              {availableCategories.length > 2 && (
+                <div className="flex flex-wrap gap-2">
+                  {availableCategories.map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setActiveCategory(cat)}
+                      className={`px-3 py-1 rounded-full text-xs font-medium transition-all border ${
+                        activeCategory === cat
+                          ? "bg-primary/10 text-primary border-primary/30"
+                          : "bg-transparent text-gray-500 border-gray-200 hover:border-gray-400"
+                      }`}
+                    >
+                      {cat === "All" ? "All Categories" : cat}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -316,7 +273,7 @@ export default function WorkoutsPage() {
                   className="bg-white rounded-xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group"
                 >
                   {/* Image */}
-                  <div className={`aspect-[4/3] bg-gradient-to-br ${workout.color} flex items-center justify-center relative overflow-hidden`}>
+                  <div className={`aspect-4/3 bg-linear-to-br ${workout.color} flex items-center justify-center relative overflow-hidden`}>
                     <Image
                       src={workout.image && workout.image.startsWith("http") ? workout.image : getFallbackImage(workout.title || workout.name || "")}
                       alt={workout.title || workout.name || "Workout"}
@@ -377,10 +334,10 @@ export default function WorkoutsPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="flex-shrink-0 w-[200px] sm:w-[220px] lg:w-[260px] bg-white rounded-xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group"
+                  className="shrink-0 w-50 sm:w-55 lg:w-65 bg-white rounded-xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group"
                 >
                   {/* Image */}
-                  <div className={`aspect-[4/3] bg-gradient-to-br ${program.color} flex items-center justify-center relative overflow-hidden`}>
+                  <div className={`aspect-4/3 bg-linear-to-br ${program.color} flex items-center justify-center relative overflow-hidden`}>
                     <Image
                       src={program.image && program.image.startsWith("http") ? program.image : getFallbackImage(program.title || program.name || "")}
                       alt={program.title || program.name || "Program"}

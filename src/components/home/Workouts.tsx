@@ -6,30 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, Dumbbell, Flame, Zap, Heart, Activity, Target, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { workoutsApi } from "@/services/api";
 
-// Icon mapping for workout types
-const workoutIcons: Record<string, React.ElementType> = {
-  strength: Dumbbell,
-  yoga: Heart,
-  cardio: Activity,
-  upper: Dumbbell,
-  core: Flame,
-  hiit: Zap,
-  default: Target,
-};
-
-const getWorkoutIcon = (title: string) => {
-  const lower = title.toLowerCase();
-  if (lower.includes("strength") || lower.includes("body")) return workoutIcons.strength;
-  if (lower.includes("yoga")) return workoutIcons.yoga;
-  if (lower.includes("cardio") || lower.includes("run")) return workoutIcons.cardio;
-  if (lower.includes("upper")) return workoutIcons.upper;
-  if (lower.includes("core") || lower.includes("abs")) return workoutIcons.core;
-  if (lower.includes("hiit") || lower.includes("interval")) return workoutIcons.hiit;
-  return workoutIcons.default;
-};
 
 // Fallback images based on workout type
 const getFallbackImage = (title: string): string => {
@@ -61,59 +40,10 @@ interface Workout {
   color?: string;
 }
 
-const fallbackWorkouts: Workout[] = [
-  {
-    id: 1,
-    title: "Full Body Strength",
-    duration: "30 min",
-    level: "Beginner",
-    image: "https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=400&h=300&fit=crop",
-    color: "from-blue-400 to-blue-600",
-  },
-  {
-    id: 2,
-    title: "Morning Yoga",
-    duration: "60 min",
-    level: "Advanced",
-    image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop",
-    color: "from-purple-400 to-purple-600",
-  },
-  {
-    id: 3,
-    title: "Cardio",
-    duration: "30 min",
-    level: "Beginner",
-    image: "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=400&h=300&fit=crop",
-    color: "from-orange-400 to-orange-600",
-  },
-  {
-    id: 4,
-    title: "Upper Body",
-    duration: "45 min",
-    level: "Intermediate",
-    image: "https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&h=300&fit=crop",
-    color: "from-green-400 to-green-600",
-  },
-  {
-    id: 5,
-    title: "Core Workout",
-    duration: "25 min",
-    level: "Beginner",
-    image: "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=400&h=300&fit=crop",
-    color: "from-red-400 to-red-600",
-  },
-  {
-    id: 6,
-    title: "HIIT Training",
-    duration: "40 min",
-    level: "Advanced",
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop",
-    color: "from-yellow-400 to-yellow-600",
-  },
-];
+
 
 export function Workouts() {
-  const [workouts, setWorkouts] = useState<Workout[]>(fallbackWorkouts);
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsToShow, setItemsToShow] = useState(4);
@@ -261,12 +191,12 @@ export function Workouts() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                  className="flex-shrink-0"
+                  className="shrink-0"
                   style={{ width: `calc(${100 / itemsToShow}% - ${(itemsToShow - 1) * 16 / itemsToShow}px)` }}
                 >
                   <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group">
                     {/* Image */}
-                    <div className={`aspect-[4/3] bg-gradient-to-br ${workout.color} flex items-center justify-center relative overflow-hidden`}>
+                    <div className={`aspect-4/3 bg-linear-to-br ${workout.color} flex items-center justify-center relative overflow-hidden`}>
                       <Image
                         src={workout.image && workout.image.startsWith("http") ? workout.image : getFallbackImage(workout.title || workout.name || "")}
                         alt={workout.title || workout.name || "Workout"}

@@ -2,15 +2,16 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
-import { Dumbbell, Menu, Search, ShoppingCart, X, Bell } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dumbbell, Menu, Search, ShoppingCart, X, LayoutDashboard, LogOut } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -26,8 +27,19 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const { totalItems } = useCart();
-  const { user } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
+  const getInitials = (name?: string) => {
+    if (!name) return "U";
+    return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  };
 
   // Focus search input when opened
   useEffect(() => {
@@ -139,27 +151,50 @@ export function Header() {
             </Button>
           </Link>
 
-          {user ? (
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" className="h-9 w-9 relative">
-                <Bell className="h-4 w-4" />
-                <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-primary text-white border-0">3</Badge>
-              </Button>
-              <Link href="/dashboard/profile">
-                <Avatar className="h-8 w-8 cursor-pointer ring-2 ring-gray-200 hover:ring-primary transition-all">
-                  <AvatarImage src={user?.avatar} />
-                  <AvatarFallback className="bg-primary text-white text-xs">
-                    {user?.name?.charAt(0)?.toUpperCase() ?? "U"}
-                  </AvatarFallback>
-                </Avatar>
-              </Link>
-            </div>
-          ) : (
+          {!isAuthenticated && (
             <Link href="/login">
               <Button className="bg-primary hover:bg-primary-dark text-white font-medium px-4 lg:px-5 text-sm">
                 Get Started
               </Button>
             </Link>
+          )}
+
+          {/* User Avatar - shown when logged in */}
+          {isAuthenticated && user && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="rounded-full focus:outline-none focus:ring-2 focus:ring-primary/50">
+                  <Avatar size="default">
+                    {user.avatar ? (
+                      <AvatarImage src={user.avatar} alt={user.name} />
+                    ) : null}
+                    <AvatarFallback className="bg-primary text-white text-xs font-semibold">
+                      {getInitials(user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-56 p-2">
+                <div className="px-3 py-2 border-b border-border mb-1">
+                  <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                </div>
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 px-3 py-2 text-sm text-foreground rounded-md hover:bg-muted transition-colors"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Dashboard
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 rounded-md hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </PopoverContent>
+            </Popover>
           )}
         </div>
 
@@ -194,7 +229,7 @@ export function Header() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+            <SheetContent side="right" className="w-70 sm:w-[320px]">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex flex-col gap-6 mt-6">
                 {/* Mobile Logo */}
@@ -227,12 +262,37 @@ export function Header() {
 
                 {/* Mobile CTA */}
                 <div className="flex flex-col gap-3 mt-4">
-                  {user ? (
-                    <Link href="/dashboard">
-                      <Button className="w-full bg-primary hover:bg-primary-dark text-white h-11">
-                        Go to Dashboard
+                  {isAuthenticated && user ? (
+                    <>
+                      <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted">
+                        <Avatar size="sm">
+                          {user.avatar ? (
+                            <AvatarImage src={user.avatar} alt={user.name} />
+                          ) : null}
+                          <AvatarFallback className="bg-primary text-white text-xs font-semibold">
+                            {getInitials(user.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate">{user.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                      </div>
+                      <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                        <Button variant="outline" className="w-full h-11 gap-2">
+                          <LayoutDashboard className="h-4 w-4" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                      <Button
+                        onClick={() => { handleLogout(); setIsOpen(false); }}
+                        variant="outline"
+                        className="w-full h-11 gap-2 text-red-600 border-red-200 hover:bg-red-50"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
                       </Button>
-                    </Link>
+                    </>
                   ) : (
                     <>
                       <Link href="/login">
