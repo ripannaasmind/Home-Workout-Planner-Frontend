@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -72,6 +72,11 @@ export default function WorkoutsPage() {
   const [activeLevel, setActiveLevel] = useState("All");
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState("popularity");
+
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
 
   
   useEffect(() => {
@@ -327,7 +332,25 @@ export default function WorkoutsPage() {
             </div>
 
             {}
-            <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin">
+            <div
+              ref={sliderRef}
+              className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin cursor-grab active:cursor-grabbing select-none"
+              onMouseDown={(e) => {
+                if (!sliderRef.current) return;
+                isDragging.current = true;
+                startX.current = e.pageX - sliderRef.current.offsetLeft;
+                scrollLeft.current = sliderRef.current.scrollLeft;
+              }}
+              onMouseMove={(e) => {
+                if (!isDragging.current || !sliderRef.current) return;
+                e.preventDefault();
+                const x = e.pageX - sliderRef.current.offsetLeft;
+                const walk = (x - startX.current) * 1.5;
+                sliderRef.current.scrollLeft = scrollLeft.current - walk;
+              }}
+              onMouseUp={() => { isDragging.current = false; }}
+              onMouseLeave={() => { isDragging.current = false; }}
+            >
               {popularPrograms.map((program, index) => {
                 return (
                 <motion.div

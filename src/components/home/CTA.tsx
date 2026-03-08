@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Apple, Play } from "lucide-react";
+import Image from "next/image";
 
 interface CTAProps {
   title?: string;
@@ -33,7 +33,7 @@ export function CTA({
               size="lg"
               className="bg-gray-900 hover:bg-gray-800 text-white h-12 sm:h-14 px-6 sm:px-8 rounded-xl gap-3 text-sm sm:text-base"
             >
-              <Apple className="h-5 w-5 sm:h-6 sm:w-6" />
+              <Image src="/Images/App_Store_(iOS).svg.png" alt="App Store" width={28} height={28} className="rounded-md" />
               <div className="text-left">
                 <div className="text-[10px] sm:text-xs opacity-80">Download on the</div>
                 <div className="font-semibold text-sm sm:text-base -mt-0.5">App Store</div>
@@ -44,7 +44,7 @@ export function CTA({
               size="lg"
               className="bg-gray-900 hover:bg-gray-800 text-white h-12 sm:h-14 px-6 sm:px-8 rounded-xl gap-3 text-sm sm:text-base"
             >
-              <Play className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
+              <Image src="/Images/google_play.png" alt="Google Play" width={28} height={28} className="rounded-md" />
               <div className="text-left">
                 <div className="text-[10px] sm:text-xs opacity-80">Get it on</div>
                 <div className="font-semibold text-sm sm:text-base -mt-0.5">Google Play</div>

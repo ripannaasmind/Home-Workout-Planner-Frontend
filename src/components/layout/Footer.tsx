@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Dumbbell, Facebook, Instagram, Twitter, Apple, Play } from "lucide-react";
+import Image from "next/image";
+import { Dumbbell, Facebook, Instagram, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -152,7 +153,7 @@ export function Footer() {
               size="lg"
               className="bg-gray-900 hover:bg-gray-800 text-white border-gray-900 h-12 sm:h-14 px-4 sm:px-6 rounded-xl gap-2 sm:gap-3"
             >
-              <Apple className="h-5 w-5 sm:h-6 sm:w-6" />
+              <Image src="/Images/App_Store_(iOS).svg.png" alt="App Store" width={28} height={28} className="rounded-md" />
               <div className="text-left">
                 <div className="text-[9px] sm:text-[10px] opacity-80">Download on the</div>
                 <div className="font-semibold text-sm sm:text-base -mt-0.5">App Store</div>
@@ -164,7 +165,7 @@ export function Footer() {
               size="lg"
               className="bg-white hover:bg-gray-50 text-gray-900 border-gray-300 h-12 sm:h-14 px-4 sm:px-6 rounded-xl gap-2 sm:gap-3"
             >
-              <Play className="h-5 w-5 sm:h-6 sm:w-6 fill-current text-primary" />
+              <Image src="/Images/google_play.png" alt="Google Play" width={28} height={28} className="rounded-md" />
               <div className="text-left">
                 <div className="text-[9px] sm:text-[10px] opacity-60">GET IT ON</div>
                 <div className="font-semibold text-sm sm:text-base -mt-0.5">Google Play</div>
