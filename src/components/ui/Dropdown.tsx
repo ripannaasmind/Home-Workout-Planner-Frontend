@@ -36,7 +36,7 @@ function Dropdown({ options, value, onChange, placeholder = "Select...", classNa
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-4 py-2.5 bg-white border border-border rounded-xl text-sm text-text-primary hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
+        className="flex items-center justify-between w-full px-4 py-2.5 bg-white dark:bg-card border border-border rounded-xl text-sm text-text-primary hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
       >
         <span className={selected ? "text-text-primary" : "text-text-muted"}>
           {selected?.label || placeholder}
@@ -44,7 +44,7 @@ function Dropdown({ options, value, onChange, placeholder = "Select...", classNa
         <ChevronDown className={cn("w-4 h-4 text-text-muted transition-transform", open && "rotate-180")} />
       </button>
       {open && (
-        <div className="absolute z-50 mt-1 w-full bg-white border border-border rounded-xl shadow-lg py-1 animate-scale-in max-h-60 overflow-auto">
+        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-card border border-border rounded-xl shadow-lg py-1 animate-scale-in max-h-60 overflow-auto">
           {options.map((opt) => (
             <button
               key={opt.value}

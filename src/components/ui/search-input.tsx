@@ -36,7 +36,7 @@ function SearchInput({ onSearch, onChange, className, placeholder = "Search...",
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="w-full pl-10 pr-9 py-2.5 bg-white border border-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
+        className="w-full pl-10 pr-9 py-2.5 bg-white dark:bg-card border border-border rounded-xl text-sm text-text-primary placeholder-text-muted focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 transition-all"
         {...props}
       />
       {value && (

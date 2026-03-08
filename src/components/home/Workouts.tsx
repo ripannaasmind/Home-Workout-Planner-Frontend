@@ -160,7 +160,7 @@ export function Workouts() {
             size="icon"
             onClick={goToPrevious}
             disabled={currentIndex === 0}
-            className="hidden sm:flex absolute -left-4 lg:-left-6 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white shadow-lg border-border hover:bg-primary hover:text-white hover:border-primary disabled:opacity-50"
+            className="hidden sm:flex absolute -left-4 lg:-left-6 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white dark:bg-card shadow-lg border-border hover:bg-primary hover:text-white hover:border-primary disabled:opacity-50"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -170,7 +170,7 @@ export function Workouts() {
             size="icon"
             onClick={goToNext}
             disabled={currentIndex >= maxIndex}
-            className="hidden sm:flex absolute -right-4 lg:-right-6 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white shadow-lg border-border hover:bg-primary hover:text-white hover:border-primary disabled:opacity-50"
+            className="hidden sm:flex absolute -right-4 lg:-right-6 top-1/2 -translate-y-1/2 z-10 h-10 w-10 rounded-full bg-white dark:bg-card shadow-lg border-border hover:bg-primary hover:text-white hover:border-primary disabled:opacity-50"
           >
             <ChevronRight className="h-5 w-5" />
           </Button>
@@ -194,7 +194,7 @@ export function Workouts() {
                   className="shrink-0"
                   style={{ width: `calc(${100 / itemsToShow}% - ${(itemsToShow - 1) * 16 / itemsToShow}px)` }}
                 >
-                  <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group">
+                  <div className="bg-white dark:bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group">
                     {}
                     <div className={`aspect-4/3 bg-linear-to-br ${workout.color} flex items-center justify-center relative overflow-hidden`}>
                       <Image

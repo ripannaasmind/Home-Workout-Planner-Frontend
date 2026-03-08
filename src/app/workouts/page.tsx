@@ -277,7 +277,7 @@ export default function WorkoutsPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="bg-white rounded-xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group"
+                  className="bg-white dark:bg-card rounded-xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group"
                 >
                   {}
                   <div className={`aspect-4/3 bg-linear-to-br ${workout.color} flex items-center justify-center relative overflow-hidden`}>
@@ -359,7 +359,7 @@ export default function WorkoutsPage() {
                   whileInView={{ opacity: 1, x: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.3, delay: index * 0.1 }}
-                  className="shrink-0 w-50 sm:w-55 lg:w-65 bg-white rounded-xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group"
+                  className="shrink-0 w-50 sm:w-55 lg:w-65 bg-white dark:bg-card rounded-xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group"
                 >
                   {}
                   <div className={`aspect-4/3 bg-linear-to-br ${program.color} flex items-center justify-center relative overflow-hidden`}>

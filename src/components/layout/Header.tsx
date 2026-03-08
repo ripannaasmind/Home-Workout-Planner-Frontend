@@ -130,14 +130,14 @@ export function Header() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-40 lg:w-56 h-9 text-sm"
               />
-              <Button type="submit" size="sm" className="h-9 bg-primary hover:bg-primary-dark">
+              <Button type="submit" size="sm" className="h-9 bg-primary hover:bg-primary/20 border-primary/50">
                 Search
               </Button>
               <Button
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9"
+                className="h-9 w-9 hover:text-primary"
                 onClick={() => setIsSearchOpen(false)}
               >
                 <X className="h-4 w-4" />
@@ -147,7 +147,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9"
+              className="h-9 w-9 hover:bg-primary border-primary/50 "
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-4 w-4" />
@@ -236,7 +236,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="h-9 w-9"
+            className="h-9 w-9 hover:text-primary"
             onClick={() => setIsSearchOpen(!isSearchOpen)}
           >
             <Search className="h-4 w-4" />

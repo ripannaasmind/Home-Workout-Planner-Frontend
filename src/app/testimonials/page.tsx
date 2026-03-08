@@ -203,7 +203,7 @@ export default function TestimonialsPage() {
 
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
-    <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 border border-border shadow-sm hover:shadow-md transition-all duration-300">
+    <div className="bg-white dark:bg-card rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 border border-border shadow-sm hover:shadow-md transition-all duration-300">
       {}
       <div className="flex items-center gap-3 mb-3 sm:mb-4">
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">

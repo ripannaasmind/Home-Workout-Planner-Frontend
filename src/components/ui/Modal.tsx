@@ -43,7 +43,7 @@ function Modal({ open, onClose, title, children, className, size = "md" }: Modal
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
-      <div className={cn("relative bg-white rounded-2xl shadow-xl border border-border w-full mx-4 animate-scale-in", sizes[size], className)}>
+      <div className={cn("relative bg-white dark:bg-card rounded-2xl shadow-xl border border-border w-full mx-4 animate-scale-in", sizes[size], className)}>
         {title && (
           <div className="flex items-center justify-between p-6 border-b border-border">
             <h2 className="text-lg font-semibold text-text-primary">{title}</h2>
