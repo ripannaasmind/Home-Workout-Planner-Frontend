@@ -169,7 +169,7 @@ export default function AdminUsersPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0 rounded-lg text-gray-500 hover:bg-primary hover:text-white transition-colors"
+                          className="h-8 w-8 p-0 rounded-lg border border-gray-200 text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-colors"
                           onClick={() => handleEdit(u)}
                         >
                           <Edit2 className="h-4 w-4" />
@@ -177,7 +177,7 @@ export default function AdminUsersPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className={`h-8 w-8 p-0 rounded-lg transition-colors ${u.isBanned ? "text-green-600 hover:bg-green-500 hover:text-white" : "text-yellow-600 hover:bg-yellow-500 hover:text-white"}`}
+                          className={`h-8 w-8 p-0 rounded-lg border transition-colors ${u.isBanned ? "border-green-200 text-green-600 hover:bg-green-500 hover:text-white hover:border-green-500" : "border-yellow-200 text-yellow-600 hover:bg-yellow-500 hover:text-white hover:border-yellow-500"}`}
                           onClick={() => handleBan(u)}
                         >
                           {u.isBanned ? <ShieldCheck className="h-4 w-4" /> : <ShieldOff className="h-4 w-4" />}
@@ -185,7 +185,7 @@ export default function AdminUsersPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                          className="h-8 w-8 p-0 rounded-lg border border-gray-200 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors"
                           onClick={() => setDeleteTarget(u)}
                         >
                           <Trash2 className="h-4 w-4" />

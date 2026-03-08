@@ -41,13 +41,17 @@ function AdminSidebar() {
             key={href}
             href={href}
             className={cn(
-              "flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all",
+              "relative flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group overflow-hidden",
               isActive(href, exact)
                 ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                : "text-gray-600 hover:bg-primary/10 hover:text-primary hover:translate-x-1"
             )}
           >
-            <Icon className="h-4 w-4 shrink-0" />
+            <span className={cn(
+              "absolute left-0 top-0 w-[3px] rounded-r-full transition-all duration-300",
+              isActive(href, exact) ? "h-full bg-white/50" : "h-0 group-hover:h-full bg-primary"
+            )} />
+            <Icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
             {label}
           </Link>
         ))}
@@ -55,9 +59,10 @@ function AdminSidebar() {
       <div className="px-3 mt-2 border-t border-gray-100 pt-2 space-y-0.5">
         <button
           onClick={logout}
-          className="flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all"
+          className="relative flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-500 hover:translate-x-1 transition-all duration-200 group overflow-hidden"
         >
-          <LogOut className="h-4 w-4 shrink-0" />
+          <span className="absolute left-0 top-0 w-[3px] rounded-r-full h-0 group-hover:h-full bg-red-400 transition-all duration-300" />
+          <LogOut className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
           Log Out
         </button>
       </div>
