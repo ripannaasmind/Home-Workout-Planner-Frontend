@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, Globe, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,8 +10,10 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { userApi } from "@/services/api";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { sanitize, validateName, validatePassword, validateConfirmPassword } from "@/lib/validation";
 
 const NOTIF_KEY = "fithome-notifications";
@@ -31,6 +33,7 @@ function loadPref<T>(key: string, defaults: T): T {
 // ------- Settings Page Component -------
 export default function SettingsPage() {
   const { user, token, updateUser, logout } = useAuth();
+  const { language } = useTheme();
   const router = useRouter();
 
   
@@ -159,6 +162,24 @@ export default function SettingsPage() {
         <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
         <p className="text-gray-400 text-sm mt-0.5">Manage your account preferences and security</p>
       </div>
+
+      {/* Language Settings */}
+      <Link href="/dashboard/settings/language">
+        <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Globe className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-gray-800 font-semibold text-sm">Language</h3>
+                <p className="text-gray-500 text-xs mt-0.5">Change the display language of the site</p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors" />
+          </div>
+        </section>
+      </Link>
 
       {}
       <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6 space-y-4">

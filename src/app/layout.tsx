@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { CartProvider } from "@/context/CartContext";
@@ -30,12 +31,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        suppressHydrationWarning
       >
+        <Script src="/assets/lang-config.js" strategy="beforeInteractive" />
+        <Script src="/assets/translation.js" strategy="beforeInteractive" />
+        <Script src="//translate.google.com/translate_a/element.js?cb=TranslateInit" strategy="afterInteractive" />
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>
+              <div id="google_translate_element" style={{ display: "none" }} />
               {children}
               <Toaster position="top-right" richColors />
             </CartProvider>

@@ -13,7 +13,6 @@ import { Dumbbell, Menu, Search, ShoppingCart, X, LayoutDashboard, LogOut, Sun, 
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { ALL_CURRENCIES } from "@/context/ThemeContext";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -33,7 +32,7 @@ export function Header() {
   const router = useRouter();
   const { totalItems } = useCart();
   const { user, isAuthenticated, logout } = useAuth();
-  const { isDark, setTheme, currency, setCurrency } = useTheme();
+  const { isDark, setTheme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -154,18 +153,6 @@ export function Header() {
               <Search className="h-4 w-4" />
             </Button>
           )}
-
-          {/* Currency selector */}
-          <select
-            value={currency}
-            onChange={(e) => setCurrency(e.target.value)}
-            className="h-9 px-2 text-xs rounded-md border border-border bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30 cursor-pointer"
-            title="Select currency"
-          >
-            {ALL_CURRENCIES.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
 
           {/* Dark mode toggle */}
           <Button
@@ -308,20 +295,6 @@ export function Header() {
                     </Link>
                   ))}
                 </nav>
-
-                {/* Currency selector - mobile */}
-                <div className="px-1">
-                  <label className="text-xs font-medium text-muted-foreground mb-1 block">Currency</label>
-                  <select
-                    value={currency}
-                    onChange={(e) => setCurrency(e.target.value)}
-                    className="w-full h-9 px-2 text-sm rounded-md border border-border bg-background text-foreground focus:outline-none"
-                  >
-                    {ALL_CURRENCIES.map((c) => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
 
                 {}
                 <div className="flex flex-col gap-3 mt-4">

@@ -1,9 +1,23 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+
+// ------- Cookie helpers -------
+function getCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
+  return match ? decodeURIComponent(match[2]) : undefined;
+}
+
+function setCookieValue(name: string, value: string, days = 365) {
+  if (typeof document === "undefined") return;
+  const d = new Date();
+  d.setTime(d.getTime() + days * 86400000);
+  document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/`;
+}
 
 // ------- Currency Symbols -------
-const CURRENCY_SYMBOLS: Record<string, string> = {
+export const CURRENCY_SYMBOLS: Record<string, string> = {
   USD: "$", EUR: "€", GBP: "£", BDT: "৳", INR: "₹", JPY: "¥", CNY: "¥",
   AUD: "A$", CAD: "C$", CHF: "CHF", SAR: "﷼", AED: "د.إ", MYR: "RM",
   SGD: "S$", PKR: "₨", TRY: "₺", KRW: "₩", THB: "฿", PHP: "₱",
@@ -34,82 +48,49 @@ const EXCHANGE_RATES: Record<string, number> = {
   KES: 155, UGX: 3800, TZS: 2700, ETB: 57, XOF: 610, XAF: 610,
 };
 
-// ------- Language list -------
-export const LANGUAGES = [
-  { code: "en", name: "English" },
-  { code: "es", name: "Español" },
-  { code: "fr", name: "Français" },
-  { code: "de", name: "Deutsch" },
-  { code: "pt", name: "Português" },
-  { code: "it", name: "Italiano" },
-  { code: "nl", name: "Nederlands" },
-  { code: "ru", name: "Русский" },
-  { code: "ja", name: "日本語" },
-  { code: "ko", name: "한국어" },
-  { code: "zh", name: "中文" },
-  { code: "ar", name: "العربية" },
-  { code: "hi", name: "हिन्दी" },
-  { code: "bn", name: "বাংলা" },
-  { code: "ur", name: "اردو" },
-  { code: "tr", name: "Türkçe" },
-  { code: "pl", name: "Polski" },
-  { code: "uk", name: "Українська" },
-  { code: "th", name: "ไทย" },
-  { code: "vi", name: "Tiếng Việt" },
-  { code: "id", name: "Bahasa Indonesia" },
-  { code: "ms", name: "Bahasa Melayu" },
-  { code: "sv", name: "Svenska" },
-  { code: "da", name: "Dansk" },
-  { code: "no", name: "Norsk" },
-  { code: "fi", name: "Suomi" },
-  { code: "el", name: "Ελληνικά" },
-  { code: "cs", name: "Čeština" },
-  { code: "ro", name: "Română" },
-  { code: "hu", name: "Magyar" },
-  { code: "he", name: "עברית" },
-  { code: "fa", name: "فارسی" },
-  { code: "sw", name: "Kiswahili" },
-  { code: "tl", name: "Filipino" },
-  { code: "ta", name: "தமிழ்" },
-  { code: "te", name: "తెలుగు" },
-  { code: "ml", name: "മലയാളം" },
-  { code: "kn", name: "ಕನ್ನಡ" },
-  { code: "mr", name: "मराठी" },
-  { code: "gu", name: "ગુજરાતી" },
-  { code: "pa", name: "ਪੰਜਾਬੀ" },
-  { code: "ne", name: "नेपाली" },
-  { code: "si", name: "සිංහල" },
-  { code: "my", name: "မြန်မာ" },
-  { code: "km", name: "ខ្មែរ" },
-  { code: "lo", name: "ລາວ" },
-  { code: "ka", name: "ქართული" },
-  { code: "am", name: "አማርኛ" },
-  { code: "zu", name: "isiZulu" },
-  { code: "yo", name: "Yorùbá" },
-  { code: "ig", name: "Igbo" },
-  { code: "ha", name: "Hausa" },
-  { code: "af", name: "Afrikaans" },
+// Currencies that show no decimal places
+const NO_DECIMAL_CURRENCIES = [
+  "JPY", "KRW", "IDR", "NGN", "PKR", "BDT", "INR", "EGP",
+  "VND", "KHR", "LAK", "MMK", "UGX", "TZS", "LBP", "IQD",
+  "CLP", "COP", "ARS", "HUF", "ISK", "KZT", "XOF", "XAF",
 ];
 
-// ------- All currencies sorted -------
+// RTL languages
+const RTL_LANGUAGES = ["ar", "he", "ur", "fa", "ps"];
+
+// ------- All currencies sorted (for admin settings dropdown) -------
 export const ALL_CURRENCIES = Object.keys(CURRENCY_SYMBOLS).sort();
+
+// Google Translate cookie name
+const GOOGLE_TRANS_COOKIE = "googtrans";
+
+// Declare Google Translation config on window
+declare global {
+  interface Window {
+    __GOOGLE_TRANSLATION_CONFIG__?: {
+      languages: { title: string; name: string }[];
+      defaultLanguage: string;
+    };
+  }
+}
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 // ------- Types -------
 type Theme = "light" | "dark" | "system";
+type Direction = "ltr" | "rtl";
 
 interface ThemeContextType {
   theme: Theme;
   setTheme: (t: Theme) => void;
   isDark: boolean;
+  direction: Direction;
   currency: string;
-  setCurrency: (c: string) => void;
   currencySymbol: string;
-  formatPrice: (amount: number) => string;
+  formatPrice: (amountInUSD: number) => string;
   convertPrice: (amountInUSD: number) => number;
   language: string;
-  setLanguage: (l: string) => void;
+  setLanguage: (langCode: string) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -117,66 +98,76 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 // ------- Theme Provider Component -------
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("light");
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("theme") as Theme) || "light";
+    }
+    return "light";
+  });
   const [currency, setCurrencyState] = useState("USD");
-  const [language, setLanguageState] = useState("en");
-  const [isDark, setIsDark] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  // Resolve effective dark mode
-  const resolveIsDark = useCallback((t: Theme) => {
-    if (t === "dark") return true;
-    if (t === "light") return false;
+  const [language, setLanguageState] = useState(() => {
+    if (typeof document !== "undefined") {
+      const cookie = getCookie(GOOGLE_TRANS_COOKIE);
+      if (cookie) {
+        const parts = cookie.split("/");
+        if (parts.length > 2) return parts[2];
+      }
+    }
+    return "en";
+  });
+  const [direction, setDirectionState] = useState<Direction>(() => {
+    if (typeof document !== "undefined") {
+      const cookie = getCookie(GOOGLE_TRANS_COOKIE);
+      if (cookie) {
+        const parts = cookie.split("/");
+        if (parts.length > 2 && RTL_LANGUAGES.includes(parts[2])) return "rtl";
+      }
+    }
+    return "ltr";
+  });
+  const [systemPrefersDark, setSystemPrefersDark] = useState(() => {
     if (typeof window !== "undefined") {
       return window.matchMedia("(prefers-color-scheme: dark)").matches;
     }
     return false;
-  }, []);
+  });
+  const [mounted, setMounted] = useState(false);
+
+  // Compute isDark from theme + system preference
+  const isDark = theme === "dark" ? true : theme === "light" ? false : systemPrefersDark;
 
   // Apply dark class to html
   useEffect(() => {
     if (!mounted) return;
-    const dark = resolveIsDark(theme);
-    setIsDark(dark);
-    document.documentElement.classList.toggle("dark", dark);
-  }, [theme, mounted, resolveIsDark]);
+    document.documentElement.classList.toggle("dark", isDark);
+  }, [isDark, mounted]);
 
-  // Listen for system theme changes when mode is "system"
+  // Listen for system theme changes
   useEffect(() => {
-    if (theme !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => {
-      const dark = mq.matches;
-      setIsDark(dark);
-      document.documentElement.classList.toggle("dark", dark);
-    };
+    const handler = () => setSystemPrefersDark(mq.matches);
     mq.addEventListener("change", handler);
     return () => mq.removeEventListener("change", handler);
-  }, [theme]);
+  }, []);
 
-  // Load from localStorage + fetch admin settings
+  // Apply RTL direction attribute
   useEffect(() => {
-    const savedTheme = localStorage.getItem("theme") as Theme | null;
-    const savedCurrency = localStorage.getItem("currency");
-    const savedLanguage = localStorage.getItem("language");
+    document.documentElement.dir = direction;
+    document.documentElement.setAttribute("dir", direction);
+  }, [direction]);
 
-    if (savedTheme) setThemeState(savedTheme);
-    if (savedCurrency) setCurrencyState(savedCurrency);
-    if (savedLanguage) setLanguageState(savedLanguage);
-
-    // Fetch admin-set defaults
+  // Fetch admin-set currency from backend
+  useEffect(() => {
+    // Fetch admin-set currency from backend (currency is admin-controlled only)
     fetch(`${API_URL}/api/site-config`)
       .then((r) => r.json())
       .then((res) => {
-        if (res.success && res.data) {
-          // Only use admin-set values if user hasn't set their own preference
-          if (!savedCurrency && res.data.currency) setCurrencyState(res.data.currency);
-          if (!savedLanguage && res.data.language) setLanguageState(res.data.language);
+        if (res.success && res.data?.currency) {
+          setCurrencyState(res.data.currency);
         }
       })
-      .catch(() => {});
-
-    setMounted(true);
+      .catch(() => {})
+      .finally(() => setMounted(true));
   }, []);
 
   const setTheme = (t: Theme) => {
@@ -184,26 +175,38 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("theme", t);
   };
 
-  const setCurrency = (c: string) => {
-    setCurrencyState(c);
-    localStorage.setItem("currency", c);
+  // Language change: set Google Translate cookie + apply RTL + reload
+  const setLanguage = (langCode: string) => {
+    setCookieValue(GOOGLE_TRANS_COOKIE, `/auto/${langCode}`);
+    setLanguageState(langCode);
+
+    if (RTL_LANGUAGES.includes(langCode)) {
+      setDirectionState("rtl");
+      document.documentElement.dir = "rtl";
+      document.documentElement.setAttribute("dir", "rtl");
+    } else {
+      setDirectionState("ltr");
+      document.documentElement.dir = "ltr";
+      document.documentElement.setAttribute("dir", "ltr");
+    }
+
+    // Reload to trigger Google Translate
+    setTimeout(() => window.location.reload(), 300);
   };
 
-  const setLanguage = (l: string) => {
-    setLanguageState(l);
-    localStorage.setItem("language", l);
-  };
-
-  const currencySymbol = CURRENCY_SYMBOLS[currency] || currency;
+  const currencySymbol = CURRENCY_SYMBOLS[currency] || "$";
 
   const convertPrice = (amountInUSD: number): number => {
     const rate = EXCHANGE_RATES[currency] || 1;
-    return Math.round(amountInUSD * rate * 100) / 100;
+    return amountInUSD * rate;
   };
 
-  const formatPrice = (amount: number): string => {
-    const converted = convertPrice(amount);
-    return `${currencySymbol}${converted.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatPrice = (amountInUSD: number): string => {
+    const converted = convertPrice(amountInUSD);
+    if (NO_DECIMAL_CURRENCIES.includes(currency)) {
+      return `${currencySymbol}${Math.round(converted).toLocaleString()}`;
+    }
+    return `${currencySymbol}${converted.toFixed(2)}`;
   };
 
   if (!mounted) return null;
@@ -211,8 +214,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return (
     <ThemeContext.Provider
       value={{
-        theme, setTheme, isDark,
-        currency, setCurrency, currencySymbol,
+        theme, setTheme, isDark, direction,
+        currency, currencySymbol,
         formatPrice, convertPrice,
         language, setLanguage,
       }}

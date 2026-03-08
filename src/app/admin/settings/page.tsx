@@ -31,7 +31,7 @@ import {
   ImageIcon,
   Loader2,
 } from "lucide-react";
-import { ALL_CURRENCIES, LANGUAGES } from "@/context/ThemeContext";
+import { ALL_CURRENCIES, CURRENCY_SYMBOLS } from "@/context/ThemeContext";
 
 
 // ------- PayPal SVG Icon -------
@@ -349,48 +349,26 @@ export default function AdminSettingsPage() {
                 </CardHeader>
                 <Separator />
                 <CardContent className="pt-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Default Currency</Label>
-                    <select
-                      value={siteConfig.currency || "USD"}
-                      onChange={(e) => updateField("currency", e.target.value)}
-                      className="w-full h-10 px-3 rounded-md border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                    >
-                      {ALL_CURRENCIES.map((c) => (
-                        <option key={c} value={c}>{c}</option>
-                      ))}
-                    </select>
-                    <p className="text-xs text-gray-400">This currency will be used as the default across the entire site. Users can change their preference.</p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Language */}
-              <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center">
-                      <Globe className="h-4 w-4 text-blue-600" />
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700">Default Currency</Label>
+                      <select
+                        value={siteConfig.currency || "USD"}
+                        onChange={(e) => updateField("currency", e.target.value)}
+                        className="w-full h-10 px-3 rounded-md border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      >
+                        {ALL_CURRENCIES.map((c) => (
+                          <option key={c} value={c}>{c} - {CURRENCY_SYMBOLS[c] || c}</option>
+                        ))}
+                      </select>
                     </div>
-                    <div>
-                      <CardTitle className="text-base font-semibold text-gray-800">Language</CardTitle>
-                      <p className="text-xs text-gray-500 mt-0.5">Set the default language for the site</p>
+                    <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
+                      <span className="text-2xl font-bold text-green-700">{CURRENCY_SYMBOLS[siteConfig.currency || "USD"] || "$"}</span>
+                      <div>
+                        <p className="text-sm font-medium text-green-800">{siteConfig.currency || "USD"}</p>
+                        <p className="text-xs text-green-600">Symbol: {CURRENCY_SYMBOLS[siteConfig.currency || "USD"] || "$"} &bull; All prices across the site will display in this currency</p>
+                      </div>
                     </div>
-                  </div>
-                </CardHeader>
-                <Separator />
-                <CardContent className="pt-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Default Language</Label>
-                    <select
-                      value={siteConfig.language || "en"}
-                      onChange={(e) => updateField("language", e.target.value)}
-                      className="w-full h-10 px-3 rounded-md border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                    >
-                      {LANGUAGES.map((l) => (
-                        <option key={l.code} value={l.code}>{l.name} ({l.code})</option>
-                      ))}
-                    </select>
                   </div>
                 </CardContent>
               </Card>
