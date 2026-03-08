@@ -30,7 +30,6 @@ import {
   Check,
   X,
   ChevronLeft,
-  Dumbbell,
   ChevronRight,
   Loader2,
 } from "lucide-react";
@@ -354,9 +353,9 @@ export default function ShopPage() {
                       transition={{ duration: 0.2, delay: index * 0.05 }}
                     >
                       {viewMode === "grid" ? (
-                        <div className="rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow overflow-hidden">
+                        <div className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col hover:shadow-md transition-shadow overflow-hidden">
                           {}
-                          <div className="relative aspect-4/3 bg-gray-50 overflow-hidden">
+                          <div className="relative aspect-4/3 bg-gray-50 dark:bg-gray-900 overflow-hidden">
                             {product.image && product.image.startsWith("http") ? (
                               <Image
                                 src={product.image}
@@ -365,9 +364,12 @@ export default function ShopPage() {
                                 className="object-cover group-hover:scale-105 transition-transform duration-500"
                               />
                             ) : (
-                              <div className="absolute inset-0 flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/20">
-                                <Dumbbell className="w-12 h-12 text-primary/40" />
-                              </div>
+                              <Image
+                                src={`https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop&auto=format`}
+                                alt={product.name}
+                                fill
+                                className="object-cover opacity-60"
+                              />
                             )}
                             {}
                             {isInCart(product.id) && (
@@ -382,12 +384,12 @@ export default function ShopPage() {
                             <Badge className="self-start bg-primary/10 text-primary border-0 text-xs">
                               {product.category}
                             </Badge>
-                            <h3 className="font-bold text-gray-800 text-sm leading-tight line-clamp-1">
+                            <h3 className="font-bold text-gray-800 dark:text-gray-100 text-sm leading-tight line-clamp-1">
                               {product.name}
                             </h3>
-                            <p className="text-xs text-gray-400 line-clamp-1">{product.description}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 line-clamp-1">{product.description}</p>
 
-                            <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+                            <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100 dark:border-gray-700">
                               <div className="flex items-center gap-1.5">
                                 <span className="text-base font-bold text-primary">
                                   {formatPrice(product.price)}
@@ -426,9 +428,12 @@ export default function ShopPage() {
                                   className="object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
-                                  <Dumbbell className="w-10 h-10 sm:w-12 sm:h-12 text-primary/60" />
-                                </div>
+                                <Image
+                                  src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&h=200&fit=crop&auto=format"
+                                  alt={product.name}
+                                  fill
+                                  className="object-cover opacity-70"
+                                />
                               )}
                             </div>
                             <div className="flex-1 min-w-0">

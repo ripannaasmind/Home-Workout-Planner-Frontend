@@ -78,9 +78,12 @@ export default function ShopPage() {
                 {product.image && product.image.startsWith("http") ? (
                   <Image src={product.image} alt={product.name} fill className="object-cover" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ShoppingCart className="h-10 w-10 text-gray-200" />
-                  </div>
+                  <Image
+                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=200&fit=crop&auto=format"
+                    alt={product.name}
+                    fill
+                    className="object-cover opacity-60"
+                  />
                 )}
               </div>
               <div>

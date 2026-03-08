@@ -18,7 +18,6 @@ import {
   ArrowLeft,
   CreditCard,
   Tag,
-  Dumbbell,
   Star,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -153,9 +152,12 @@ export default function CartPage() {
                                 {item.image && item.image.startsWith("http") ? (
                                   <Image src={item.image} alt={item.name} fill className="object-cover" />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
-                                    <Dumbbell className="w-8 h-8 text-primary/60" />
-                                  </div>
+                                  <Image
+                                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&h=200&fit=crop&auto=format"
+                                    alt={item.name}
+                                    fill
+                                    className="object-cover opacity-70"
+                                  />
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -215,9 +217,12 @@ export default function CartPage() {
                                 {item.image && item.image.startsWith("http") ? (
                                   <Image src={item.image} alt={item.name} fill className="object-cover" />
                                 ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
-                                    <Dumbbell className="w-8 h-8 lg:w-10 lg:h-10 text-primary/60" />
-                                  </div>
+                                  <Image
+                                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&h=200&fit=crop&auto=format"
+                                    alt={item.name}
+                                    fill
+                                    className="object-cover opacity-70"
+                                  />
                                 )}
                               </div>
                               <div className="min-w-0">
@@ -310,9 +315,12 @@ export default function CartPage() {
                           {product.image && product.image.startsWith("http") ? (
                             <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-primary/10 to-primary/30">
-                              <Dumbbell className="w-8 h-8 sm:w-10 sm:h-10 text-primary/60" />
-                            </div>
+                            <Image
+                              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=400&fit=crop&auto=format"
+                              alt={product.name}
+                              fill
+                              className="object-cover opacity-60"
+                            />
                           )}
                         </div>
                         <CardContent className="p-3 pt-2.5">
