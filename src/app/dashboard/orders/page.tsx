@@ -53,8 +53,8 @@ export default function OrdersPage() {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-20 text-center">
             <ShoppingBag className="h-14 w-14 text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-gray-700 mb-1">No orders yet</h3>
-            <p className="text-sm text-gray-500">Your orders will appear here after checkout.</p>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-1">No orders yet</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Your orders will appear here after checkout.</p>
           </CardContent>
         </Card>
       ) : (
@@ -69,27 +69,27 @@ export default function OrdersPage() {
                     </div>
                     <div>
                       <p className="text-xs text-gray-400 font-mono">#{order._id.slice(-8).toUpperCase()}</p>
-                      <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{new Date(order.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge className={`text-xs border ${statusColor[order.status] ?? "bg-gray-100 text-gray-700"}`}>
+                    <Badge className={`text-xs border ${statusColor[order.status] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200"}`}>
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                     </Badge>
                     <span className="text-sm font-bold text-primary">${order.total.toFixed(2)}</span>
                   </div>
                 </div>
 
-                <div className="divide-y divide-gray-50">
+                <div className="divide-y divide-gray-50 dark:divide-gray-800">
                   {order.items.map((item, i) => (
                     <div key={i} className="flex justify-between items-center py-2 text-sm gap-2">
-                      <span className="text-gray-700 min-w-0 truncate flex-1">{item.name} <span className="text-gray-400">×{item.quantity}</span></span>
+                      <span className="text-gray-700 dark:text-gray-200 min-w-0 truncate flex-1">{item.name} <span className="text-gray-400">×{item.quantity}</span></span>
                       <span className="font-medium shrink-0">${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
                   {order.discount > 0 && <span className="text-green-600">Promo: -{order.promoCode} (-${order.discount.toFixed(2)})</span>}
                   <span>Shipping: {order.shipping === 0 ? "Free" : `$${order.shipping.toFixed(2)}`}</span>
                   <span>Tax: ${order.tax.toFixed(2)}</span>

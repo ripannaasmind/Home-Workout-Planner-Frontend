@@ -54,8 +54,10 @@ function maskKey(key: string) {
 
 // ------- Sections -------
 const sections = [
-  { id: "business", label: "Business", icon: DollarSign },
+  { id: "business", label: "Business", icon: Settings },
   { id: "payment", label: "Payment", icon: CreditCard },
+  { id: "currency", label: "Currency", icon: DollarSign },
+  { id: "language", label: "Language", icon: Globe },
   { id: "footer", label: "Footer & Branding", icon: Layout },
 ];
 
@@ -81,6 +83,13 @@ export default function AdminSettingsPage() {
   const [showPaypalId, setShowPaypalId] = useState(false);
   const [showPaypalSecret, setShowPaypalSecret] = useState(false);
   const [codEnabled, setCodEnabled] = useState(true);
+  const [paystackEnabled, setPaystackEnabled] = useState(false);
+  const [paystackSecretKey, setPaystackSecretKey] = useState("");
+  const [paystackPublicKey, setPaystackPublicKey] = useState("");
+  const [paystackOpen, setPaystackOpen] = useState(false);
+  const [showPaystackSecret, setShowPaystackSecret] = useState(false);
+  const [showPaystackPublic, setShowPaystackPublic] = useState(false);
+  const [walletEnabled, setWalletEnabled] = useState(false);
 
   // Site config state
   const [siteConfig, setSiteConfig] = useState<Partial<SiteConfig>>({
@@ -125,6 +134,12 @@ export default function AdminSettingsPage() {
         setPaypalClientId(d.paypal.clientId || "");
         setPaypalSecret(d.paypal.secret || "");
         setCodEnabled(d.cashOnDelivery.enabled);
+        if (d.paystack) {
+          setPaystackEnabled(d.paystack.enabled);
+          setPaystackSecretKey(d.paystack.secretKey || "");
+          setPaystackPublicKey(d.paystack.publicKey || "");
+        }
+        if (d.wallet) setWalletEnabled(d.wallet.enabled);
 
         if (siteRes.data) {
           setSiteConfig((prev) => ({ ...prev, ...siteRes.data }));
@@ -181,13 +196,15 @@ export default function AdminSettingsPage() {
               stripe: { enabled: stripeEnabled, publishableKey: stripePublishable, secretKey: stripeSecret },
               paypal: { enabled: paypalEnabled, clientId: paypalClientId, secret: paypalSecret },
               cashOnDelivery: { enabled: codEnabled },
+              paystack: { enabled: paystackEnabled, secretKey: paystackSecretKey, publicKey: paystackPublicKey },
+              wallet: { enabled: walletEnabled },
             },
             token
           )
         );
       }
 
-      if (activeSection === "business" || activeSection === "footer") {
+      if (activeSection === "business" || activeSection === "currency" || activeSection === "language" || activeSection === "footer") {
         promises.push(adminApi.updateSiteConfig(siteConfig, token));
       }
 
@@ -302,8 +319,8 @@ export default function AdminSettingsPage() {
           <Settings className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
-          <p className="text-sm text-gray-500">Manage your site configuration, payments, and branding</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Settings</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Manage your site configuration, payments, and branding</p>
         </div>
       </div>
 
@@ -318,7 +335,7 @@ export default function AdminSettingsPage() {
                 className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
                   activeSection === id
                     ? "bg-primary text-white shadow-sm"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-800 dark:hover:text-gray-200"
                 }`}
               >
                 <Icon className="h-4 w-4" />
@@ -334,80 +351,41 @@ export default function AdminSettingsPage() {
           {/* ==================== BUSINESS SECTION ==================== */}
           {activeSection === "business" && (
             <>
-              {/* Currency */}
-              <Card className="border border-gray-200 shadow-sm">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-lg bg-green-50 flex items-center justify-center">
-                      <DollarSign className="h-4 w-4 text-green-600" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-base font-semibold text-gray-800">Currency</CardTitle>
-                      <p className="text-xs text-gray-500 mt-0.5">Set the default currency for all prices site-wide</p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <Separator />
-                <CardContent className="pt-4">
-                  <div className="space-y-3">
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">Default Currency</Label>
-                      <select
-                        value={siteConfig.currency || "USD"}
-                        onChange={(e) => updateField("currency", e.target.value)}
-                        className="w-full h-10 px-3 rounded-md border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                      >
-                        {ALL_CURRENCIES.map((c) => (
-                          <option key={c} value={c}>{c} - {CURRENCY_SYMBOLS[c] || c}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg border border-green-100">
-                      <span className="text-2xl font-bold text-green-700">{CURRENCY_SYMBOLS[siteConfig.currency || "USD"] || "$"}</span>
-                      <div>
-                        <p className="text-sm font-medium text-green-800">{siteConfig.currency || "USD"}</p>
-                        <p className="text-xs text-green-600">Symbol: {CURRENCY_SYMBOLS[siteConfig.currency || "USD"] || "$"} &bull; All prices across the site will display in this currency</p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
               {/* Company Info */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-lg bg-purple-50 flex items-center justify-center">
                       <Settings className="h-4 w-4 text-purple-600" />
                     </div>
                     <div>
-                      <CardTitle className="text-base font-semibold text-gray-800">Company Information</CardTitle>
-                      <p className="text-xs text-gray-500 mt-0.5">Basic details shown across the site</p>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Company Information</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Basic details shown across the site</p>
                     </div>
                   </div>
                 </CardHeader>
                 <Separator />
                 <CardContent className="pt-4 space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Company / Gym Name</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Company / Gym Name</Label>
                     <Input value={siteConfig.companyName || ""} onChange={(e) => updateField("companyName", e.target.value)} placeholder="FitHome" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Tagline</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Tagline</Label>
                     <Textarea value={siteConfig.tagline || ""} onChange={(e) => updateField("tagline", e.target.value)} placeholder="Your fitness companion..." rows={2} className="resize-none" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">Email</Label>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Email</Label>
                       <Input type="email" value={siteConfig.email || ""} onChange={(e) => updateField("email", e.target.value)} placeholder="hello@fithome.com" />
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">Phone</Label>
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Phone</Label>
                       <Input value={siteConfig.phone || ""} onChange={(e) => updateField("phone", e.target.value)} placeholder="+1 (555) 000-0000" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Address</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Address</Label>
                     <Textarea value={siteConfig.address || ""} onChange={(e) => updateField("address", e.target.value)} placeholder="123 Fitness St, City" rows={2} className="resize-none" />
                   </div>
                 </CardContent>
@@ -420,7 +398,7 @@ export default function AdminSettingsPage() {
           {activeSection === "payment" && (
             <>
               {/* Stripe */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -428,8 +406,8 @@ export default function AdminSettingsPage() {
                         <CreditCard className="h-4 w-4 text-violet-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-base font-semibold text-gray-800">Stripe</CardTitle>
-                        <p className="text-xs text-gray-500 mt-0.5">Credit & debit card payments</p>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Stripe</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Credit & debit card payments</p>
                       </div>
                     </div>
                     <Switch checked={stripeEnabled} onCheckedChange={setStripeEnabled} />
@@ -449,24 +427,24 @@ export default function AdminSettingsPage() {
                       {stripeOpen && (
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label className="text-sm font-medium text-gray-700">Publishable Key</Label>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Publishable Key</Label>
                             <div className="relative">
                               <Input type={showStripePub ? "text" : "password"} placeholder="pk_live_..." value={stripePublishable} onChange={(e) => setStripePublishable(e.target.value)} className="pr-10 font-mono text-sm" />
-                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowStripePub((v) => !v)}>
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300" onClick={() => setShowStripePub((v) => !v)}>
                                 {showStripePub ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </button>
                             </div>
-                            {stripePublishable && !showStripePub && <p className="text-xs text-gray-400 font-mono">{maskKey(stripePublishable)}</p>}
+                            {stripePublishable && !showStripePub && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(stripePublishable)}</p>}
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-sm font-medium text-gray-700">Secret Key</Label>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Secret Key</Label>
                             <div className="relative">
                               <Input type={showStripeSecret ? "text" : "password"} placeholder="sk_live_..." value={stripeSecret} onChange={(e) => setStripeSecret(e.target.value)} className="pr-10 font-mono text-sm" />
-                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowStripeSecret((v) => !v)}>
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300" onClick={() => setShowStripeSecret((v) => !v)}>
                                 {showStripeSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </button>
                             </div>
-                            {stripeSecret && !showStripeSecret && <p className="text-xs text-gray-400 font-mono">{maskKey(stripeSecret)}</p>}
+                            {stripeSecret && !showStripeSecret && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(stripeSecret)}</p>}
                           </div>
                           <div className="p-3 bg-violet-50 rounded-lg border border-violet-100">
                             <p className="text-xs text-violet-700">Find your keys in the <span className="font-semibold">Stripe Dashboard → Developers → API Keys</span></p>
@@ -479,7 +457,7 @@ export default function AdminSettingsPage() {
               </Card>
 
               {/* PayPal */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -487,8 +465,8 @@ export default function AdminSettingsPage() {
                         <PayPalIcon />
                       </div>
                       <div>
-                        <CardTitle className="text-base font-semibold text-gray-800">PayPal</CardTitle>
-                        <p className="text-xs text-gray-500 mt-0.5">PayPal & linked bank account payments</p>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">PayPal</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">PayPal & linked bank account payments</p>
                       </div>
                     </div>
                     <Switch checked={paypalEnabled} onCheckedChange={setPaypalEnabled} />
@@ -508,24 +486,24 @@ export default function AdminSettingsPage() {
                       {paypalOpen && (
                         <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label className="text-sm font-medium text-gray-700">Client ID</Label>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Client ID</Label>
                             <div className="relative">
                               <Input type={showPaypalId ? "text" : "password"} placeholder="AYour-PayPal-Client-ID..." value={paypalClientId} onChange={(e) => setPaypalClientId(e.target.value)} className="pr-10 font-mono text-sm" />
-                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowPaypalId((v) => !v)}>
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300" onClick={() => setShowPaypalId((v) => !v)}>
                                 {showPaypalId ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </button>
                             </div>
-                            {paypalClientId && !showPaypalId && <p className="text-xs text-gray-400 font-mono">{maskKey(paypalClientId)}</p>}
+                            {paypalClientId && !showPaypalId && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(paypalClientId)}</p>}
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-sm font-medium text-gray-700">Secret</Label>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Secret</Label>
                             <div className="relative">
                               <Input type={showPaypalSecret ? "text" : "password"} placeholder="EYour-PayPal-Secret..." value={paypalSecret} onChange={(e) => setPaypalSecret(e.target.value)} className="pr-10 font-mono text-sm" />
-                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowPaypalSecret((v) => !v)}>
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300" onClick={() => setShowPaypalSecret((v) => !v)}>
                                 {showPaypalSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                               </button>
                             </div>
-                            {paypalSecret && !showPaypalSecret && <p className="text-xs text-gray-400 font-mono">{maskKey(paypalSecret)}</p>}
+                            {paypalSecret && !showPaypalSecret && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(paypalSecret)}</p>}
                           </div>
                           <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
                             <p className="text-xs text-blue-700">Find your credentials in the <span className="font-semibold">PayPal Developer Dashboard → My Apps & Credentials</span></p>
@@ -538,21 +516,194 @@ export default function AdminSettingsPage() {
               </Card>
 
               {/* COD */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-lg bg-green-50 flex items-center justify-center">
+                      <div className="h-9 w-9 rounded-lg bg-green-50 dark:bg-green-500/10 flex items-center justify-center">
                         <Truck className="h-4 w-4 text-green-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-base font-semibold text-gray-800">Cash on Delivery</CardTitle>
-                        <p className="text-xs text-gray-500 mt-0.5">Pay when the order is delivered</p>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Cash on Delivery</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pay when the order is delivered</p>
                       </div>
                     </div>
                     <Switch checked={codEnabled} onCheckedChange={setCodEnabled} />
                   </div>
                 </CardHeader>
+              </Card>
+
+              {/* Paystack */}
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-teal-50 dark:bg-teal-500/10 flex items-center justify-center">
+                        <CreditCard className="h-4 w-4 text-teal-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Paystack</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Popular payment gateway for Africa</p>
+                      </div>
+                    </div>
+                    <Switch checked={paystackEnabled} onCheckedChange={setPaystackEnabled} />
+                  </div>
+                </CardHeader>
+                {paystackEnabled && (
+                  <>
+                    <Separator />
+                    <CardContent className="pt-4">
+                      <button
+                        className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-4"
+                        onClick={() => setPaystackOpen((o) => !o)}
+                      >
+                        {paystackOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {paystackOpen ? "Hide" : "Configure"} API Keys
+                      </button>
+                      {paystackOpen && (
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Public Key</Label>
+                            <div className="relative">
+                              <Input type={showPaystackPublic ? "text" : "password"} placeholder="pk_live_..." value={paystackPublicKey} onChange={(e) => setPaystackPublicKey(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setShowPaystackPublic((v) => !v)}>
+                                {showPaystackPublic ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {paystackPublicKey && !showPaystackPublic && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(paystackPublicKey)}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Secret Key</Label>
+                            <div className="relative">
+                              <Input type={showPaystackSecret ? "text" : "password"} placeholder="sk_live_..." value={paystackSecretKey} onChange={(e) => setPaystackSecretKey(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setShowPaystackSecret((v) => !v)}>
+                                {showPaystackSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {paystackSecretKey && !showPaystackSecret && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(paystackSecretKey)}</p>}
+                          </div>
+                          <div className="p-3 bg-teal-50 dark:bg-teal-500/10 rounded-lg border border-teal-100 dark:border-teal-500/20">
+                            <p className="text-xs text-teal-700 dark:text-teal-400">Find your keys in the <span className="font-semibold">Paystack Dashboard → Settings → API Keys & Webhooks</span></p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </>
+                )}
+              </Card>
+
+              {/* Wallet */}
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
+                        <DollarSign className="h-4 w-4 text-amber-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Wallet</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">In-app wallet balance payments</p>
+                      </div>
+                    </div>
+                    <Switch checked={walletEnabled} onCheckedChange={setWalletEnabled} />
+                  </div>
+                </CardHeader>
+              </Card>
+            </>
+          )}
+
+
+          {/* ==================== CURRENCY SECTION ==================== */}
+          {activeSection === "currency" && (
+            <>
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-green-50 dark:bg-green-500/10 flex items-center justify-center">
+                      <DollarSign className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Currency Settings</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Set the default currency for all prices site-wide</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Default Currency</Label>
+                      <select
+                        value={siteConfig.currency || "USD"}
+                        onChange={(e) => updateField("currency", e.target.value)}
+                        className="w-full h-10 px-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                      >
+                        {ALL_CURRENCIES.map((c) => (
+                          <option key={c} value={c}>{c} - {CURRENCY_SYMBOLS[c] || c}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-green-50 dark:bg-green-500/10 rounded-lg border border-green-100 dark:border-green-500/20">
+                      <span className="text-2xl font-bold text-green-700 dark:text-green-400">{CURRENCY_SYMBOLS[siteConfig.currency || "USD"] || "$"}</span>
+                      <div>
+                        <p className="text-sm font-medium text-green-800 dark:text-green-300">{siteConfig.currency || "USD"}</p>
+                        <p className="text-xs text-green-600 dark:text-green-400">Symbol: {CURRENCY_SYMBOLS[siteConfig.currency || "USD"] || "$"} &bull; All prices across the site will display in this currency</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+
+          {/* ==================== LANGUAGE SECTION ==================== */}
+          {activeSection === "language" && (
+            <>
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
+                      <Globe className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Language Settings</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Configure the default language for the site</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Default Language</Label>
+                    <select
+                      value={siteConfig.language || "en"}
+                      onChange={(e) => updateField("language", e.target.value)}
+                      className="w-full h-10 px-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    >
+                      <option value="en">English</option>
+                      <option value="bn">Bengali</option>
+                      <option value="ar">Arabic</option>
+                      <option value="hi">Hindi</option>
+                      <option value="es">Spanish</option>
+                      <option value="fr">French</option>
+                      <option value="de">German</option>
+                      <option value="it">Italian</option>
+                      <option value="pt">Portuguese</option>
+                      <option value="ru">Russian</option>
+                      <option value="ja">Japanese</option>
+                      <option value="zh-CN">Chinese</option>
+                      <option value="ko">Korean</option>
+                      <option value="tr">Turkish</option>
+                      <option value="ur">Urdu</option>
+                    </select>
+                  </div>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-blue-500/20">
+                    <p className="text-xs text-blue-700 dark:text-blue-400">
+                      <span className="font-semibold">Note:</span> Users can also change language from their dashboard settings. This sets the site default language. Google Translate handles translations automatically.
+                    </p>
+                  </div>
+                </CardContent>
               </Card>
             </>
           )}
@@ -562,22 +713,22 @@ export default function AdminSettingsPage() {
           {activeSection === "footer" && (
             <>
               {/* Header Logo */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-lg bg-orange-50 flex items-center justify-center">
                       <ImageIcon className="h-4 w-4 text-orange-600" />
                     </div>
                     <div>
-                      <CardTitle className="text-base font-semibold text-gray-800">Header Logo</CardTitle>
-                      <p className="text-xs text-gray-500 mt-0.5">Upload the logo displayed in the header/navbar</p>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Header Logo</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Upload the logo displayed in the header/navbar</p>
                     </div>
                   </div>
                 </CardHeader>
                 <Separator />
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
+                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden bg-gray-50">
                       {siteConfig.headerLogo ? (
                         <Image src={siteConfig.headerLogo} alt="Header Logo" width={80} height={80} className="object-contain w-full h-full" />
                       ) : (
@@ -597,22 +748,22 @@ export default function AdminSettingsPage() {
               </Card>
 
               {/* Footer Logo & Description */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-3">
                     <div className="h-9 w-9 rounded-lg bg-teal-50 flex items-center justify-center">
                       <Layout className="h-4 w-4 text-teal-600" />
                     </div>
                     <div>
-                      <CardTitle className="text-base font-semibold text-gray-800">Footer Branding</CardTitle>
-                      <p className="text-xs text-gray-500 mt-0.5">Logo, description, and copyright for the footer</p>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Footer Branding</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Logo, description, and copyright for the footer</p>
                     </div>
                   </div>
                 </CardHeader>
                 <Separator />
                 <CardContent className="pt-4 space-y-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
+                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden bg-gray-50">
                       {siteConfig.footerLogo ? (
                         <Image src={siteConfig.footerLogo} alt="Footer Logo" width={80} height={80} className="object-contain w-full h-full" />
                       ) : (
@@ -629,18 +780,18 @@ export default function AdminSettingsPage() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Footer Description</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Footer Description</Label>
                     <Textarea value={siteConfig.footerDescription || ""} onChange={(e) => updateField("footerDescription", e.target.value)} placeholder="Short description for the footer area..." rows={2} className="resize-none" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Copyright Text</Label>
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Copyright Text</Label>
                     <Input value={siteConfig.copyright || ""} onChange={(e) => updateField("copyright", e.target.value)} placeholder="FitHome. All rights reserved." />
                   </div>
                 </CardContent>
               </Card>
 
               {/* Social Media Links */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -648,8 +799,8 @@ export default function AdminSettingsPage() {
                         <LinkIcon className="h-4 w-4 text-pink-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-base font-semibold text-gray-800">Social Media Links</CardTitle>
-                        <p className="text-xs text-gray-500 mt-0.5">Add social media profiles with custom icons</p>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Social Media Links</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Add social media profiles with custom icons</p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm" onClick={addSocialLink}>
@@ -663,10 +814,10 @@ export default function AdminSettingsPage() {
                     <p className="text-sm text-gray-400 text-center py-4">No social media links added yet. Click &quot;Add&quot; to start.</p>
                   )}
                   {(siteConfig.socialMediaLinks || []).map((link, idx) => (
-                    <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-800">
                       {/* Icon upload */}
                       <div className="shrink-0">
-                        <div className="w-12 h-12 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-white cursor-pointer hover:border-primary/30 transition-colors"
+                        <div className="w-12 h-12 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden bg-white cursor-pointer hover:border-primary/30 transition-colors"
                           onClick={() => {
                             const input = document.createElement("input");
                             input.type = "file";
@@ -701,7 +852,7 @@ export default function AdminSettingsPage() {
               </Card>
 
               {/* App Download Links */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -709,8 +860,8 @@ export default function AdminSettingsPage() {
                         <Globe className="h-4 w-4 text-cyan-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-base font-semibold text-gray-800">App Download Links</CardTitle>
-                        <p className="text-xs text-gray-500 mt-0.5">App store links shown in footer (upload logos)</p>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">App Download Links</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">App store links shown in footer (upload logos)</p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm" onClick={addAppLink}>
@@ -724,9 +875,9 @@ export default function AdminSettingsPage() {
                     <p className="text-sm text-gray-400 text-center py-4">No app download links added yet.</p>
                   )}
                   {(siteConfig.appDownloadLinks || []).map((link, idx) => (
-                    <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                    <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-100 dark:border-gray-800">
                       <div className="shrink-0">
-                        <div className="w-12 h-12 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-white cursor-pointer hover:border-primary/30 transition-colors"
+                        <div className="w-12 h-12 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700 flex items-center justify-center overflow-hidden bg-white cursor-pointer hover:border-primary/30 transition-colors"
                           onClick={() => {
                             const input = document.createElement("input");
                             input.type = "file";
@@ -760,7 +911,7 @@ export default function AdminSettingsPage() {
               </Card>
 
               {/* Footer Quick Links */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -768,8 +919,8 @@ export default function AdminSettingsPage() {
                         <LinkIcon className="h-4 w-4 text-indigo-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-base font-semibold text-gray-800">Footer Quick Links</CardTitle>
-                        <p className="text-xs text-gray-500 mt-0.5">Custom navigation links in the footer</p>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Footer Quick Links</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Custom navigation links in the footer</p>
                       </div>
                     </div>
                     <Button variant="outline" size="sm" onClick={addQuickLink}>
@@ -795,7 +946,7 @@ export default function AdminSettingsPage() {
               </Card>
 
               {/* Newsletter */}
-              <Card className="border border-gray-200 shadow-sm">
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
@@ -803,8 +954,8 @@ export default function AdminSettingsPage() {
                         <Globe className="h-4 w-4 text-amber-600" />
                       </div>
                       <div>
-                        <CardTitle className="text-base font-semibold text-gray-800">Newsletter</CardTitle>
-                        <p className="text-xs text-gray-500 mt-0.5">Email subscription section in footer</p>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Newsletter</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Email subscription section in footer</p>
                       </div>
                     </div>
                     <Switch checked={siteConfig.newsletter?.enabled ?? true} onCheckedChange={(v) => updateNestedField("newsletter", "enabled", v)} />
@@ -815,11 +966,11 @@ export default function AdminSettingsPage() {
                     <Separator />
                     <CardContent className="pt-4 space-y-4">
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">Title</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Title</Label>
                         <Input value={siteConfig.newsletter?.title || ""} onChange={(e) => updateNestedField("newsletter", "title", e.target.value)} placeholder="Stay Updated" />
                       </div>
                       <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">Description</Label>
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Description</Label>
                         <Textarea value={siteConfig.newsletter?.description || ""} onChange={(e) => updateNestedField("newsletter", "description", e.target.value)} placeholder="Get fitness tips..." rows={2} className="resize-none" />
                       </div>
                     </CardContent>

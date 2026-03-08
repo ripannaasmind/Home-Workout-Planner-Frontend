@@ -194,7 +194,7 @@ export default function WorkoutsPage() {
             placeholder="Search workouts..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400"
+            className="pl-9 bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100 placeholder:text-gray-400"
           />
         </div>
 
@@ -209,7 +209,7 @@ export default function WorkoutsPage() {
                   "px-3 py-1 rounded-full text-xs font-medium transition-all border",
                   categoryFilter === cat
                     ? "bg-primary text-white border-primary"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-primary/40"
+                    : "bg-white dark:bg-card text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-primary/40"
                 )}
               >
                 {cat === "all" ? "All Categories" : cat}
@@ -229,7 +229,7 @@ export default function WorkoutsPage() {
                   "px-3 py-1 rounded-full text-xs font-medium transition-all border",
                   difficultyFilter === d
                     ? "bg-primary text-white border-primary"
-                    : "bg-white text-gray-600 border-gray-200 hover:border-primary/40"
+                    : "bg-white dark:bg-card text-gray-600 dark:text-gray-300 border-gray-200 dark:border-gray-800 hover:border-primary/40"
                 )}
               >
                 {d === "all" ? "All Levels" : d.charAt(0).toUpperCase() + d.slice(1)}
@@ -251,7 +251,7 @@ export default function WorkoutsPage() {
             </div>
             <div>
               <p className="text-sm font-semibold text-primary">Session in progress</p>
-              <p className="text-xs text-gray-600">{activeWorkout?.name ?? "Workout"} — {formatTime(elapsed)}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-300">{activeWorkout?.name ?? "Workout"} — {formatTime(elapsed)}</p>
             </div>
           </div>
           <Button size="sm" className="bg-primary text-white h-7 px-3">Resume</Button>
@@ -267,25 +267,25 @@ export default function WorkoutsPage() {
           {filtered.map((workout) => (
             <div
               key={workout._id}
-              className="rounded-2xl bg-white border border-gray-200 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
+              className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between">
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
                   <Dumbbell className="h-5 w-5 text-primary" />
                 </div>
-                <Badge className={`border-0 ${difficultyColor[workout.difficulty] || "bg-gray-100 text-gray-700"}`}>
+                <Badge className={`border-0 ${difficultyColor[workout.difficulty] || "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200"}`}>
                   {workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1)}
                 </Badge>
               </div>
               <div>
-                <h3 className="text-gray-800 font-semibold">{workout.name}</h3>
-                <p className="text-gray-500 text-sm">{workout.category}</p>
+                <h3 className="text-gray-800 dark:text-gray-100 font-semibold">{workout.name}</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">{workout.category}</p>
               </div>
-              <div className="flex gap-4 text-sm text-gray-500">
+              <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
                 <span>{workout.duration} min</span>
                 {workout.estimatedCalories ? <span>~{workout.estimatedCalories} kcal</span> : null}
               </div>
-              <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+              <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
                 <span className="text-xs text-gray-400">{workout.exercises?.length ?? 0} exercises</span>
                 <Button
                   size="sm"
@@ -318,7 +318,7 @@ export default function WorkoutsPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-gray-400 hover:text-gray-600"
+                className="h-7 w-7 text-gray-400 hover:text-gray-600 dark:text-gray-300"
                 onClick={() => setTimerOpen(false)}
               >
                 <X className="h-4 w-4" />
@@ -334,7 +334,7 @@ export default function WorkoutsPage() {
                   "h-32 w-32 rounded-full border-4 flex items-center justify-center",
                   paused ? "border-yellow-400" : "border-primary animate-pulse"
                 )}>
-                  <span className="text-3xl font-bold text-gray-800 tabular-nums">
+                  <span className="text-3xl font-bold text-gray-800 dark:text-gray-100 tabular-nums">
                     {formatTime(elapsed)}
                   </span>
                 </div>
@@ -342,7 +342,7 @@ export default function WorkoutsPage() {
             </div>
 
             {}
-            <div className="flex gap-6 text-sm text-gray-500">
+            <div className="flex gap-6 text-sm text-gray-500 dark:text-gray-400">
               <div className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4 text-primary" />
                 <span>{activeWorkout?.duration ?? 0} min target</span>
@@ -361,7 +361,7 @@ export default function WorkoutsPage() {
             <div className="flex gap-3 w-full">
               <Button
                 variant="outline"
-                className="flex-1 gap-2 border-gray-200"
+                className="flex-1 gap-2 border-gray-200 dark:border-gray-800"
                 onClick={handlePause}
               >
                 {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
@@ -378,7 +378,7 @@ export default function WorkoutsPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="text-red-500 hover:text-red-700 hover:bg-red-50 text-xs"
+              className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-50 dark:hover:bg-red-500/100/10 text-xs"
               onClick={handleCancel}
             >
               Cancel Session

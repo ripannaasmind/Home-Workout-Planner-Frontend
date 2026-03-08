@@ -53,8 +53,8 @@ export function RecentActivity() {
   }, [token]);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-      <h3 className="text-sm font-semibold text-gray-800 mb-3">Recent Activity</h3>
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4">
+      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Recent Activity</h3>
       {loading ? (
         <div className="flex justify-center py-4">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -72,13 +72,13 @@ export function RecentActivity() {
                 <Dumbbell className={cn("h-5 w-5", "text-green-700")} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-800 truncate">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
                   {getWorkoutName(session.workout as string | Workout)}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   {statusSubtitle[session.status] || session.status}
                 </p>
-                <p className="text-xs text-gray-400">{formatRelativeDate(session.startTime)}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">{formatRelativeDate(session.startTime)}</p>
                 <a
                   href="/dashboard/workouts"
                   className="text-xs text-gray-400 hover:text-primary flex items-center gap-0.5 mt-0.5 transition-colors"

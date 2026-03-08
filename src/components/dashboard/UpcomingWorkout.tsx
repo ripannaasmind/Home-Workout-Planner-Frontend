@@ -34,7 +34,7 @@ export function UpcomingWorkout() {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex items-center justify-center h-52">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm flex items-center justify-center h-52">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
@@ -49,8 +49,8 @@ export function UpcomingWorkout() {
   scheduledDate.setDate(today.getDate() + active);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-      <h3 className="text-base font-semibold text-gray-800 px-5 pt-5 pb-3">Upcoming Workouts</h3>
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100 px-5 pt-5 pb-3">Upcoming Workouts</h3>
 
       <div className="mx-5 rounded-xl overflow-hidden relative">
         <div
@@ -97,7 +97,7 @@ export function UpcomingWorkout() {
             className={`rounded-full transition-all ${
               i === active
                 ? "w-4 h-2 bg-primary"
-                : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
+                : "w-2 h-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400"
             }`}
           />
         ))}

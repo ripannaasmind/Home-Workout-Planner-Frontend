@@ -58,15 +58,15 @@ export function RecommendedForYouGrid({ products = defaultProducts }: Recommende
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-      <h3 className="text-base font-semibold text-gray-800 mb-4">Recommended for You</h3>
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Recommended for You</h3>
       <div className="space-y-3">
         {products.map((product) => {
           const Icon = product.icon;
           return (
             <div
               key={product.id}
-              className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <div
                 className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 ${product.iconBg}`}
@@ -74,7 +74,7 @@ export function RecommendedForYouGrid({ products = defaultProducts }: Recommende
                 <Icon className={`h-6 w-6 ${product.iconColor}`} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-800 truncate">{product.name}</p>
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{product.name}</p>
                 <p className="text-sm font-bold text-primary">${product.price.toFixed(2)}</p>
               </div>
               <Button

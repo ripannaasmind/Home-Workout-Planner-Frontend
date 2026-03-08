@@ -9,15 +9,7 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div
-            className="relative min-h-screen flex flex-col"
-            style={{
-                backgroundImage: "url('/bg.png')",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                backgroundAttachment: "fixed",
-            }}
-        >
+        <div className="relative min-h-screen flex flex-col bg-gray-50 dark:bg-background">
             <div className="flex flex-col flex-1">
                 <Header />
                 <div className="flex flex-1">

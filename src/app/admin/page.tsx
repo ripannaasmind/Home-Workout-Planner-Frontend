@@ -39,34 +39,34 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
-        <p className="text-gray-500 text-sm mt-1">Overview of your entire platform</p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Admin Dashboard</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Overview of your entire platform</p>
       </div>
 
       {loading ? (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="rounded-2xl bg-white border border-gray-200 p-5 animate-pulse h-28" />
+            <div key={i} className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 p-5 animate-pulse h-28" />
           ))}
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
           {statConfig.map(({ key, label, icon: Icon, color }) => (
-            <div key={key} className="rounded-2xl bg-white border border-gray-200 shadow-sm p-5 flex flex-col gap-3">
+            <div key={key} className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5 flex flex-col gap-3">
               <div className={`h-9 w-9 rounded-xl flex items-center justify-center ${color}`}>
                 <Icon className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-800">{stats?.[key] ?? 0}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{stats?.[key] ?? 0}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{label}</p>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">Quick Links</h2>
+      <div className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Quick Links</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { href: "/admin/users", label: "Manage Users", icon: Users },
@@ -77,10 +77,10 @@ export default function AdminDashboard() {
             <a
               key={href}
               href={href}
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-200 hover:border-primary/30 hover:bg-primary/5 transition-all text-center"
+              className="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-primary/30 hover:bg-primary/5 transition-all text-center"
             >
               <Icon className="h-6 w-6 text-primary" />
-              <span className="text-sm font-medium text-gray-700">{label}</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</span>
             </a>
           ))}
         </div>

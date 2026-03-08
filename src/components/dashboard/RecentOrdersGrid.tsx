@@ -59,8 +59,8 @@ export function RecentOrdersGrid() {
   }, [token]);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-      <h3 className="text-base font-semibold text-gray-800 mb-4">Recent Sessions</h3>
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Recent Sessions</h3>
       {loading ? (
         <div className="flex justify-center py-6">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -75,19 +75,19 @@ export function RecentOrdersGrid() {
           {sessions.map((session) => (
             <div
               key={session._id}
-              className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               <div className="h-12 w-12 rounded-xl flex items-center justify-center shrink-0 bg-primary/10">
                 <Dumbbell className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-800 truncate">
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">
                   {getWorkoutName(session.workout as string | Workout)}
                 </p>
-                <p className="text-xs text-gray-500">{formatDate(session.startTime)}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{formatDate(session.startTime)}</p>
               </div>
               <div className="text-right shrink-0">
-                <p className="text-sm font-bold text-gray-800">
+                <p className="text-sm font-bold text-gray-800 dark:text-gray-100">
                   {session.totalDuration ? `${session.totalDuration} min` : "—"}
                 </p>
                 <Badge
@@ -104,7 +104,7 @@ export function RecentOrdersGrid() {
         </div>
       )}
       <div className="mt-3 text-right">
-        <Link href="/dashboard/orders" className="text-xs text-gray-500 hover:text-primary transition-colors">
+        <Link href="/dashboard/orders" className="text-xs text-gray-500 dark:text-gray-400 hover:text-primary transition-colors">
           View All
         </Link>
       </div>

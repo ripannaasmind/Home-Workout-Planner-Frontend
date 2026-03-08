@@ -59,8 +59,8 @@ export function RecentOrdersTable() {
   }, [token]);
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-      <h3 className="text-base font-semibold text-gray-800 mb-4">Recent Workout Sessions</h3>
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+      <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Recent Workout Sessions</h3>
       {loading ? (
         <div className="flex justify-center py-6">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -77,20 +77,20 @@ export function RecentOrdersTable() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-100">
-                <th className="text-left text-gray-400 font-medium pb-3 pr-4">Workout</th>
-                <th className="text-left text-gray-400 font-medium pb-3 pr-4">Date</th>
-                <th className="text-left text-gray-400 font-medium pb-3 pr-4">Status</th>
-                <th className="text-left text-gray-400 font-medium pb-3">Duration</th>
+              <tr className="border-b border-gray-100 dark:border-gray-800">
+                <th className="text-left text-gray-400 dark:text-gray-500 font-medium pb-3 pr-4">Workout</th>
+                <th className="text-left text-gray-400 dark:text-gray-500 font-medium pb-3 pr-4">Date</th>
+                <th className="text-left text-gray-400 dark:text-gray-500 font-medium pb-3 pr-4">Status</th>
+                <th className="text-left text-gray-400 dark:text-gray-500 font-medium pb-3">Duration</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
               {sessions.map((session) => (
-                <tr key={session._id} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-3 pr-4 font-semibold text-gray-800">
+                <tr key={session._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <td className="py-3 pr-4 font-semibold text-gray-800 dark:text-gray-100">
                     {getWorkoutName(session.workout as string | Workout)}
                   </td>
-                  <td className="py-3 pr-4 text-gray-500">{formatDate(session.startTime)}</td>
+                  <td className="py-3 pr-4 text-gray-500 dark:text-gray-400">{formatDate(session.startTime)}</td>
                   <td className="py-3 pr-4">
                     <Badge
                       className={cn(
@@ -101,7 +101,7 @@ export function RecentOrdersTable() {
                       {statusLabel[session.status] || session.status}
                     </Badge>
                   </td>
-                  <td className="py-3 font-semibold text-gray-800">
+                  <td className="py-3 font-semibold text-gray-800 dark:text-gray-100">
                     {session.totalDuration ? `${session.totalDuration} min` : "—"}
                   </td>
                 </tr>
@@ -113,7 +113,7 @@ export function RecentOrdersTable() {
       <div className="mt-3 flex justify-end">
         <Link
           href="/dashboard/orders"
-          className="text-xs text-gray-500 hover:text-primary flex items-center gap-0.5 transition-colors"
+          className="text-xs text-gray-500 dark:text-gray-400 hover:text-primary flex items-center gap-0.5 transition-colors"
         >
           View All Sessions <ChevronRight className="h-3.5 w-3.5" />
         </Link>

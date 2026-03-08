@@ -93,14 +93,14 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">My Profile</h1>
         <p className="text-gray-400 text-sm mt-0.5">Manage your personal information</p>
       </div>
 
       {}
-      <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6">
-        <h3 className="text-gray-800 font-semibold mb-4">Profile Photo</h3>
-        <Separator className="bg-gray-100 mb-4" />
+      <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+        <h3 className="text-gray-800 dark:text-gray-100 font-semibold mb-4">Profile Photo</h3>
+        <Separator className="bg-gray-100 dark:bg-gray-800 mb-4" />
         <div className="flex items-center gap-6">
           <div className="relative shrink-0">
             <Avatar className="h-24 w-24 ring-4 ring-primary/20">
@@ -127,8 +127,8 @@ export default function ProfilePage() {
             />
           </div>
           <div>
-            <p className="text-gray-800 font-semibold">{name || user?.name}</p>
-            <p className="text-gray-500 text-sm">{user?.email}</p>
+            <p className="text-gray-800 dark:text-gray-100 font-semibold">{name || user?.name}</p>
+            <p className="text-gray-500 dark:text-gray-400 text-sm">{user?.email}</p>
             <div className="flex items-center gap-2 mt-2">
               <Badge className="bg-primary/10 text-primary border-0 capitalize">
                 {user?.role ?? "user"}
@@ -143,7 +143,7 @@ export default function ProfilePage() {
             <Button
               variant="outline"
               size="sm"
-              className="mt-3 border-gray-200 text-gray-600 hover:bg-gray-50"
+              className="mt-3 border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:bg-gray-800/50"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingAvatar}
             >
@@ -156,25 +156,25 @@ export default function ProfilePage() {
       </section>
 
       {}
-      <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6">
-        <h3 className="text-gray-800 font-semibold mb-4">Personal Information</h3>
-        <Separator className="bg-gray-100 mb-4" />
+      <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6">
+        <h3 className="text-gray-800 dark:text-gray-100 font-semibold mb-4">Personal Information</h3>
+        <Separator className="bg-gray-100 dark:bg-gray-800 mb-4" />
         <div className="space-y-4">
           <div>
-            <Label className="text-gray-600 mb-1.5 block text-sm">Full Name</Label>
+            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Full Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your full name"
-              className="bg-white border-gray-200 text-gray-800"
+              className="bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100"
             />
           </div>
           <div>
-            <Label className="text-gray-600 mb-1.5 block text-sm">Email Address</Label>
+            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Email Address</Label>
             <Input
               value={user?.email ?? ""}
               readOnly
-              className="bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+              className="bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-800 text-gray-400 cursor-not-allowed"
             />
             <p className="text-xs text-gray-400 mt-1">
               Email address cannot be changed.{" "}
@@ -184,11 +184,11 @@ export default function ProfilePage() {
             </p>
           </div>
           <div>
-            <Label className="text-gray-600 mb-1.5 block text-sm">Account Role</Label>
+            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Account Role</Label>
             <Input
               value={user?.role === "admin" ? "Administrator" : "Member"}
               readOnly
-              className="bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed capitalize"
+              className="bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-800 text-gray-400 cursor-not-allowed capitalize"
             />
           </div>
           <Button

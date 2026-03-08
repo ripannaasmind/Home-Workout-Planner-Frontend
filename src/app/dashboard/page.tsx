@@ -57,9 +57,9 @@ export default function DashboardPage() {
           price: p.price,
           image: p.image,
           category: p.category,
-          iconBg: "bg-gray-100",
+          iconBg: "bg-gray-100 dark:bg-gray-800",
           icon: ShoppingBag,
-          iconColor: "text-gray-600",
+          iconColor: "text-gray-600 dark:text-gray-300",
         }))
       );
     }).catch(() => {});
@@ -71,8 +71,8 @@ export default function DashboardPage() {
       <div className="flex-1 min-w-0 space-y-5">
         {}
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
-          <h2 className="text-base font-semibold text-gray-700 mt-0.5">
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Dashboard</h1>
+          <h2 className="text-base font-semibold text-gray-700 dark:text-gray-200 mt-0.5">
             Welcome back, {user?.name ?? "User"}!
           </h2>
           <p className="text-gray-400 text-sm">

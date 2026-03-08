@@ -22,11 +22,11 @@ export function DashboardTopBar({ title = "Dashboard" }: DashboardTopBarProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="lg:hidden text-gray-600 hover:bg-gray-100"
+          className="lg:hidden text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <h1 className="text-sm font-bold text-gray-800">{title}</h1>
+        <h1 className="text-sm font-bold text-gray-800 dark:text-gray-100">{title}</h1>
       </div>
 
       {}
@@ -35,7 +35,7 @@ export function DashboardTopBar({ title = "Dashboard" }: DashboardTopBarProps) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             placeholder="Search..."
-            className="pl-9 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400"
+            className="pl-9 bg-white dark:bg-card border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-100 placeholder:text-gray-400"
           />
         </div>
       </div>
@@ -45,7 +45,7 @@ export function DashboardTopBar({ title = "Dashboard" }: DashboardTopBarProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="relative text-gray-500 hover:text-gray-800 hover:bg-gray-100"
+          className="relative text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
         >
           <Bell className="h-5 w-5" />
           <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-primary border-0">

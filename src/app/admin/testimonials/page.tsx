@@ -107,15 +107,15 @@ export default function AdminTestimonialsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Testimonials</h1>
-          <p className="text-gray-500 text-sm mt-1">Manage user testimonials</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Testimonials</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage user testimonials</p>
         </div>
         <Button onClick={openCreate} className="bg-primary text-white gap-2">
           <Plus className="h-4 w-4" /> Add Testimonial
         </Button>
       </div>
 
-      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+      <div className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -126,48 +126,48 @@ export default function AdminTestimonialsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Avatar</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Name</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Role</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Rating</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Size</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Comment</th>
-                  <th className="text-right px-4 py-3 text-gray-500 font-medium">Actions</th>
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Avatar</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Name</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Role</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Rating</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Size</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Comment</th>
+                  <th className="text-right px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {testimonials.map((t, i) => (
-                  <tr key={t._id || String(t.id) || i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <tr key={t._id || String(t.id) || i} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 transition-colors">
                     <td className="px-4 py-3">
                       {t.avatar ? (
-                        <div className="relative h-11 w-11 shrink-0 rounded-full border-2 border-gray-200 shadow-sm overflow-hidden">
+                        <div className="relative h-11 w-11 shrink-0 rounded-full border-2 border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
                           <Image src={t.avatar} alt={t.name} fill className="object-cover" unoptimized />
                         </div>
                       ) : (
-                        <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center border-2 border-gray-200">
+                        <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center border-2 border-gray-200 dark:border-gray-800">
                           <span className="text-primary font-semibold text-sm">{t.name.charAt(0)}</span>
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-medium text-gray-800">{t.name}</td>
-                    <td className="px-4 py-3 text-gray-600">{t.role}</td>
+                    <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{t.name}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{t.role}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1">
                         <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-                        <span className="text-gray-700">{t.rating}</span>
+                        <span className="text-gray-700 dark:text-gray-200">{t.rating}</span>
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <Badge className="bg-gray-100 text-gray-600 border-0">{t.size}</Badge>
+                      <Badge className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-0">{t.size}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-gray-600 max-w-xs truncate">{t.comment}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300 max-w-xs truncate">{t.comment}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-colors" onClick={() => openEdit(t)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:bg-primary hover:text-white hover:border-primary transition-colors" onClick={() => openEdit(t)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(t)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-50 dark:hover:bg-red-500/100/100 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(t)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -189,19 +189,19 @@ export default function AdminTestimonialsPage() {
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm text-gray-700 mb-1.5 block">Name *</Label>
-                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border-gray-200" />
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Name *</Label>
+                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border-gray-200 dark:border-gray-800" />
               </div>
               <div>
-                <Label className="text-sm text-gray-700 mb-1.5 block">Role *</Label>
-                <Input value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="e.g. Fitness Enthusiast" className="border-gray-200" />
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Role *</Label>
+                <Input value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="e.g. Fitness Enthusiast" className="border-gray-200 dark:border-gray-800" />
               </div>
             </div>
             <div>
-              <Label className="text-sm text-gray-700 mb-1.5 block">Avatar</Label>
+              <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Avatar</Label>
               <div className="flex flex-col items-center gap-3">
                 <div
-                  className="relative h-28 w-28 rounded-full border-2 border-dashed border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+                  className="relative h-28 w-28 rounded-full border-2 border-dashed border-gray-200 dark:border-gray-800 overflow-hidden bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
                   onClick={() => avatarFileRef.current?.click()}
                 >
                   {form.avatar ? (
@@ -213,7 +213,7 @@ export default function AdminTestimonialsPage() {
                     </div>
                   )}
                   {uploadingAvatar && (
-                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-white dark:bg-card/70 flex items-center justify-center">
                       <Loader2 className="h-6 w-6 animate-spin text-primary" />
                     </div>
                   )}
@@ -254,18 +254,18 @@ export default function AdminTestimonialsPage() {
               </div>
             </div>
             <div>
-              <Label className="text-sm text-gray-700 mb-1.5 block">Comment *</Label>
-              <Textarea value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} className="border-gray-200 text-sm" rows={3} />
+              <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Comment *</Label>
+              <Textarea value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} className="border-gray-200 dark:border-gray-800 text-sm" rows={3} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm text-gray-700 mb-1.5 block">Rating (1-5)</Label>
-                <Input type="number" min={1} max={5} value={form.rating} onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })} className="border-gray-200" />
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Rating (1-5)</Label>
+                <Input type="number" min={1} max={5} value={form.rating} onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })} className="border-gray-200 dark:border-gray-800" />
               </div>
               <div>
-                <Label className="text-sm text-gray-700 mb-1.5 block">Display Size</Label>
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Display Size</Label>
                 <Select value={form.size} onValueChange={(v) => setForm({ ...form, size: v as typeof form.size })}>
-                  <SelectTrigger className="border-gray-200">
+                  <SelectTrigger className="border-gray-200 dark:border-gray-800">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -291,7 +291,7 @@ export default function AdminTestimonialsPage() {
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Delete Testimonial</DialogTitle></DialogHeader>
-          <p className="text-gray-600 text-sm">Are you sure you want to delete the testimonial from <strong>{deleteTarget?.name}</strong>?</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm">Are you sure you want to delete the testimonial from <strong>{deleteTarget?.name}</strong>?</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
             <Button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">Delete</Button>

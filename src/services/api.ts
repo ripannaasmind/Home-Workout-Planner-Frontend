@@ -567,6 +567,8 @@ export interface PaymentSettings {
   stripe: { enabled: boolean; publishableKey: string; secretKey: string };
   paypal: { enabled: boolean; clientId: string; secret: string };
   cashOnDelivery: { enabled: boolean };
+  paystack?: { enabled: boolean; secretKey: string; publicKey: string };
+  wallet?: { enabled: boolean };
 }
 
 export interface SiteConfig {

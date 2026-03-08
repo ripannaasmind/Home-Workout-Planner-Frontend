@@ -64,24 +64,24 @@ export default function BillingPage() {
                 className={`rounded-2xl border p-5 flex flex-col gap-3 ${
                   isCurrent
                     ? "bg-primary/10 border-primary/30 ring-1 ring-primary/20"
-                    : "bg-white border-gray-200 shadow-sm"
+                    : "bg-white dark:bg-card border-gray-200 dark:border-gray-800 shadow-sm"
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-gray-800 font-semibold">{plan.name}</h3>
+                  <h3 className="text-gray-800 dark:text-gray-100 font-semibold">{plan.name}</h3>
                   {isCurrent && <Badge className="bg-primary text-white border-0">Current</Badge>}
                 </div>
-                <p className="text-2xl font-bold text-gray-800">{getPriceLabel(plan)}</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{getPriceLabel(plan)}</p>
                 <ul className="space-y-1.5 flex-1">
                   {plan.features.map((f) => (
-                    <li key={f} className="text-sm text-gray-600 flex items-center gap-2">
+                    <li key={f} className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
                       <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
                       {f}
                     </li>
                   ))}
                 </ul>
                 <Button
-                  className={isCurrent ? "bg-gray-100 text-gray-500 hover:bg-gray-200" : "bg-primary hover:bg-primary/90 text-white"}
+                  className={isCurrent ? "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200" : "bg-primary hover:bg-primary/90 text-white"}
                   disabled={isCurrent}
                 >
                   {isCurrent ? "Active Plan" : "Upgrade"}
@@ -93,21 +93,21 @@ export default function BillingPage() {
       )}
 
       {}
-      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-5">
+      <div className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-gray-800 font-semibold">Payment Methods</h3>
-          <Button variant="outline" size="sm" className="border-gray-200 text-gray-600 hover:bg-gray-100 gap-1">
+          <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Payment Methods</h3>
+          <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-800 gap-1">
             <Plus className="h-3 w-3" /> Add card
           </Button>
         </div>
         {currentPlanId === "free" ? (
           <p className="text-gray-400 text-sm">No payment method on file. Upgrade to add a card.</p>
         ) : (
-          <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+          <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
             <CreditCard className="h-6 w-6 text-primary" />
             <div>
-              <p className="text-gray-800 text-sm font-medium">Visa ending in 4242</p>
-              <p className="text-gray-500 text-xs">Expires 08/2028</p>
+              <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Visa ending in 4242</p>
+              <p className="text-gray-500 dark:text-gray-400 text-xs">Expires 08/2028</p>
             </div>
             <Badge className="ml-auto bg-green-500/20 text-green-400 border-0">Default</Badge>
           </div>

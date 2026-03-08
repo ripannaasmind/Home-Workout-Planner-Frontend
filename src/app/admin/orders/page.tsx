@@ -70,8 +70,8 @@ export default function AdminOrdersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Orders</h1>
-        <p className="text-gray-500 text-sm mt-1">Manage all customer orders</p>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Orders</h1>
+        <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage all customer orders</p>
       </div>
 
       {loading ? (
@@ -81,8 +81,8 @@ export default function AdminOrdersPage() {
       ) : orders.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <ShoppingBag className="h-14 w-14 text-gray-300 mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 mb-1">No orders yet</h3>
-          <p className="text-sm text-gray-500">Orders placed by customers will appear here.</p>
+          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-1">No orders yet</h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Orders placed by customers will appear here.</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -99,34 +99,34 @@ export default function AdminOrdersPage() {
                       <div className="min-w-0">
                         <p className="text-xs text-gray-400 font-mono">#{order._id.slice(-8).toUpperCase()}</p>
                         {userInfo && (
-                          <p className="text-sm font-medium text-gray-800 truncate">{userInfo.name}</p>
+                          <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{userInfo.name}</p>
                         )}
                         {userInfo && (
-                          <p className="text-xs text-gray-500 truncate">{userInfo.email}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{userInfo.email}</p>
                         )}
                         <p className="text-xs text-gray-400">{new Date(order.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
-                      <Badge className={`text-xs border ${statusColor[order.status] ?? "bg-gray-100 text-gray-700"}`}>
+                      <Badge className={`text-xs border ${statusColor[order.status] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200"}`}>
                         {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                       </Badge>
                       <span className="text-sm font-bold text-primary">${order.total.toFixed(2)}</span>
                     </div>
                   </div>
 
-                  <div className="divide-y divide-gray-50 mb-3">
+                  <div className="divide-y divide-gray-50 dark:divide-gray-800 mb-3">
                     {order.items.map((item, i) => (
                       <div key={i} className="flex justify-between items-center py-1.5 text-sm gap-2">
-                        <span className="text-gray-700 truncate flex-1 min-w-0">{item.name} <span className="text-gray-400">×{item.quantity}</span></span>
+                        <span className="text-gray-700 dark:text-gray-200 truncate flex-1 min-w-0">{item.name} <span className="text-gray-400">×{item.quantity}</span></span>
                         <span className="font-medium shrink-0">${(item.price * item.quantity).toFixed(2)}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-3 border-t border-gray-100">
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 flex-1">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400 flex-1">
                       {order.discount > 0 && <span className="text-green-600">Promo: -{order.promoCode} (-${order.discount.toFixed(2)})</span>}
                       <span>Shipping: {order.shipping === 0 ? "Free" : `$${order.shipping.toFixed(2)}`}</span>
                       <span>Tax: ${order.tax.toFixed(2)}</span>
@@ -134,7 +134,7 @@ export default function AdminOrdersPage() {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-xs text-gray-500 hidden sm:inline">Update status:</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">Update status:</span>
                       <Select
                         value={order.status}
                         onValueChange={(val) => handleStatusChange(order._id, val)}

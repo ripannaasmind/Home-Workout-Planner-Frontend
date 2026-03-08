@@ -159,21 +159,21 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Settings</h1>
         <p className="text-gray-400 text-sm mt-0.5">Manage your account preferences and security</p>
       </div>
 
       {/* Language Settings */}
       <Link href="/dashboard/settings/language">
-        <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-5 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
+        <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-5 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
                 <Globe className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h3 className="text-gray-800 font-semibold text-sm">Language</h3>
-                <p className="text-gray-500 text-xs mt-0.5">Change the display language of the site</p>
+                <h3 className="text-gray-800 dark:text-gray-100 font-semibold text-sm">Language</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">Change the display language of the site</p>
               </div>
             </div>
             <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-primary transition-colors" />
@@ -182,25 +182,25 @@ export default function SettingsPage() {
       </Link>
 
       {}
-      <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6 space-y-4">
-        <h3 className="text-gray-800 font-semibold">Profile Information</h3>
-        <Separator className="bg-gray-100" />
+      <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+        <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Profile Information</h3>
+        <Separator className="bg-gray-100 dark:bg-gray-800" />
         <div className="space-y-3">
           <div>
-            <Label className="text-gray-600 mb-1.5 block text-sm">Full Name</Label>
+            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Full Name</Label>
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your full name"
-              className="bg-white border-gray-200 text-gray-800"
+              className="bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100"
             />
           </div>
           <div>
-            <Label className="text-gray-600 mb-1.5 block text-sm">Email Address</Label>
+            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Email Address</Label>
             <Input
               value={user?.email ?? ""}
               readOnly
-              className="bg-gray-50 border-gray-200 text-gray-400 cursor-not-allowed"
+              className="bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-800 text-gray-400 cursor-not-allowed"
             />
             <p className="text-xs text-gray-400 mt-1">Email address cannot be changed</p>
           </div>
@@ -216,56 +216,56 @@ export default function SettingsPage() {
       </section>
 
       {}
-      <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6 space-y-4">
-        <h3 className="text-gray-800 font-semibold">Change Password</h3>
-        <Separator className="bg-gray-100" />
+      <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+        <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Change Password</h3>
+        <Separator className="bg-gray-100 dark:bg-gray-800" />
         <div className="space-y-3">
           <div>
-            <Label className="text-gray-600 mb-1.5 block text-sm">Current Password</Label>
+            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Current Password</Label>
             <div className="relative">
               <Input
                 type={showCurrent ? "text" : "password"}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter current password"
-                className="bg-white border-gray-200 text-gray-800 pr-10"
+                className="bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100 pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowCurrent((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300"
               >
                 {showCurrent ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
           <div>
-            <Label className="text-gray-600 mb-1.5 block text-sm">New Password</Label>
+            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">New Password</Label>
             <div className="relative">
               <Input
                 type={showNew ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="Min. 6 characters"
-                className="bg-white border-gray-200 text-gray-800 pr-10"
+                className="bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100 pr-10"
               />
               <button
                 type="button"
                 onClick={() => setShowNew((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300"
               >
                 {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
           <div>
-            <Label className="text-gray-600 mb-1.5 block text-sm">Confirm New Password</Label>
+            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Confirm New Password</Label>
             <Input
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Repeat new password"
-              className={`bg-white border-gray-200 text-gray-800 ${
+              className={`bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100 ${
                 confirmPassword && confirmPassword !== newPassword
                   ? "border-red-300 focus-visible:ring-red-300"
                   : ""
@@ -287,9 +287,9 @@ export default function SettingsPage() {
       </section>
 
       {}
-      <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6 space-y-4">
-        <h3 className="text-gray-800 font-semibold">Notifications</h3>
-        <Separator className="bg-gray-100" />
+      <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+        <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Notifications</h3>
+        <Separator className="bg-gray-100 dark:bg-gray-800" />
         {[
           {
             key: "orderUpdates" as const,
@@ -299,8 +299,8 @@ export default function SettingsPage() {
         ].map(({ key, label, desc }) => (
           <div key={key} className="flex items-center justify-between">
             <div>
-              <p className="text-gray-800 text-sm font-medium">{label}</p>
-              <p className="text-gray-500 text-xs">{desc}</p>
+              <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">{label}</p>
+              <p className="text-gray-500 dark:text-gray-400 text-xs">{desc}</p>
             </div>
             <Switch
               checked={notif[key]}
@@ -316,8 +316,8 @@ export default function SettingsPage() {
         <Separator className="bg-red-200" />
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-gray-800 text-sm font-medium">Delete Account</p>
-            <p className="text-gray-500 text-xs">Permanently delete your account and all associated data</p>
+            <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Delete Account</p>
+            <p className="text-gray-500 dark:text-gray-400 text-xs">Permanently delete your account and all associated data</p>
           </div>
           <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
             Delete Account

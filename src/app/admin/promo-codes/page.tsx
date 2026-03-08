@@ -149,11 +149,11 @@ export default function AdminPromoCodesPage() {
   return (
     <div className="space-y-6">
       {}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Promo Codes</h1>
-            <p className="text-sm text-gray-500 mt-1">{promoCodes.length} total codes</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Promo Codes</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{promoCodes.length} total codes</p>
           </div>
           <Button onClick={openCreate} className="bg-primary hover:bg-primary/90 text-white gap-2">
             <Plus className="h-4 w-4" /> New Promo Code
@@ -162,11 +162,11 @@ export default function AdminPromoCodesPage() {
       </div>
 
       {}
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-        <div className="p-4 border-b border-gray-50 flex items-center gap-3">
+      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+        <div className="p-4 border-b border-gray-50 dark:border-gray-800 flex items-center gap-3">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input placeholder="Search codes..." className="pl-9 h-9 bg-gray-50 border-gray-200" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input placeholder="Search codes..." className="pl-9 h-9 bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-800" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
         </div>
 
@@ -184,22 +184,22 @@ export default function AdminPromoCodesPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50/60">
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Code</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Discount</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Min Order</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Uses</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Expires</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Status</th>
-                  <th className="text-right px-4 py-3 text-gray-500 font-medium">Actions</th>
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50/60">
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Code</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Discount</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Min Order</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Uses</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Expires</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Status</th>
+                  <th className="text-right px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((p) => (
-                  <tr key={p._id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <tr key={p._id} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 transition-colors">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
-                        <span className="font-mono font-bold text-gray-800 bg-gray-100 px-2 py-0.5 rounded text-xs">{p.code}</span>
+                        <span className="font-mono font-bold text-gray-800 dark:text-gray-100 bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded text-xs">{p.code}</span>
                         <button
                           onClick={() => copyCode(p.code, p._id)}
                           className="text-gray-400 hover:text-primary transition-colors"
@@ -210,14 +210,14 @@ export default function AdminPromoCodesPage() {
                       </div>
                       {p.description && <p className="text-xs text-gray-400 mt-0.5">{p.description}</p>}
                     </td>
-                    <td className="px-4 py-3 text-gray-700 font-medium">
+                    <td className="px-4 py-3 text-gray-700 dark:text-gray-200 font-medium">
                       {p.discountType === "percentage" ? `${p.discountValue}%` : `$${p.discountValue.toFixed(2)}`}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{p.minOrderAmount > 0 ? `$${p.minOrderAmount}` : "—"}</td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{p.minOrderAmount > 0 ? `$${p.minOrderAmount}` : "—"}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
                       {p.usedCount}{p.maxUses !== null ? `/${p.maxUses}` : ""}
                     </td>
-                    <td className="px-4 py-3 text-gray-600">
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
                       {p.expiresAt ? new Date(p.expiresAt).toLocaleDateString() : "Never"}
                     </td>
                     <td className="px-4 py-3">
@@ -225,10 +225,10 @@ export default function AdminPromoCodesPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-colors" onClick={() => openEdit(p)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:bg-primary hover:text-white hover:border-primary transition-colors" onClick={() => openEdit(p)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(p)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-50 dark:hover:bg-red-500/100/100 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(p)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -347,7 +347,7 @@ export default function AdminPromoCodesPage() {
           <DialogHeader>
             <DialogTitle>Delete Promo Code</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-gray-600 mt-2">
+          <p className="text-sm text-gray-600 dark:text-gray-300 mt-2">
             Are you sure you want to delete <span className="font-mono font-bold">{deleteTarget?.code}</span>? This cannot be undone.
           </p>
           <div className="flex gap-3 mt-4">

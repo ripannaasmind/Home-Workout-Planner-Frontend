@@ -58,8 +58,8 @@ export function RecommendedForYouList({ products = defaultProducts }: { products
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4">
-      <h3 className="text-sm font-semibold text-gray-800 mb-3">Recommended for You</h3>
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4">
+      <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3">Recommended for You</h3>
       <div className="space-y-3">
         {products.map((product) => {
           const Icon = product.icon;
@@ -71,8 +71,8 @@ export function RecommendedForYouList({ products = defaultProducts }: { products
                 <Icon className={`h-6 w-6 ${product.iconColor}`} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-800 truncate">{product.name}</p>
-                <p className="text-sm font-bold text-gray-700">${product.price.toFixed(2)}</p>
+                <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{product.name}</p>
+                <p className="text-sm font-bold text-gray-700 dark:text-gray-300">${product.price.toFixed(2)}</p>
               </div>
               {product.type === "cart" ? (
                 <Button
@@ -86,7 +86,7 @@ export function RecommendedForYouList({ products = defaultProducts }: { products
               ) : (
                 <Link
                   href="/dashboard/workouts"
-                  className="text-xs text-gray-500 hover:text-primary whitespace-nowrap transition-colors"
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-primary whitespace-nowrap transition-colors"
                 >
                   View Workout
                 </Link>

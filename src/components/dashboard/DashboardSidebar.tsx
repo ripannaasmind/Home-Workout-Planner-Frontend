@@ -36,7 +36,7 @@ export function DashboardSidebar() {
   };
 
   return (
-    <aside className="hidden lg:flex flex-col w-52 shrink-0 bg-white border-r border-gray-200 sticky top-16 h-[calc(100vh-80px)] overflow-y-auto py-4">
+    <aside className="hidden lg:flex flex-col w-52 shrink-0 bg-white dark:bg-card border-r border-gray-200 dark:border-gray-800 sticky top-16 h-[calc(100vh-80px)] overflow-y-auto py-4">
       {}
       <nav className="flex-1 px-3 space-y-0.5">
         {navItems.map(({ href, label, icon: Icon }) => (
@@ -47,7 +47,7 @@ export function DashboardSidebar() {
               "relative flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group overflow-hidden",
               isActive(href)
                 ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+                : "text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary hover:translate-x-1"
             )}
           >
             <span className={cn(
@@ -61,7 +61,7 @@ export function DashboardSidebar() {
       </nav>
 
       {}
-      <div className="px-3 mt-2 border-t border-gray-100 pt-2">
+      <div className="px-3 mt-2 border-t border-gray-100 dark:border-gray-800 pt-2">
         {user?.role === "admin" && (
           <Link
             href="/admin"
@@ -74,7 +74,7 @@ export function DashboardSidebar() {
         )}
         <button
           onClick={logout}
-          className="relative flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-500 hover:translate-x-1 transition-all duration-200 group overflow-hidden"
+          className="relative flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 hover:translate-x-1 transition-all duration-200 group overflow-hidden"
         >
           <span className="absolute left-0 top-0 w-[3px] rounded-r-full h-0 group-hover:h-full bg-red-400 transition-all duration-300" />
           <LogOut className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />

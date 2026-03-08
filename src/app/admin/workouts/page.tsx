@@ -121,8 +121,8 @@ export default function AdminWorkoutsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Workout Management</h1>
-          <p className="text-gray-500 text-sm mt-1">Create and manage workout library</p>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Workout Management</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Create and manage workout library</p>
         </div>
         <Button onClick={openCreate} className="bg-primary text-white gap-2">
           <Plus className="h-4 w-4" /> New Workout
@@ -135,11 +135,11 @@ export default function AdminWorkoutsPage() {
           placeholder="Search workouts..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-9 bg-white border-gray-200"
+          className="pl-9 bg-white dark:bg-card border-gray-200 dark:border-gray-800"
         />
       </div>
 
-      <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
+      <div className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -150,45 +150,45 @@ export default function AdminWorkoutsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-gray-100 bg-gray-50">
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Image</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Name</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Category</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Difficulty</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Duration</th>
-                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Exercises</th>
-                  <th className="text-right px-4 py-3 text-gray-500 font-medium">Actions</th>
+                <tr className="border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Image</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Name</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Category</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Difficulty</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Duration</th>
+                  <th className="text-left px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Exercises</th>
+                  <th className="text-right px-4 py-3 text-gray-500 dark:text-gray-400 font-medium">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((w) => (
-                  <tr key={w._id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                  <tr key={w._id} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 transition-colors">
                     <td className="px-4 py-3">
                       {(w as Workout & { image?: string }).image ? (
-                        <div className="relative h-12 w-12 flex-shrink-0 rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="relative h-12 w-12 flex-shrink-0 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
                           <Image src={(w as Workout & { image?: string }).image!} alt={w.name} fill className="object-cover" unoptimized />
                         </div>
                       ) : (
-                        <div className="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
+                        <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-800">
                           <span className="text-gray-400 text-xs">No img</span>
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-3 font-medium text-gray-800">{w.name}</td>
-                    <td className="px-4 py-3 text-gray-600">{w.category}</td>
+                    <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{w.name}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{w.category}</td>
                     <td className="px-4 py-3">
-                      <Badge className={`border-0 ${difficultyColor[w.difficulty] ?? "bg-gray-100 text-gray-700"}`}>
+                      <Badge className={`border-0 ${difficultyColor[w.difficulty] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200"}`}>
                         {w.difficulty}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-gray-600">{w.duration} min</td>
-                    <td className="px-4 py-3 text-gray-600">{w.exercises?.length ?? 0}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{w.duration} min</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{w.exercises?.length ?? 0}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 text-gray-500 hover:bg-primary hover:text-white hover:border-primary transition-colors" onClick={() => openEdit(w)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:bg-primary hover:text-white hover:border-primary transition-colors" onClick={() => openEdit(w)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(w)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-50 dark:hover:bg-red-500/100/100 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(w)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -209,22 +209,22 @@ export default function AdminWorkoutsPage() {
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label className="text-sm text-gray-700 mb-1.5 block">Name *</Label>
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border-gray-200" />
+              <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Name *</Label>
+              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className="border-gray-200 dark:border-gray-800" />
             </div>
             <div>
-              <Label className="text-sm text-gray-700 mb-1.5 block">Description</Label>
-              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="border-gray-200 text-sm" rows={3} />
+              <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Description</Label>
+              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} className="border-gray-200 dark:border-gray-800 text-sm" rows={3} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm text-gray-700 mb-1.5 block">Category *</Label>
-                <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. HIIT, Yoga" className="border-gray-200" />
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Category *</Label>
+                <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. HIIT, Yoga" className="border-gray-200 dark:border-gray-800" />
               </div>
               <div>
-                <Label className="text-sm text-gray-700 mb-1.5 block">Difficulty *</Label>
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Difficulty *</Label>
                 <Select value={form.difficulty} onValueChange={(v) => setForm({ ...form, difficulty: v as typeof form.difficulty })}>
-                  <SelectTrigger className="border-gray-200">
+                  <SelectTrigger className="border-gray-200 dark:border-gray-800">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -237,19 +237,19 @@ export default function AdminWorkoutsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm text-gray-700 mb-1.5 block">Duration (min)</Label>
-                <Input type="number" min={1} value={form.duration} onChange={(e) => setForm({ ...form, duration: Number(e.target.value) })} className="border-gray-200" />
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Duration (min)</Label>
+                <Input type="number" min={1} value={form.duration} onChange={(e) => setForm({ ...form, duration: Number(e.target.value) })} className="border-gray-200 dark:border-gray-800" />
               </div>
               <div>
-                <Label className="text-sm text-gray-700 mb-1.5 block">Est. Calories</Label>
-                <Input type="number" min={0} value={form.estimatedCalories} onChange={(e) => setForm({ ...form, estimatedCalories: Number(e.target.value) })} className="border-gray-200" />
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Est. Calories</Label>
+                <Input type="number" min={0} value={form.estimatedCalories} onChange={(e) => setForm({ ...form, estimatedCalories: Number(e.target.value) })} className="border-gray-200 dark:border-gray-800" />
               </div>
             </div>
             <div>
-              <Label className="text-sm text-gray-700 mb-1.5 block">Image</Label>
+              <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Image</Label>
               <div className="flex flex-col items-center gap-3">
                 <div
-                  className="relative w-full h-44 rounded-xl border-2 border-dashed border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+                  className="relative w-full h-44 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-800 overflow-hidden bg-gray-50 dark:bg-gray-800/50 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
                   onClick={() => imageFileRef.current?.click()}
                 >
                   {form.image ? (
@@ -261,7 +261,7 @@ export default function AdminWorkoutsPage() {
                     </div>
                   )}
                   {uploadingImage && (
-                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-white dark:bg-card/70 flex items-center justify-center">
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
                   )}
@@ -316,7 +316,7 @@ export default function AdminWorkoutsPage() {
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Delete Workout</DialogTitle></DialogHeader>
-          <p className="text-gray-600 text-sm">Are you sure you want to delete <strong>{deleteTarget?.name}</strong>?</p>
+          <p className="text-gray-600 dark:text-gray-300 text-sm">Are you sure you want to delete <strong>{deleteTarget?.name}</strong>?</p>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDeleteTarget(null)}>Cancel</Button>
             <Button onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">Delete</Button>

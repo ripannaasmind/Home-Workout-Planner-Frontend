@@ -17,9 +17,9 @@ export function DashboardHeader({
   return (
     <div className={cn("flex items-start justify-between gap-4 mb-6", className)}>
       <div>
-        <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{title}</h2>
         {description && (
-          <p className="text-gray-500 text-sm mt-1">{description}</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">{description}</p>
         )}
       </div>
       {action && <div className="shrink-0">{action}</div>}

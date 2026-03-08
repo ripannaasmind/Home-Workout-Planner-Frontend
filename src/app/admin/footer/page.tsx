@@ -107,10 +107,10 @@ export default function FooterSettingsPage() {
   }
 
   const SectionCard = ({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) => (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-gray-100 bg-gray-50">
+    <div className="bg-white dark:bg-card rounded-xl border border-gray-200 dark:border-gray-800 overflow-hidden">
+      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
         <Icon className="h-4 w-4 text-primary" />
-        <h3 className="font-semibold text-sm text-gray-800">{title}</h3>
+        <h3 className="font-semibold text-sm text-gray-800 dark:text-gray-100">{title}</h3>
       </div>
       <div className="p-5 space-y-4">{children}</div>
     </div>
@@ -118,7 +118,7 @@ export default function FooterSettingsPage() {
 
   const Field = ({ label, id, children }: { label: string; id: string; children: React.ReactNode }) => (
     <div className="space-y-1.5">
-      <Label htmlFor={id} className="text-sm font-medium text-gray-700">{label}</Label>
+      <Label htmlFor={id} className="text-sm font-medium text-gray-700 dark:text-gray-200">{label}</Label>
       {children}
     </div>
   );
@@ -128,8 +128,8 @@ export default function FooterSettingsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Footer Settings</h1>
-          <p className="text-sm text-gray-500 mt-0.5">Customize site-wide footer content and links</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Footer Settings</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">Customize site-wide footer content and links</p>
         </div>
         <Button
           onClick={handleSave}
@@ -279,8 +279,8 @@ export default function FooterSettingsPage() {
       <SectionCard icon={LayoutTemplate} title="Newsletter Section">
         <div className="flex items-center justify-between py-1">
           <div>
-            <p className="text-sm font-medium text-gray-800">Show Newsletter Signup</p>
-            <p className="text-xs text-gray-500">Display email subscription form in footer</p>
+            <p className="text-sm font-medium text-gray-800 dark:text-gray-100">Show Newsletter Signup</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Display email subscription form in footer</p>
           </div>
           <Switch
             checked={config.newsletter.enabled}

@@ -56,10 +56,10 @@ export default function ShopPage() {
             placeholder="Search products..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 bg-white border-gray-200 text-gray-800 placeholder:text-gray-400"
+            className="pl-9 bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100 placeholder:text-gray-400"
           />
         </div>
-        <Button variant="outline" className="border-gray-200 text-gray-600 hover:bg-gray-100 gap-2">
+        <Button variant="outline" className="border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-800 gap-2">
           <Filter className="h-4 w-4" /> Filter
         </Button>
       </div>
@@ -71,8 +71,8 @@ export default function ShopPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map((product) => (
-            <div key={product._id || product.id} className="rounded-2xl bg-white border border-gray-200 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
-              <div className="h-32 rounded-xl bg-gray-50 overflow-hidden relative">
+            <div key={product._id || product.id} className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+              <div className="h-32 rounded-xl bg-gray-50 dark:bg-gray-800/50 overflow-hidden relative">
                 {product.image && product.image.startsWith("http") ? (
                   <Image src={product.image} alt={product.name} fill className="object-cover" />
                 ) : (
@@ -83,7 +83,7 @@ export default function ShopPage() {
               </div>
               <div>
                 <Badge className="bg-primary/10 text-primary border-0 text-xs mb-1">{product.category}</Badge>
-                <h3 className="text-gray-800 font-semibold">{product.name}</h3>
+                <h3 className="text-gray-800 dark:text-gray-100 font-semibold">{product.name}</h3>
                 {(product.rating !== undefined) && (
                   <div className="flex items-center gap-1 mt-1">
                     <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
@@ -94,9 +94,9 @@ export default function ShopPage() {
                   </div>
                 )}
               </div>
-              <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
+              <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100 dark:border-gray-800">
                 <div>
-                  <span className="text-gray-800 font-bold">${product.price.toFixed(2)}</span>
+                  <span className="text-gray-800 dark:text-gray-100 font-bold">${product.price.toFixed(2)}</span>
                   {product.originalPrice && (
                     <span className="text-gray-400 text-sm line-through ml-2">${product.originalPrice.toFixed(2)}</span>
                   )}
