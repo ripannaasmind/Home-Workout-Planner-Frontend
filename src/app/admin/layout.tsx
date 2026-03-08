@@ -15,6 +15,7 @@ import {
   Settings,
   Tag,
   Package,
+  LayoutTemplate,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -29,6 +30,7 @@ const adminNav = [
   { href: "/admin/orders", label: "Orders", icon: Package, exact: false },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare, exact: false },
   { href: "/admin/promo-codes", label: "Promo Codes", icon: Tag, exact: false },
+  { href: "/admin/footer", label: "Footer", icon: LayoutTemplate, exact: false },
   { href: "/admin/settings", label: "Settings", icon: Settings, exact: false },
 ];
 

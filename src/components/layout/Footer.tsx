@@ -1,213 +1,223 @@
-"use client";
+﻿"use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Dumbbell, Facebook, Instagram, Twitter } from "lucide-react";
+import { Dumbbell, Facebook, Instagram, Twitter, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 
-const footerLinks = {
-  quickLinks: {
-    title: "Quick Links",
-    links: [
-      { label: "Home", href: "/" },
-      { label: "Features", href: "/features" },
-      { label: "Workouts", href: "/workouts" },
-      { label: "Testimonials", href: "/testimonials" },
-      { label: "Pricing", href: "/pricing" },
-    ],
+const defaultConfig = {
+  companyName: "FitHome",
+  tagline: "Your personal fitness companion for workouts anytime, anywhere.",
+  email: "",
+  appStoreUrl: "#",
+  googlePlayUrl: "#",
+  social: { facebook: "#", instagram: "#", twitter: "#" },
+  newsletter: {
+    enabled: true,
+    title: "Stay Updated",
+    description: "Get fitness tips & exclusive workouts directly to your inbox.",
   },
-  workouts: {
-    title: "Workouts",
-    links: [
-      { label: "Strength Training", href: "/workouts?category=strength" },
-      { label: "Yoga", href: "/workouts?category=yoga" },
-      { label: "Cardio", href: "/workouts?category=cardio" },
-      { label: "HIIT", href: "/workouts?category=hiit" },
-      { label: "Mobility", href: "/workouts?category=mobility" },
-    ],
-  },
-  resources: {
-    title: "Resources",
-    links: [
-      { label: "Help Center", href: "/help" },
-      { label: "FAQs", href: "/faq" },
-      { label: "Contact Us", href: "/contact" },
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms", href: "/terms" },
-    ],
-  },
-  support: {
-    title: "Support",
-    links: [
-      { label: "Help Center", href: "/help" },
-      { label: "FAQs", href: "/faq" },
-      { label: "Contact Us", href: "/contact" },
-      { label: "Privacy Policy", href: "/privacy" },
-      { label: "Terms of Service", href: "/terms" },
-    ],
-  },
+  copyright: "FitHome. All rights reserved.",
 };
 
-const socialLinks = [
-  { icon: Facebook, href: "#", label: "Facebook" },
-  { icon: Instagram, href: "#", label: "Instagram" },
-  { icon: Twitter, href: "#", label: "Twitter" },
+const quickLinks = [
+  { label: "Home", href: "/" },
+  { label: "Features", href: "/features" },
+  { label: "Workouts", href: "/workouts" },
+  { label: "Testimonials", href: "/testimonials" },
+  { label: "Pricing", href: "/pricing" },
 ];
+
+const workoutLinks = [
+  { label: "Strength Training", href: "/workouts?category=strength" },
+  { label: "Yoga", href: "/workouts?category=yoga" },
+  { label: "Cardio", href: "/workouts?category=cardio" },
+  { label: "HIIT", href: "/workouts?category=hiit" },
+  { label: "Mobility", href: "/workouts?category=mobility" },
+];
+
+const resourceLinks = [
+  { label: "Help Center", href: "/help" },
+  { label: "FAQs", href: "/faq" },
+  { label: "Contact Us", href: "/contact" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms", href: "/terms" },
+];
+
+type SiteConfig = typeof defaultConfig;
 
 export function Footer() {
   const [email, setEmail] = useState("");
+  const [config, setConfig] = useState<SiteConfig>(defaultConfig);
+  const [subscribed, setSubscribed] = useState(false);
+
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/site-config`)
+      .then((r) => r.json())
+      .then((res) => {
+        if (res.success) setConfig({ ...defaultConfig, ...res.data });
+      })
+      .catch(() => {});
+  }, []);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    
+    setSubscribed(true);
     setEmail("");
+    setTimeout(() => setSubscribed(false), 3000);
   };
 
   return (
-    <footer className="bg-muted/50">
-      {}
-      <div className="border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
-          <div className="text-center">
-            <Link href="/" className="inline-flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
-              <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-primary">
-                <Dumbbell className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+    <footer className="bg-gray-950 text-gray-300">
+      {/* Main grid */}
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8">
+
+          {/* Brand column */}
+          <div className="lg:col-span-4 flex flex-col gap-4">
+            <Link href="/" className="inline-flex items-center gap-2 group w-fit">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+                <Dumbbell className="h-5 w-5 text-white" />
               </div>
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground">FitHome</span>
+              <span className="text-xl font-bold text-white">{config.companyName}</span>
             </Link>
-            <p className="text-sm sm:text-base lg:text-lg text-text-secondary max-w-md mx-auto">
-              Your personal fitness companion for workouts anytime, anywhere.
+
+            <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
+              {config.tagline}
             </p>
-          </div>
-        </div>
-      </div>
 
-      {}
-      <div className="border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
-            {Object.values(footerLinks).map((section) => (
-              <div key={section.title}>
-                <h4 className="font-semibold text-sm sm:text-base text-foreground mb-3 sm:mb-4">
-                  {section.title}
-                </h4>
-                <ul className="space-y-2 sm:space-y-3">
-                  {section.links.map((link) => (
-                    <li key={link.label}>
-                      <Link
-                        href={link.href}
-                        className="text-xs sm:text-sm text-text-secondary hover:text-primary transition-colors"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+            {config.email && (
+              <a href={`mailto:${config.email}`} className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-primary transition-colors">
+                <Mail className="h-4 w-4" />
+                {config.email}
+              </a>
+            )}
 
-      {}
-      <div className="border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-          {}
-          <div className="bg-card rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-border mb-6 sm:mb-8">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8">
-              <div className="text-center lg:text-left">
-                <h3 className="font-bold text-base sm:text-lg lg:text-xl text-foreground mb-1">
-                  Stay Updated
-                </h3>
-                <p className="text-xs sm:text-sm text-text-secondary">
-                  Get fitness tips & exclusive workouts directly to your inbox.
-                </p>
-              </div>
-              
-              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto lg:min-w-100">
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 h-10 sm:h-11 text-sm bg-white"
-                  required
-                />
-                <Button 
-                  type="submit"
-                  className="bg-primary hover:bg-primary-dark text-white h-10 sm:h-11 px-6 sm:px-8 text-sm sm:text-base whitespace-nowrap"
-                >
-                  Subscribe
-                </Button>
-              </form>
+            {/* App store buttons */}
+            <div className="flex flex-col xs:flex-row gap-2 mt-1">
+              <a
+                href={config.appStoreUrl}
+                className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-2 transition-colors"
+              >
+                <Image src="/Images/App_Store_(iOS).svg.png" alt="App Store" width={22} height={22} className="rounded" />
+                <div>
+                  <div className="text-[9px] text-gray-400 leading-none">Download on the</div>
+                  <div className="text-xs font-semibold text-white leading-tight mt-0.5">App Store</div>
+                </div>
+              </a>
+              <a
+                href={config.googlePlayUrl}
+                className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-2 transition-colors"
+              >
+                <Image src="/Images/google_play.png" alt="Google Play" width={22} height={22} className="rounded" />
+                <div>
+                  <div className="text-[9px] text-gray-400 leading-none">GET IT ON</div>
+                  <div className="text-xs font-semibold text-white leading-tight mt-0.5">Google Play</div>
+                </div>
+              </a>
             </div>
           </div>
 
-          {}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
-            <Button 
-              variant="outline"
-              size="lg"
-              className="bg-gray-900 hover:bg-gray-800 text-white border-gray-900 h-12 sm:h-14 px-4 sm:px-6 rounded-xl gap-2 sm:gap-3"
-            >
-              <Image src="/Images/App_Store_(iOS).svg.png" alt="App Store" width={28} height={28} className="rounded-md" />
-              <div className="text-left">
-                <div className="text-[9px] sm:text-[10px] opacity-80">Download on the</div>
-                <div className="font-semibold text-sm sm:text-base -mt-0.5">App Store</div>
-              </div>
-            </Button>
-            
-            <Button 
-              variant="outline"
-              size="lg"
-              className="bg-white hover:bg-gray-50 text-gray-900 border-gray-300 h-12 sm:h-14 px-4 sm:px-6 rounded-xl gap-2 sm:gap-3"
-            >
-              <Image src="/Images/google_play.png" alt="Google Play" width={28} height={28} className="rounded-md" />
-              <div className="text-left">
-                <div className="text-[9px] sm:text-[10px] opacity-60">GET IT ON</div>
-                <div className="font-semibold text-sm sm:text-base -mt-0.5">Google Play</div>
-              </div>
-            </Button>
+          {/* Link columns */}
+          <div className="lg:col-span-5 grid grid-cols-3 gap-6">
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">Quick Links</h4>
+              <ul className="space-y-2">
+                {quickLinks.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="text-sm text-gray-400 hover:text-primary transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">Workouts</h4>
+              <ul className="space-y-2">
+                {workoutLinks.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="text-sm text-gray-400 hover:text-primary transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">Resources</h4>
+              <ul className="space-y-2">
+                {resourceLinks.map((l) => (
+                  <li key={l.label}>
+                    <Link href={l.href} className="text-sm text-gray-400 hover:text-primary transition-colors">
+                      {l.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
+
+          {/* Newsletter column */}
+          {config.newsletter.enabled && (
+            <div className="lg:col-span-3">
+              <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">
+                {config.newsletter.title}
+              </h4>
+              <p className="text-sm text-gray-400 mb-3 leading-relaxed">
+                {config.newsletter.description}
+              </p>
+              {subscribed ? (
+                <p className="text-sm text-primary font-medium">Thanks for subscribing!</p>
+              ) : (
+                <form onSubmit={handleSubscribe} className="flex flex-col gap-2">
+                  <Input
+                    type="email"
+                    placeholder="your@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="h-9 text-sm bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-primary"
+                  />
+                  <Button
+                    type="submit"
+                    size="sm"
+                    className="bg-primary hover:bg-primary/90 text-white text-sm h-9"
+                  >
+                    Subscribe
+                  </Button>
+                </form>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
-      {}
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          {}
-          <p className="text-xs sm:text-sm text-text-secondary text-center sm:text-left order-2 sm:order-1">
-            © {new Date().getFullYear()} FitHome. All rights reserved.
-          </p>
+      {/* Bottom bar */}
+      <div className="border-t border-white/5">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+            <p className="text-xs text-gray-500 text-center sm:text-left">
+              © {new Date().getFullYear()} {config.copyright}
+            </p>
 
-          {}
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 order-1 sm:order-2">
-            {}
-            <div className="flex items-center gap-2 sm:gap-4">
-              <Link href="/privacy" className="text-xs sm:text-sm text-text-secondary hover:text-primary transition-colors">
-                Privacy Policy
-              </Link>
-              <Separator orientation="vertical" className="h-4 bg-border" />
-              <Link href="/terms" className="text-xs sm:text-sm text-text-secondary hover:text-primary transition-colors">
-                Terms
-              </Link>
-            </div>
+            <div className="flex items-center gap-4">
+              <Link href="/privacy" className="text-xs text-gray-500 hover:text-primary transition-colors">Privacy</Link>
+              <Link href="/terms" className="text-xs text-gray-500 hover:text-primary transition-colors">Terms</Link>
 
-            {}
-            <div className="flex items-center gap-2">
-              {socialLinks.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.href}
-                  aria-label={social.label}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-gray-100 hover:bg-primary hover:text-white flex items-center justify-center transition-colors text-text-secondary"
-                >
-                  <social.icon className="w-4 h-4" />
+              <div className="flex items-center gap-1.5">
+                <a href={config.social.facebook} aria-label="Facebook" className="w-7 h-7 rounded-md bg-white/5 hover:bg-primary hover:text-white flex items-center justify-center transition-colors text-gray-400">
+                  <Facebook className="w-3.5 h-3.5" />
                 </a>
-              ))}
+                <a href={config.social.instagram} aria-label="Instagram" className="w-7 h-7 rounded-md bg-white/5 hover:bg-primary hover:text-white flex items-center justify-center transition-colors text-gray-400">
+                  <Instagram className="w-3.5 h-3.5" />
+                </a>
+                <a href={config.social.twitter} aria-label="Twitter" className="w-7 h-7 rounded-md bg-white/5 hover:bg-primary hover:text-white flex items-center justify-center transition-colors text-gray-400">
+                  <Twitter className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </div>
           </div>
         </div>
