@@ -165,7 +165,9 @@ export default function AdminProductsPage() {
                   <tr key={p._id || p.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3">
                       {p.image ? (
-                        <Image src={p.image} alt={p.name} width={48} height={48} className="h-12 w-12 object-cover rounded-xl border border-gray-200 shadow-sm" unoptimized />
+                        <div className="relative h-12 w-12 flex-shrink-0 rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                          <Image src={p.image} alt={p.name} fill className="object-cover" unoptimized />
+                        </div>
                       ) : (
                         <div className="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
                           <span className="text-gray-400 text-xs">No img</span>
