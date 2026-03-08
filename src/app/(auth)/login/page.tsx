@@ -50,8 +50,12 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      await login(sanitize(email), password);
-      router.push("/");
+      const loggedInUser = await login(sanitize(email), password);
+      if (loggedInUser.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -65,13 +69,17 @@ export default function LoginPage() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      await googleLogin({
+      const loggedInUser = await googleLogin({
         googleId: user.uid,
         email: user.email || "",
         name: user.displayName || "",
         avatar: user.photoURL || "",
       });
-      router.push("/");
+      if (loggedInUser.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Google login failed");
     } finally {

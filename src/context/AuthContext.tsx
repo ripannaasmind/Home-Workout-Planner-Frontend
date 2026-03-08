@@ -23,9 +23,9 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<void>;
-  googleLogin: (payload: GoogleAuthPayload) => Promise<void>;
+  login: (email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string) => Promise<User>;
+  googleLogin: (payload: GoogleAuthPayload) => Promise<User>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token, user]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<User> => {
     const res = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -81,9 +81,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(data.data.token);
     setUser(data.data.user);
     localStorage.setItem("fithome-refresh-token", data.data.refreshToken);
+    return data.data.user;
   };
 
-  const register = async (name: string, email: string, password: string) => {
+  const register = async (name: string, email: string, password: string): Promise<User> => {
     const res = await fetch(`${API_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -99,9 +100,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(data.data.token);
     setUser(data.data.user);
     localStorage.setItem("fithome-refresh-token", data.data.refreshToken);
+    return data.data.user;
   };
 
-  const googleLogin = async (payload: GoogleAuthPayload) => {
+  const googleLogin = async (payload: GoogleAuthPayload): Promise<User> => {
     const res = await fetch(`${API_URL}/auth/google`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -117,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setToken(data.data.token);
     setUser(data.data.user);
     localStorage.setItem("fithome-refresh-token", data.data.refreshToken);
+    return data.data.user;
   };
 
   const logout = () => {

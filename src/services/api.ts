@@ -389,14 +389,14 @@ export const adminApi = {
     }),
 
   updateWorkout: (id: string, data: Partial<Workout>, token: string) =>
-    apiRequest<{ success: boolean; data: Workout }>(`/workouts/${id}`, {
+    apiRequest<{ success: boolean; data: Workout }>(`/admin/workouts/${id}`, {
       method: "PUT",
       body: data,
       token,
     }),
 
   deleteWorkout: (id: string, token: string) =>
-    apiRequest<{ success: boolean; message: string }>(`/workouts/${id}`, {
+    apiRequest<{ success: boolean; message: string }>(`/admin/workouts/${id}`, {
       method: "DELETE",
       token,
     }),

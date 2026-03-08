@@ -80,8 +80,12 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      await register(sanitize(name), sanitize(email), password);
-      router.push("/");
+      const registeredUser = await register(sanitize(name), sanitize(email), password);
+      if (registeredUser.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
@@ -95,13 +99,17 @@ export default function SignupPage() {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
-      await googleLogin({
+      const loggedInUser = await googleLogin({
         googleId: user.uid,
         email: user.email || "",
         name: user.displayName || "",
         avatar: user.photoURL || "",
       });
-      router.push("/");
+      if (loggedInUser.role === "admin") {
+        router.push("/admin");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Google signup failed");
     } finally {

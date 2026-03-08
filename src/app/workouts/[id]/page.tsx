@@ -105,9 +105,18 @@ export default function WorkoutDetailsPage() {
         } else {
           setError("Workout not found");
         }
-      } catch (err) {
-        console.error("Failed to fetch workout:", err);
-        setError("Failed to load workout details");
+      } catch {
+        try {
+          const fallback = await workoutsApi.getById(params.id as string);
+          if (fallback.success && fallback.data) {
+            setWorkout(fallback.data);
+          } else {
+            setError("Workout not found");
+          }
+        } catch (err) {
+          console.error("Failed to fetch workout:", err);
+          setError("Workout not found");
+        }
       } finally {
         setIsLoading(false);
       }
