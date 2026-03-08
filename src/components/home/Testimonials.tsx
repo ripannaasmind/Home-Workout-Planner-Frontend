@@ -49,8 +49,8 @@ export function Testimonials() {
           }));
           setTestimonials(mapped);
         }
-      } catch (error) {
-        console.error("Failed to fetch testimonials:", error);
+      } catch {
+        // silently handle fetch error
         
       } finally {
         setIsLoading(false);

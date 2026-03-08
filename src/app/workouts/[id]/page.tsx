@@ -113,8 +113,7 @@ export default function WorkoutDetailsPage() {
           } else {
             setError("Workout not found");
           }
-        } catch (err) {
-          console.error("Failed to fetch workout:", err);
+        } catch {
           setError("Workout not found");
         }
       } finally {

@@ -73,7 +73,6 @@ export const uploadImage = async (file: File | string): Promise<string> => {
       throw new Error(result.error?.message || 'Failed to upload image');
     }
   } catch (error) {
-    console.error('Image upload error:', error);
     throw error;
   }
 };
@@ -87,7 +86,6 @@ export const uploadMultipleImages = async (files: File[]): Promise<string[]> => 
     const urls = await Promise.all(uploadPromises);
     return urls;
   } catch (error) {
-    console.error('Multiple image upload error:', error);
     throw error;
   }
 };

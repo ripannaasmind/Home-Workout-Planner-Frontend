@@ -71,8 +71,7 @@ export default function ShopPage() {
           }));
           setAllProducts(mappedProducts);
         }
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
+      } catch {
         
       } finally {
         setIsLoading(false);

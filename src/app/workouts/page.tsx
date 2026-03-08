@@ -98,8 +98,8 @@ export default function WorkoutsPage() {
           
           setPopularPrograms(mapped.slice(0, 6));
         }
-      } catch (error) {
-        console.error("Failed to fetch workouts:", error);
+      } catch {
+        // silently handle fetch error
       } finally {
         setIsLoading(false);
       }
@@ -320,7 +320,7 @@ export default function WorkoutsPage() {
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
                 Popular Programs
               </h2>
-              <Button variant="ghost" className="text-primary hover:text-primary-dark text-xs sm:text-sm gap-1">
+              <Button variant="ghost" className="text-primary hover:bg-primary hover:text-white text-xs sm:text-sm gap-1">
                 See All Programs
                 <ChevronRight className="w-4 h-4" />
               </Button>

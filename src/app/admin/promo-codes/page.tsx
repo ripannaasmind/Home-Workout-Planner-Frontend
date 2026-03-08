@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
@@ -49,7 +48,7 @@ export default function AdminPromoCodesPage() {
   };
   const [form, setForm] = useState(emptyForm);
 
-  const fetchCodes = async () => {
+  const fetchCodes = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
@@ -60,9 +59,9 @@ export default function AdminPromoCodesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  useEffect(() => { fetchCodes(); }, [token]);
+  useEffect(() => { fetchCodes(); }, [fetchCodes]);
 
   const openCreate = () => {
     setEditTarget(null);

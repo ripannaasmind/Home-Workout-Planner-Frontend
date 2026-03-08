@@ -335,7 +335,7 @@ export default function CartPage() {
               </div>
 
               {}
-              <div className="w-full lg:w-80 xl:w-96">
+              <div className="w-full lg:w-80 xl:w-96 min-w-0">
                 <Card className="sticky top-24">
                   <CardContent className="p-4 sm:p-6">
                     <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -344,7 +344,7 @@ export default function CartPage() {
 
                     {}
                     <div className="mb-4">
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap xs:flex-nowrap">
                         <div className="relative flex-1">
                           <Tag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           <Input
@@ -372,7 +372,7 @@ export default function CartPage() {
                       </div>
                       {promoApplied && promoData && (
                         <p className="text-xs text-accent mt-1">
-                          ✓ "{promoData.code}" applied! -{promoData.discountType === "percentage" ? `${promoData.discountValue}%` : `$${promoData.discountValue}`} off (-${promoData.discount.toFixed(2)})
+                          ✓ &ldquo;{promoData.code}&rdquo; applied! -{promoData.discountType === "percentage" ? `${promoData.discountValue}%` : `$${promoData.discountValue}`} off (-${promoData.discount.toFixed(2)})
                         </p>
                       )}
                     </div>

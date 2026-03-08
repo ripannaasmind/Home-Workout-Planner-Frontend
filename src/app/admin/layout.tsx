@@ -14,6 +14,7 @@ import {
   LogOut,
   Settings,
   Tag,
+  Package,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -25,6 +26,7 @@ const adminNav = [
   { href: "/admin/workouts", label: "Workouts", icon: Dumbbell, exact: false },
   { href: "/admin/exercises", label: "Exercises", icon: Activity, exact: false },
   { href: "/admin/products", label: "Products", icon: ShoppingBag, exact: false },
+  { href: "/admin/orders", label: "Orders", icon: Package, exact: false },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare, exact: false },
   { href: "/admin/promo-codes", label: "Promo Codes", icon: Tag, exact: false },
   { href: "/admin/settings", label: "Settings", icon: Settings, exact: false },
@@ -52,7 +54,7 @@ function AdminSidebar() {
             )}
           >
             <span className={cn(
-              "absolute left-0 top-0 w-[3px] rounded-r-full transition-all duration-300",
+              "absolute left-0 top-0 w-0.75 rounded-r-full transition-all duration-300",
               isActive(href, exact) ? "h-full bg-white/50" : "h-0 group-hover:h-full bg-primary"
             )} />
             <Icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
@@ -65,7 +67,7 @@ function AdminSidebar() {
           onClick={logout}
           className="relative flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-500 hover:translate-x-1 transition-all duration-200 group overflow-hidden"
         >
-          <span className="absolute left-0 top-0 w-[3px] rounded-r-full h-0 group-hover:h-full bg-red-400 transition-all duration-300" />
+          <span className="absolute left-0 top-0 w-0.75 rounded-r-full h-0 group-hover:h-full bg-red-400 transition-all duration-300" />
           <LogOut className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
           Log Out
         </button>

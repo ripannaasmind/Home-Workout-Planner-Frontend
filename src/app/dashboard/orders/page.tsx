@@ -82,14 +82,14 @@ export default function OrdersPage() {
 
                 <div className="divide-y divide-gray-50">
                   {order.items.map((item, i) => (
-                    <div key={i} className="flex justify-between items-center py-2 text-sm">
-                      <span className="text-gray-700">{item.name} <span className="text-gray-400">×{item.quantity}</span></span>
-                      <span className="font-medium">${(item.price * item.quantity).toFixed(2)}</span>
+                    <div key={i} className="flex justify-between items-center py-2 text-sm gap-2">
+                      <span className="text-gray-700 min-w-0 truncate flex-1">{item.name} <span className="text-gray-400">×{item.quantity}</span></span>
+                      <span className="font-medium shrink-0">${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-x-6 gap-y-1 text-xs text-gray-500">
+                <div className="mt-3 pt-3 border-t border-gray-100 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                   {order.discount > 0 && <span className="text-green-600">Promo: -{order.promoCode} (-${order.discount.toFixed(2)})</span>}
                   <span>Shipping: {order.shipping === 0 ? "Free" : `$${order.shipping.toFixed(2)}`}</span>
                   <span>Tax: ${order.tax.toFixed(2)}</span>

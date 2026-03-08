@@ -48,8 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         setToken(savedToken);
         setUser(JSON.parse(savedUser));
-      } catch (e) {
-        console.error("Failed to parse auth data", e);
+      } catch {
         localStorage.removeItem("fithome-token");
         localStorage.removeItem("fithome-user");
       }

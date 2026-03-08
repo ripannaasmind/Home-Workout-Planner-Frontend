@@ -176,14 +176,14 @@ function CheckoutContent() {
       <section className="py-6 sm:py-8 lg:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {}
-          <nav className="flex items-center gap-2 text-sm text-text-secondary mb-6">
-            <Link href="/" className="hover:text-primary">Home</Link>
-            <ChevronRight className="h-4 w-4" />
-            <Link href="/shop" className="hover:text-primary">Shop</Link>
-            <ChevronRight className="h-4 w-4" />
-            <Link href="/cart" className="hover:text-primary">Cart</Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-foreground">Checkout</span>
+          <nav className="flex items-center gap-1 sm:gap-2 text-sm text-text-secondary mb-6 overflow-x-auto scrollbar-none flex-nowrap whitespace-nowrap pb-1">
+            <Link href="/" className="hover:text-primary shrink-0">Home</Link>
+            <ChevronRight className="h-3 w-3 shrink-0" />
+            <Link href="/shop" className="hover:text-primary shrink-0">Shop</Link>
+            <ChevronRight className="h-3 w-3 shrink-0" />
+            <Link href="/cart" className="hover:text-primary shrink-0">Cart</Link>
+            <ChevronRight className="h-3 w-3 shrink-0" />
+            <span className="text-foreground shrink-0">Checkout</span>
           </nav>
 
           {}
@@ -232,7 +232,7 @@ function CheckoutContent() {
                         placeholder="First Name"
                         className="h-11"
                         value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
+                        onChange={(e) => setFirstName(e.target.value.replace(/[^a-zA-Z\s\u0980-\u09FF'-]/g, ""))}
                       />
                     </div>
                     <div className="space-y-2">
@@ -244,7 +244,7 @@ function CheckoutContent() {
                         placeholder="Last Name"
                         className="h-11"
                         value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
+                        onChange={(e) => setLastName(e.target.value.replace(/[^a-zA-Z\s\u0980-\u09FF'-]/g, ""))}
                       />
                     </div>
                   </div>
@@ -259,7 +259,7 @@ function CheckoutContent() {
                       placeholder="Email Address"
                       className="h-11"
                       value={billingEmail}
-                      onChange={(e) => setBillingEmail(e.target.value)}
+                      onChange={(e) => setBillingEmail(e.target.value.replace(/[^a-zA-Z0-9@._%+\-]/g, ""))}
                     />
                   </div>
 
@@ -273,7 +273,8 @@ function CheckoutContent() {
                       placeholder="Phone Number"
                       className="h-11"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      inputMode="numeric"
+                      onChange={(e) => setPhone(e.target.value.replace(/[^0-9+\-()\s]/g, ""))}
                     />
                   </div>
                 </CardContent>
@@ -300,8 +301,8 @@ function CheckoutContent() {
                   {!sameAsBilling && (
                     <div className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <Input placeholder="First Name" className="h-11" value={shipFirstName} onChange={(e) => setShipFirstName(e.target.value)} />
-                        <Input placeholder="Last Name" className="h-11" value={shipLastName} onChange={(e) => setShipLastName(e.target.value)} />
+                        <Input placeholder="First Name" className="h-11" value={shipFirstName} onChange={(e) => setShipFirstName(e.target.value.replace(/[^a-zA-Z\s\u0980-\u09FF'-]/g, ""))} />
+                        <Input placeholder="Last Name" className="h-11" value={shipLastName} onChange={(e) => setShipLastName(e.target.value.replace(/[^a-zA-Z\s\u0980-\u09FF'-]/g, ""))} />
                       </div>
                       <Input placeholder="Street Address" className="h-11" value={shipAddress} onChange={(e) => setShipAddress(e.target.value)} />
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">

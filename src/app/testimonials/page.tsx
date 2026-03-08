@@ -49,8 +49,8 @@ export default function TestimonialsPage() {
         if (response.data && response.data.length > 0) {
           setTestimonialList(response.data);
         }
-      } catch (error) {
-        console.error("Failed to fetch testimonials:", error);
+      } catch {
+        // silently handle fetch error
       } finally {
         setLoading(false);
       }

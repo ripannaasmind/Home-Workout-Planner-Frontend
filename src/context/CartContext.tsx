@@ -38,8 +38,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (savedCart) {
       try {
         setItems(JSON.parse(savedCart));
-      } catch (e) {
-        console.error("Failed to parse cart", e);
+      } catch {
+        // ignore invalid stored data
       }
     }
   }, []);

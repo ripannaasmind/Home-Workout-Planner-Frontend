@@ -141,7 +141,7 @@ export default function AdminTestimonialsPage() {
                   <tr key={t._id || String(t.id) || i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3">
                       {t.avatar ? (
-                        <div className="relative h-11 w-11 flex-shrink-0 rounded-full border-2 border-gray-200 shadow-sm overflow-hidden">
+                        <div className="relative h-11 w-11 shrink-0 rounded-full border-2 border-gray-200 shadow-sm overflow-hidden">
                           <Image src={t.avatar} alt={t.name} fill className="object-cover" unoptimized />
                         </div>
                       ) : (

@@ -71,8 +71,8 @@ export function Workouts() {
           }));
           setWorkouts(mapped);
         }
-      } catch (error) {
-        console.error("Failed to fetch workouts:", error);
+      } catch {
+        // silently handle fetch error
       } finally {
         setIsLoading(false);
       }

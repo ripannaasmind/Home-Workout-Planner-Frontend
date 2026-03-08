@@ -26,6 +26,7 @@ export function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLFormElement>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { totalItems } = useCart();
@@ -58,6 +59,18 @@ export function Header() {
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
+
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchOpen(false);
+        setSearchQuery("");
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isSearchOpen]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,7 +119,7 @@ export function Header() {
         <div className="hidden md:flex items-center gap-2 lg:gap-3">
           {}
           {isSearchOpen ? (
-            <form onSubmit={handleSearch} className="flex items-center gap-2">
+            <form onSubmit={handleSearch} className="flex items-center gap-2" ref={searchContainerRef}>
               <Input
                 ref={searchInputRef}
                 type="text"
