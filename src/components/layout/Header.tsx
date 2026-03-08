@@ -154,16 +154,22 @@ export function Header() {
             </Button>
           )}
 
-          {/* Dark mode toggle */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-9 w-9 border-border bg-muted hover:bg-accent transition-colors"
+          {/* Dark mode toggle - pill switch */}
+          <button
             onClick={() => setTheme(isDark ? "light" : "dark")}
             title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            className={`relative flex items-center h-7 w-13 rounded-full border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+              isDark ? "bg-primary/20 border-primary/50" : "bg-muted border-border"
+            }`}
           >
-            {isDark ? <Sun className="h-4 w-4 text-yellow-400" /> : <Moon className="h-4 w-4 text-slate-600" />}
-          </Button>
+            <span className={`absolute flex items-center justify-center h-5 w-5 rounded-full shadow-sm transition-transform duration-300 ${
+              isDark ? "translate-x-7 bg-primary" : "translate-x-1 bg-white"
+            }`}>
+              {isDark
+                ? <Moon className="h-3 w-3 text-white" />
+                : <Sun className="h-3 w-3 text-yellow-500" />}
+            </span>
+          </button>
 
           {}
           <Link href="/cart">
@@ -236,15 +242,21 @@ export function Header() {
             <Search className="h-4 w-4" />
           </Button>
 
-          {/* Dark mode toggle - mobile */}
-          <Button
-            variant="outline"
-            size="icon"
-            className="h-9 w-9 border-border bg-muted hover:bg-accent transition-colors"
+          {/* Dark mode toggle - mobile pill switch */}
+          <button
             onClick={() => setTheme(isDark ? "light" : "dark")}
+            className={`relative flex items-center h-7 w-13 rounded-full border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary/50 ${
+              isDark ? "bg-primary/20 border-primary/50" : "bg-muted border-border"
+            }`}
           >
-            {isDark ? <Sun className="h-4 w-4 text-yellow-400" /> : <Moon className="h-4 w-4 text-slate-600" />}
-          </Button>
+            <span className={`absolute flex items-center justify-center h-5 w-5 rounded-full shadow-sm transition-transform duration-300 ${
+              isDark ? "translate-x-7 bg-primary" : "translate-x-1 bg-white"
+            }`}>
+              {isDark
+                ? <Moon className="h-3 w-3 text-white" />
+                : <Sun className="h-3 w-3 text-yellow-500" />}
+            </span>
+          </button>
 
           {}
           <Link href="/cart">

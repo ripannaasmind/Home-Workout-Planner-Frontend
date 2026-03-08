@@ -19,6 +19,7 @@ import {
   CreditCard,
   Tag,
   Dumbbell,
+  Star,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -304,8 +305,8 @@ export default function CartPage() {
                   </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                     {relatedProducts.map((product) => (
-                      <Card key={product.id} className="overflow-hidden group">
-                        <div className="aspect-square bg-muted relative overflow-hidden">
+                      <Card key={product.id} className="overflow-hidden group p-0 gap-0 cursor-pointer">
+                        <div className="aspect-square bg-muted relative overflow-hidden rounded-t-xl">
                           {product.image && product.image.startsWith("http") ? (
                             <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
                           ) : (
@@ -314,19 +315,35 @@ export default function CartPage() {
                             </div>
                           )}
                         </div>
-                        <CardContent className="p-3">
-                          <h3 className="font-medium text-foreground text-xs sm:text-sm line-clamp-1">
+                        <CardContent className="p-3 pt-2.5">
+                          {product.category && (
+                            <span className="inline-block text-[10px] font-medium text-primary border border-primary/40 rounded-full px-2 py-0.5 bg-primary/5 mb-1.5">
+                              {product.category}
+                            </span>
+                          )}
+                          <h3 className="font-semibold text-foreground text-xs sm:text-sm line-clamp-1">
                             {product.name}
                           </h3>
-                          <p className="text-sm font-bold text-primary mt-1">
-                            {formatPrice(product.price)}
-                          </p>
+                          {(product as { description?: string }).description && (
+                            <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
+                              {(product as { description?: string }).description}
+                            </p>
+                          )}
+                          <div className="flex items-center justify-between mt-1.5">
+                            <p className="text-sm font-bold text-primary">
+                              {formatPrice(product.price)}
+                            </p>
+                            <span className="flex items-center gap-0.5 text-[10px] text-muted-foreground">
+                              <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                              4.8
+                            </span>
+                          </div>
                           <Button
-                            variant="outline"
                             size="sm"
-                            className="w-full mt-2 h-8 text-xs"
+                            className="w-full mt-2 h-8 text-xs bg-primary hover:bg-primary/90 text-white gap-1.5"
                             onClick={() => addToCart(product)}
                           >
+                            <ShoppingCart className="h-3.5 w-3.5" />
                             Add to Cart
                           </Button>
                         </CardContent>
