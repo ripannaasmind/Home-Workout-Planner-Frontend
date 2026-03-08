@@ -12,7 +12,6 @@ import {
   ShoppingBag,
   MessageSquare,
   LogOut,
-  ChevronLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -54,13 +53,6 @@ function AdminSidebar() {
         ))}
       </nav>
       <div className="px-3 mt-2 border-t border-gray-100 pt-2 space-y-0.5">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all"
-        >
-          <ChevronLeft className="h-4 w-4 shrink-0" />
-          User Dashboard
-        </Link>
         <button
           onClick={logout}
           className="flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-900 transition-all"

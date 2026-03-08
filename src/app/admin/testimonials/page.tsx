@@ -127,6 +127,7 @@ export default function AdminTestimonialsPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
+                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Avatar</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Name</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Role</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Rating</th>
@@ -138,6 +139,15 @@ export default function AdminTestimonialsPage() {
               <tbody>
                 {testimonials.map((t, i) => (
                   <tr key={t._id || String(t.id) || i} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3">
+                      {t.avatar ? (
+                        <Image src={t.avatar} alt={t.name} width={44} height={44} className="h-11 w-11 object-cover rounded-full border-2 border-gray-200 shadow-sm" unoptimized />
+                      ) : (
+                        <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center border-2 border-gray-200">
+                          <span className="text-primary font-semibold text-sm">{t.name.charAt(0)}</span>
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-3 font-medium text-gray-800">{t.name}</td>
                     <td className="px-4 py-3 text-gray-600">{t.role}</td>
                     <td className="px-4 py-3">
@@ -187,50 +197,58 @@ export default function AdminTestimonialsPage() {
             </div>
             <div>
               <Label className="text-sm text-gray-700 mb-1.5 block">Avatar</Label>
-              <div className="space-y-2">
-                {form.avatar && (
-                  <Image src={form.avatar} alt="Avatar" width={48} height={48} className="h-12 w-12 object-cover rounded-full border border-gray-200" unoptimized />
-                )}
-                <div className="flex gap-2">
-                  <Input
-                    value={form.avatar}
-                    onChange={(e) => setForm({ ...form, avatar: e.target.value })}
-                    placeholder="Paste URL or upload a file"
-                    className="border-gray-200 flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={uploadingAvatar}
-                    onClick={() => avatarFileRef.current?.click()}
-                    className="shrink-0"
-                  >
-                    {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                  </Button>
-                  <input
-                    ref={avatarFileRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const validation = validateImageFile(file, 5);
-                      if (!validation.isValid) { toast.error(validation.error); return; }
-                      setUploadingAvatar(true);
-                      try {
-                        const url = await uploadImage(file);
-                        setForm((prev) => ({ ...prev, avatar: url }));
-                      } catch {
-                        toast.error("Failed to upload image");
-                      } finally {
-                        setUploadingAvatar(false);
-                        if (avatarFileRef.current) avatarFileRef.current.value = "";
-                      }
-                    }}
-                  />
+              <div className="flex flex-col items-center gap-3">
+                <div
+                  className="relative h-28 w-28 rounded-full border-2 border-dashed border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+                  onClick={() => avatarFileRef.current?.click()}
+                >
+                  {form.avatar ? (
+                    <Image src={form.avatar} alt="Avatar" fill className="object-cover" unoptimized />
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 text-gray-400">
+                      <Upload className="h-6 w-6" />
+                      <span className="text-xs text-center">Upload</span>
+                    </div>
+                  )}
+                  {uploadingAvatar && (
+                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    </div>
+                  )}
                 </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploadingAvatar}
+                  onClick={() => avatarFileRef.current?.click()}
+                  className="w-full"
+                >
+                  {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+                  {form.avatar ? "Change Avatar" : "Upload Avatar"}
+                </Button>
+                <input
+                  ref={avatarFileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const validation = validateImageFile(file, 5);
+                    if (!validation.isValid) { toast.error(validation.error); return; }
+                    setUploadingAvatar(true);
+                    try {
+                      const url = await uploadImage(file);
+                      setForm((prev) => ({ ...prev, avatar: url }));
+                    } catch {
+                      toast.error("Failed to upload image");
+                    } finally {
+                      setUploadingAvatar(false);
+                      if (avatarFileRef.current) avatarFileRef.current.value = "";
+                    }
+                  }}
+                />
               </div>
             </div>
             <div>

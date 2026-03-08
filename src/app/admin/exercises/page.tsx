@@ -149,6 +149,7 @@ export default function AdminExercisesPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
+                  <th className="text-left px-4 py-3 text-gray-500 font-medium">Image</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Name</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Muscle Group</th>
                   <th className="text-left px-4 py-3 text-gray-500 font-medium">Equipment</th>
@@ -159,6 +160,15 @@ export default function AdminExercisesPage() {
               <tbody>
                 {filtered.map((e) => (
                   <tr key={e._id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                    <td className="px-4 py-3">
+                      {(e as Exercise & { image?: string }).image ? (
+                        <Image src={(e as Exercise & { image?: string }).image!} alt={e.name} width={48} height={48} className="h-12 w-12 object-cover rounded-xl border border-gray-200 shadow-sm" unoptimized />
+                      ) : (
+                        <div className="h-12 w-12 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
+                          <span className="text-gray-400 text-xs">No img</span>
+                        </div>
+                      )}
+                    </td>
                     <td className="px-4 py-3 font-medium text-gray-800">{e.name}</td>
                     <td className="px-4 py-3 text-gray-600">{e.muscleGroup}</td>
                     <td className="px-4 py-3 text-gray-600">{e.equipment}</td>
@@ -225,50 +235,58 @@ export default function AdminExercisesPage() {
             </div>
             <div>
               <Label className="text-sm text-gray-700 mb-1.5 block">Image</Label>
-              <div className="space-y-2">
-                {form.image && (
-                  <Image src={form.image} alt="Exercise" width={80} height={80} className="h-20 w-20 object-cover rounded-lg border border-gray-200" unoptimized />
-                )}
-                <div className="flex gap-2">
-                  <Input
-                    value={form.image}
-                    onChange={(e) => setForm({ ...form, image: e.target.value })}
-                    placeholder="Paste URL or upload a file"
-                    className="border-gray-200 flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={uploadingImage}
-                    onClick={() => imageFileRef.current?.click()}
-                    className="shrink-0"
-                  >
-                    {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                  </Button>
-                  <input
-                    ref={imageFileRef}
-                    type="file"
-                    accept="image/jpeg,image/png,image/gif,image/webp"
-                    className="hidden"
-                    onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      const validation = validateImageFile(file, 5);
-                      if (!validation.isValid) { toast.error(validation.error); return; }
-                      setUploadingImage(true);
-                      try {
-                        const url = await uploadImage(file);
-                        setForm((prev) => ({ ...prev, image: url }));
-                      } catch {
-                        toast.error("Failed to upload image");
-                      } finally {
-                        setUploadingImage(false);
-                        if (imageFileRef.current) imageFileRef.current.value = "";
-                      }
-                    }}
-                  />
+              <div className="flex flex-col items-center gap-3">
+                <div
+                  className="relative w-full h-44 rounded-xl border-2 border-dashed border-gray-200 overflow-hidden bg-gray-50 flex items-center justify-center cursor-pointer hover:border-primary/50 transition-colors"
+                  onClick={() => imageFileRef.current?.click()}
+                >
+                  {form.image ? (
+                    <Image src={form.image} alt="Exercise" fill className="object-cover" unoptimized />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-gray-400">
+                      <Upload className="h-8 w-8" />
+                      <span className="text-sm">Click to upload image</span>
+                    </div>
+                  )}
+                  {uploadingImage && (
+                    <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  )}
                 </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={uploadingImage}
+                  onClick={() => imageFileRef.current?.click()}
+                  className="w-full"
+                >
+                  {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+                  {form.image ? "Change Image" : "Upload Image"}
+                </Button>
+                <input
+                  ref={imageFileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/gif,image/webp"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const validation = validateImageFile(file, 5);
+                    if (!validation.isValid) { toast.error(validation.error); return; }
+                    setUploadingImage(true);
+                    try {
+                      const url = await uploadImage(file);
+                      setForm((prev) => ({ ...prev, image: url }));
+                    } catch {
+                      toast.error("Failed to upload image");
+                    } finally {
+                      setUploadingImage(false);
+                      if (imageFileRef.current) imageFileRef.current.value = "";
+                    }
+                  }}
+                />
               </div>
             </div>
           </div>
