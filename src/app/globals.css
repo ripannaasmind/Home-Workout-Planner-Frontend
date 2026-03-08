@@ -53,6 +53,52 @@
   --sidebar-ring: #4caf50;
 }
 
+.dark {
+  --primary: #66bb6a;
+  --primary-dark: #81c784;
+  --primary-light: #4caf50;
+  --secondary: #ffca28;
+  --secondary-dark: #ffc107;
+  --secondary-light: #ffd559;
+  --accent: #ef5350;
+  --success: #66bb6a;
+  --warning: #ffca28;
+  --surface: #1e1e1e;
+  --surface-elevated: #2a2a2a;
+  --text-primary: #e8e8e8;
+  --text-secondary: #b0b0b0;
+  --text-muted: #787878;
+
+  --background: #0f0f0f;
+  --foreground: #e8e8e8;
+  --card: #1a1a1a;
+  --card-foreground: #e8e8e8;
+  --popover: #1a1a1a;
+  --popover-foreground: #e8e8e8;
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #1a1a1a;
+  --muted: #262626;
+  --muted-foreground: #a0a0a0;
+  --accent-foreground: #ffffff;
+  --destructive: #ef5350;
+  --border: #333333;
+  --input: #333333;
+  --ring: #66bb6a;
+  --chart-1: #66bb6a;
+  --chart-2: #ffca28;
+  --chart-3: #ef5350;
+  --chart-4: #42a5f5;
+  --chart-5: #ab47bc;
+  --sidebar: #141414;
+  --sidebar-foreground: #e8e8e8;
+  --sidebar-primary: #66bb6a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1b2e1c;
+  --sidebar-accent-foreground: #a5d6a7;
+  --sidebar-border: #333333;
+  --sidebar-ring: #66bb6a;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -122,6 +168,8 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #c8e6c9; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #4caf50; }
+.dark ::-webkit-scrollbar-thumb { background: #333; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #66bb6a; }
 
 /* Focus ring utility */
 .focus-ring {

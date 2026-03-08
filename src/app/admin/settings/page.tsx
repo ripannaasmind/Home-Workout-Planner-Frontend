@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
-import { adminApi } from "@/services/api";
+import { adminApi, SiteConfig } from "@/services/api";
 import { toast } from "sonner";
+import Image from "next/image";
 import {
   CreditCard,
   Truck,
@@ -19,7 +21,17 @@ import {
   Settings,
   ChevronDown,
   ChevronUp,
+  DollarSign,
+  Globe,
+  Layout,
+  Upload,
+  Plus,
+  Trash2,
+  Link as LinkIcon,
+  ImageIcon,
+  Loader2,
 } from "lucide-react";
+import { ALL_CURRENCIES, LANGUAGES } from "@/context/ThemeContext";
 
 
 // ------- PayPal SVG Icon -------
@@ -40,37 +52,72 @@ function maskKey(key: string) {
 }
 
 
-// ------- Admin Payment Settings Page -------
+// ------- Sections -------
+const sections = [
+  { id: "business", label: "Business", icon: DollarSign },
+  { id: "payment", label: "Payment", icon: CreditCard },
+  { id: "footer", label: "Footer & Branding", icon: Layout },
+];
+
+
+// ------- Admin Settings Page -------
 export default function AdminSettingsPage() {
   const { token } = useAuth();
-
+  const [activeSection, setActiveSection] = useState("business");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // Payment state
   const [stripeEnabled, setStripeEnabled] = useState(false);
   const [stripePublishable, setStripePublishable] = useState("");
   const [stripeSecret, setStripeSecret] = useState("");
   const [stripeOpen, setStripeOpen] = useState(false);
   const [showStripePub, setShowStripePub] = useState(false);
   const [showStripeSecret, setShowStripeSecret] = useState(false);
-
   const [paypalEnabled, setPaypalEnabled] = useState(false);
   const [paypalClientId, setPaypalClientId] = useState("");
   const [paypalSecret, setPaypalSecret] = useState("");
   const [paypalOpen, setPaypalOpen] = useState(false);
   const [showPaypalId, setShowPaypalId] = useState(false);
   const [showPaypalSecret, setShowPaypalSecret] = useState(false);
-
   const [codEnabled, setCodEnabled] = useState(true);
 
+  // Site config state
+  const [siteConfig, setSiteConfig] = useState<Partial<SiteConfig>>({
+    companyName: "FitHome",
+    tagline: "Your personal fitness companion for workouts anytime, anywhere.",
+    email: "",
+    phone: "",
+    address: "",
+    currency: "USD",
+    language: "en",
+    timezone: "UTC",
+    headerLogo: "",
+    footerLogo: "",
+    footerDescription: "",
+    appDownloadLinks: [],
+    socialMediaLinks: [],
+    footerQuickLinks: [],
+    newsletter: { enabled: true, title: "Stay Updated", description: "Get fitness tips & exclusive workouts directly to your inbox." },
+    copyright: "FitHome. All rights reserved.",
+  });
 
-  // ------- Load settings on mount -------
+  // Upload refs
+  const headerLogoRef = useRef<HTMLInputElement>(null);
+  const footerLogoRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState<string | null>(null);
+
+
+  // ------- Load all settings on mount -------
   useEffect(() => {
     if (!token) return;
     (async () => {
       try {
-        const res = await adminApi.getPaymentSettings(token);
-        const d = res.data;
+        const [payRes, siteRes] = await Promise.all([
+          adminApi.getPaymentSettings(token),
+          adminApi.getSiteConfig(token),
+        ]);
+        const d = payRes.data;
         setStripeEnabled(d.stripe.enabled);
         setStripePublishable(d.stripe.publishableKey || "");
         setStripeSecret(d.stripe.secretKey || "");
@@ -78,8 +125,12 @@ export default function AdminSettingsPage() {
         setPaypalClientId(d.paypal.clientId || "");
         setPaypalSecret(d.paypal.secret || "");
         setCodEnabled(d.cashOnDelivery.enabled);
+
+        if (siteRes.data) {
+          setSiteConfig((prev) => ({ ...prev, ...siteRes.data }));
+        }
       } catch {
-        toast.error("Failed to load payment settings");
+        toast.error("Failed to load settings");
       } finally {
         setLoading(false);
       }
@@ -87,26 +138,153 @@ export default function AdminSettingsPage() {
   }, [token]);
 
 
-  // ------- Save settings -------
+  // ------- Image upload helper -------
+  const handleImageUpload = async (file: File, field: string, arrayIndex?: number, arrayField?: string) => {
+    if (!token) return;
+    const uploadKey = arrayIndex !== undefined ? `${field}-${arrayIndex}` : field;
+    setUploading(uploadKey);
+    try {
+      const res = await adminApi.uploadSiteImage(file, token);
+      if (res.success && res.data?.url) {
+        if (arrayIndex !== undefined && arrayField) {
+          setSiteConfig((prev) => {
+            const arr = [...(prev[field as keyof SiteConfig] as Array<Record<string, string>> || [])];
+            arr[arrayIndex] = { ...arr[arrayIndex], [arrayField]: res.data.url };
+            return { ...prev, [field]: arr };
+          });
+        } else {
+          setSiteConfig((prev) => ({ ...prev, [field]: res.data.url }));
+        }
+        toast.success("Image uploaded");
+      } else {
+        toast.error("Upload failed");
+      }
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setUploading(null);
+    }
+  };
+
+
+  // ------- Save all settings -------
   const handleSave = async () => {
     if (!token) return;
     setSaving(true);
     try {
-      await adminApi.updatePaymentSettings(
-        {
-          stripe: { enabled: stripeEnabled, publishableKey: stripePublishable, secretKey: stripeSecret },
-          paypal: { enabled: paypalEnabled, clientId: paypalClientId, secret: paypalSecret },
-          cashOnDelivery: { enabled: codEnabled },
-        },
-        token
-      );
-      toast.success("Payment settings saved");
+      const promises = [];
+
+      if (activeSection === "payment") {
+        promises.push(
+          adminApi.updatePaymentSettings(
+            {
+              stripe: { enabled: stripeEnabled, publishableKey: stripePublishable, secretKey: stripeSecret },
+              paypal: { enabled: paypalEnabled, clientId: paypalClientId, secret: paypalSecret },
+              cashOnDelivery: { enabled: codEnabled },
+            },
+            token
+          )
+        );
+      }
+
+      if (activeSection === "business" || activeSection === "footer") {
+        promises.push(adminApi.updateSiteConfig(siteConfig, token));
+      }
+
+      await Promise.all(promises);
+      toast.success("Settings saved successfully");
     } catch {
       toast.error("Failed to save settings");
     } finally {
       setSaving(false);
     }
   };
+
+
+  // ------- Helper to update site config field -------
+  const updateField = (field: string, value: unknown) => {
+    setSiteConfig((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const updateNestedField = (parent: string, field: string, value: unknown) => {
+    setSiteConfig((prev) => ({
+      ...prev,
+      [parent]: { ...(prev[parent as keyof SiteConfig] as Record<string, unknown>), [field]: value },
+    }));
+  };
+
+
+  // ------- Social media links helpers -------
+  const addSocialLink = () => {
+    setSiteConfig((prev) => ({
+      ...prev,
+      socialMediaLinks: [...(prev.socialMediaLinks || []), { name: "", url: "", icon: "" }],
+    }));
+  };
+
+  const removeSocialLink = (index: number) => {
+    setSiteConfig((prev) => ({
+      ...prev,
+      socialMediaLinks: (prev.socialMediaLinks || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateSocialLink = (index: number, field: string, value: string) => {
+    setSiteConfig((prev) => {
+      const links = [...(prev.socialMediaLinks || [])];
+      links[index] = { ...links[index], [field]: value };
+      return { ...prev, socialMediaLinks: links };
+    });
+  };
+
+
+  // ------- App download links helpers -------
+  const addAppLink = () => {
+    setSiteConfig((prev) => ({
+      ...prev,
+      appDownloadLinks: [...(prev.appDownloadLinks || []), { name: "", url: "", logo: "" }],
+    }));
+  };
+
+  const removeAppLink = (index: number) => {
+    setSiteConfig((prev) => ({
+      ...prev,
+      appDownloadLinks: (prev.appDownloadLinks || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateAppLink = (index: number, field: string, value: string) => {
+    setSiteConfig((prev) => {
+      const links = [...(prev.appDownloadLinks || [])];
+      links[index] = { ...links[index], [field]: value };
+      return { ...prev, appDownloadLinks: links };
+    });
+  };
+
+
+  // ------- Footer quick links helpers -------
+  const addQuickLink = () => {
+    setSiteConfig((prev) => ({
+      ...prev,
+      footerQuickLinks: [...(prev.footerQuickLinks || []), { name: "", url: "" }],
+    }));
+  };
+
+  const removeQuickLink = (index: number) => {
+    setSiteConfig((prev) => ({
+      ...prev,
+      footerQuickLinks: (prev.footerQuickLinks || []).filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateQuickLink = (index: number, field: string, value: string) => {
+    setSiteConfig((prev) => {
+      const links = [...(prev.footerQuickLinks || [])];
+      links[index] = { ...links[index], [field]: value };
+      return { ...prev, footerQuickLinks: links };
+    });
+  };
+
 
   if (loading) {
     return (
@@ -117,220 +295,571 @@ export default function AdminSettingsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      {}
-      <div className="flex items-center gap-3 mb-2">
+    <div className="max-w-5xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
         <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
           <Settings className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Payment Settings</h1>
-          <p className="text-sm text-gray-500">Enable or disable payment methods and configure API keys</p>
+          <h1 className="text-2xl font-bold text-gray-800">Settings</h1>
+          <p className="text-sm text-gray-500">Manage your site configuration, payments, and branding</p>
         </div>
       </div>
 
-      {}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-violet-50 flex items-center justify-center">
-                <CreditCard className="h-4 w-4 text-violet-600" />
-              </div>
-              <div>
-                <CardTitle className="text-base font-semibold text-gray-800">Stripe</CardTitle>
-                <p className="text-xs text-gray-500 mt-0.5">Credit & debit card payments</p>
-              </div>
-            </div>
-            <Switch checked={stripeEnabled} onCheckedChange={setStripeEnabled} />
-          </div>
-        </CardHeader>
-
-        {stripeEnabled && (
-          <>
-            <Separator />
-            <CardContent className="pt-4">
+      <div className="flex gap-6">
+        {/* Sidebar navigation */}
+        <div className="w-48 shrink-0">
+          <nav className="space-y-1 sticky top-24">
+            {sections.map(({ id, label, icon: Icon }) => (
               <button
-                className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-4"
-                onClick={() => setStripeOpen((o) => !o)}
+                key={id}
+                onClick={() => setActiveSection(id)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                  activeSection === id
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+                }`}
               >
-                {stripeOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                {stripeOpen ? "Hide" : "Configure"} API Keys
+                <Icon className="h-4 w-4" />
+                {label}
               </button>
+            ))}
+          </nav>
+        </div>
 
-              {stripeOpen && (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Publishable Key</Label>
-                    <div className="relative">
-                      <Input
-                        type={showStripePub ? "text" : "password"}
-                        placeholder="pk_live_..."
-                        value={stripePublishable}
-                        onChange={(e) => setStripePublishable(e.target.value)}
-                        className="pr-10 font-mono text-sm"
-                      />
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        onClick={() => setShowStripePub((v) => !v)}
-                      >
-                        {showStripePub ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
+        {/* Content area */}
+        <div className="flex-1 space-y-6 min-w-0">
+
+          {/* ==================== BUSINESS SECTION ==================== */}
+          {activeSection === "business" && (
+            <>
+              {/* Currency */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-green-50 flex items-center justify-center">
+                      <DollarSign className="h-4 w-4 text-green-600" />
                     </div>
-                    {stripePublishable && !showStripePub && (
-                      <p className="text-xs text-gray-400 font-mono">{maskKey(stripePublishable)}</p>
-                    )}
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Secret Key</Label>
-                    <div className="relative">
-                      <Input
-                        type={showStripeSecret ? "text" : "password"}
-                        placeholder="sk_live_..."
-                        value={stripeSecret}
-                        onChange={(e) => setStripeSecret(e.target.value)}
-                        className="pr-10 font-mono text-sm"
-                      />
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        onClick={() => setShowStripeSecret((v) => !v)}
-                      >
-                        {showStripeSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800">Currency</CardTitle>
+                      <p className="text-xs text-gray-500 mt-0.5">Set the default currency for all prices site-wide</p>
                     </div>
-                    {stripeSecret && !showStripeSecret && (
-                      <p className="text-xs text-gray-400 font-mono">{maskKey(stripeSecret)}</p>
-                    )}
                   </div>
-                  <div className="p-3 bg-violet-50 rounded-lg border border-violet-100">
-                    <p className="text-xs text-violet-700">Find your keys in the <span className="font-semibold">Stripe Dashboard → Developers → API Keys</span></p>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </>
-        )}
-      </Card>
-
-      {}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center">
-                <PayPalIcon />
-              </div>
-              <div>
-                <CardTitle className="text-base font-semibold text-gray-800">PayPal</CardTitle>
-                <p className="text-xs text-gray-500 mt-0.5">PayPal & linked bank account payments</p>
-              </div>
-            </div>
-            <Switch checked={paypalEnabled} onCheckedChange={setPaypalEnabled} />
-          </div>
-        </CardHeader>
-
-        {paypalEnabled && (
-          <>
-            <Separator />
-            <CardContent className="pt-4">
-              <button
-                className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-4"
-                onClick={() => setPaypalOpen((o) => !o)}
-              >
-                {paypalOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                {paypalOpen ? "Hide" : "Configure"} API Keys
-              </button>
-
-              {paypalOpen && (
-                <div className="space-y-4">
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4">
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Client ID</Label>
-                    <div className="relative">
-                      <Input
-                        type={showPaypalId ? "text" : "password"}
-                        placeholder="AYour-PayPal-Client-ID..."
-                        value={paypalClientId}
-                        onChange={(e) => setPaypalClientId(e.target.value)}
-                        className="pr-10 font-mono text-sm"
-                      />
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        onClick={() => setShowPaypalId((v) => !v)}
-                      >
-                        {showPaypalId ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
+                    <Label className="text-sm font-medium text-gray-700">Default Currency</Label>
+                    <select
+                      value={siteConfig.currency || "USD"}
+                      onChange={(e) => updateField("currency", e.target.value)}
+                      className="w-full h-10 px-3 rounded-md border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    >
+                      {ALL_CURRENCIES.map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                    <p className="text-xs text-gray-400">This currency will be used as the default across the entire site. Users can change their preference.</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Language */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                      <Globe className="h-4 w-4 text-blue-600" />
                     </div>
-                    {paypalClientId && !showPaypalId && (
-                      <p className="text-xs text-gray-400 font-mono">{maskKey(paypalClientId)}</p>
-                    )}
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800">Language</CardTitle>
+                      <p className="text-xs text-gray-500 mt-0.5">Set the default language for the site</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Default Language</Label>
+                    <select
+                      value={siteConfig.language || "en"}
+                      onChange={(e) => updateField("language", e.target.value)}
+                      className="w-full h-10 px-3 rounded-md border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                    >
+                      {LANGUAGES.map((l) => (
+                        <option key={l.code} value={l.code}>{l.name} ({l.code})</option>
+                      ))}
+                    </select>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Company Info */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-purple-50 flex items-center justify-center">
+                      <Settings className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800">Company Information</CardTitle>
+                      <p className="text-xs text-gray-500 mt-0.5">Basic details shown across the site</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Company / Gym Name</Label>
+                    <Input value={siteConfig.companyName || ""} onChange={(e) => updateField("companyName", e.target.value)} placeholder="FitHome" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700">Secret</Label>
-                    <div className="relative">
-                      <Input
-                        type={showPaypalSecret ? "text" : "password"}
-                        placeholder="EYour-PayPal-Secret..."
-                        value={paypalSecret}
-                        onChange={(e) => setPaypalSecret(e.target.value)}
-                        className="pr-10 font-mono text-sm"
-                      />
-                      <button
-                        type="button"
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        onClick={() => setShowPaypalSecret((v) => !v)}
-                      >
-                        {showPaypalSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
+                    <Label className="text-sm font-medium text-gray-700">Tagline</Label>
+                    <Textarea value={siteConfig.tagline || ""} onChange={(e) => updateField("tagline", e.target.value)} placeholder="Your fitness companion..." rows={2} className="resize-none" />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700">Email</Label>
+                      <Input type="email" value={siteConfig.email || ""} onChange={(e) => updateField("email", e.target.value)} placeholder="hello@fithome.com" />
                     </div>
-                    {paypalSecret && !showPaypalSecret && (
-                      <p className="text-xs text-gray-400 font-mono">{maskKey(paypalSecret)}</p>
-                    )}
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700">Phone</Label>
+                      <Input value={siteConfig.phone || ""} onChange={(e) => updateField("phone", e.target.value)} placeholder="+1 (555) 000-0000" />
+                    </div>
                   </div>
-                  <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                    <p className="text-xs text-blue-700">Find your credentials in the <span className="font-semibold">PayPal Developer Dashboard → My Apps & Credentials</span></p>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Address</Label>
+                    <Textarea value={siteConfig.address || ""} onChange={(e) => updateField("address", e.target.value)} placeholder="123 Fitness St, City" rows={2} className="resize-none" />
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </>
-        )}
-      </Card>
-
-      {}
-      <Card className="border border-gray-200 shadow-sm">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-lg bg-green-50 flex items-center justify-center">
-                <Truck className="h-4 w-4 text-green-600" />
-              </div>
-              <div>
-                <CardTitle className="text-base font-semibold text-gray-800">Cash on Delivery</CardTitle>
-                <p className="text-xs text-gray-500 mt-0.5">Pay when the order is delivered</p>
-              </div>
-            </div>
-            <Switch checked={codEnabled} onCheckedChange={setCodEnabled} />
-          </div>
-        </CardHeader>
-      </Card>
-
-      {}
-      <div className="flex justify-end">
-        <Button
-          onClick={handleSave}
-          disabled={saving}
-          className="gap-2 bg-primary hover:bg-primary/90 text-white px-8"
-        >
-          {saving ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
-          ) : (
-            <Save className="h-4 w-4" />
+                </CardContent>
+              </Card>
+            </>
           )}
-          {saving ? "Saving..." : "Save Settings"}
-        </Button>
+
+
+          {/* ==================== PAYMENT SECTION ==================== */}
+          {activeSection === "payment" && (
+            <>
+              {/* Stripe */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-violet-50 flex items-center justify-center">
+                        <CreditCard className="h-4 w-4 text-violet-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800">Stripe</CardTitle>
+                        <p className="text-xs text-gray-500 mt-0.5">Credit & debit card payments</p>
+                      </div>
+                    </div>
+                    <Switch checked={stripeEnabled} onCheckedChange={setStripeEnabled} />
+                  </div>
+                </CardHeader>
+                {stripeEnabled && (
+                  <>
+                    <Separator />
+                    <CardContent className="pt-4">
+                      <button
+                        className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-4"
+                        onClick={() => setStripeOpen((o) => !o)}
+                      >
+                        {stripeOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {stripeOpen ? "Hide" : "Configure"} API Keys
+                      </button>
+                      {stripeOpen && (
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700">Publishable Key</Label>
+                            <div className="relative">
+                              <Input type={showStripePub ? "text" : "password"} placeholder="pk_live_..." value={stripePublishable} onChange={(e) => setStripePublishable(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowStripePub((v) => !v)}>
+                                {showStripePub ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {stripePublishable && !showStripePub && <p className="text-xs text-gray-400 font-mono">{maskKey(stripePublishable)}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700">Secret Key</Label>
+                            <div className="relative">
+                              <Input type={showStripeSecret ? "text" : "password"} placeholder="sk_live_..." value={stripeSecret} onChange={(e) => setStripeSecret(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowStripeSecret((v) => !v)}>
+                                {showStripeSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {stripeSecret && !showStripeSecret && <p className="text-xs text-gray-400 font-mono">{maskKey(stripeSecret)}</p>}
+                          </div>
+                          <div className="p-3 bg-violet-50 rounded-lg border border-violet-100">
+                            <p className="text-xs text-violet-700">Find your keys in the <span className="font-semibold">Stripe Dashboard → Developers → API Keys</span></p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </>
+                )}
+              </Card>
+
+              {/* PayPal */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                        <PayPalIcon />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800">PayPal</CardTitle>
+                        <p className="text-xs text-gray-500 mt-0.5">PayPal & linked bank account payments</p>
+                      </div>
+                    </div>
+                    <Switch checked={paypalEnabled} onCheckedChange={setPaypalEnabled} />
+                  </div>
+                </CardHeader>
+                {paypalEnabled && (
+                  <>
+                    <Separator />
+                    <CardContent className="pt-4">
+                      <button
+                        className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-4"
+                        onClick={() => setPaypalOpen((o) => !o)}
+                      >
+                        {paypalOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {paypalOpen ? "Hide" : "Configure"} API Keys
+                      </button>
+                      {paypalOpen && (
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700">Client ID</Label>
+                            <div className="relative">
+                              <Input type={showPaypalId ? "text" : "password"} placeholder="AYour-PayPal-Client-ID..." value={paypalClientId} onChange={(e) => setPaypalClientId(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowPaypalId((v) => !v)}>
+                                {showPaypalId ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {paypalClientId && !showPaypalId && <p className="text-xs text-gray-400 font-mono">{maskKey(paypalClientId)}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700">Secret</Label>
+                            <div className="relative">
+                              <Input type={showPaypalSecret ? "text" : "password"} placeholder="EYour-PayPal-Secret..." value={paypalSecret} onChange={(e) => setPaypalSecret(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600" onClick={() => setShowPaypalSecret((v) => !v)}>
+                                {showPaypalSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {paypalSecret && !showPaypalSecret && <p className="text-xs text-gray-400 font-mono">{maskKey(paypalSecret)}</p>}
+                          </div>
+                          <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                            <p className="text-xs text-blue-700">Find your credentials in the <span className="font-semibold">PayPal Developer Dashboard → My Apps & Credentials</span></p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </>
+                )}
+              </Card>
+
+              {/* COD */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-green-50 flex items-center justify-center">
+                        <Truck className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800">Cash on Delivery</CardTitle>
+                        <p className="text-xs text-gray-500 mt-0.5">Pay when the order is delivered</p>
+                      </div>
+                    </div>
+                    <Switch checked={codEnabled} onCheckedChange={setCodEnabled} />
+                  </div>
+                </CardHeader>
+              </Card>
+            </>
+          )}
+
+
+          {/* ==================== FOOTER & BRANDING SECTION ==================== */}
+          {activeSection === "footer" && (
+            <>
+              {/* Header Logo */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-orange-50 flex items-center justify-center">
+                      <ImageIcon className="h-4 w-4 text-orange-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800">Header Logo</CardTitle>
+                      <p className="text-xs text-gray-500 mt-0.5">Upload the logo displayed in the header/navbar</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
+                      {siteConfig.headerLogo ? (
+                        <Image src={siteConfig.headerLogo} alt="Header Logo" width={80} height={80} className="object-contain w-full h-full" />
+                      ) : (
+                        <ImageIcon className="h-8 w-8 text-gray-300" />
+                      )}
+                    </div>
+                    <div>
+                      <input ref={headerLogoRef} type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleImageUpload(e.target.files[0], "headerLogo"); }} />
+                      <Button variant="outline" size="sm" onClick={() => headerLogoRef.current?.click()} disabled={uploading === "headerLogo"}>
+                        {uploading === "headerLogo" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+                        Upload Logo
+                      </Button>
+                      <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP. Max 5MB.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Footer Logo & Description */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-teal-50 flex items-center justify-center">
+                      <Layout className="h-4 w-4 text-teal-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800">Footer Branding</CardTitle>
+                      <p className="text-xs text-gray-500 mt-0.5">Logo, description, and copyright for the footer</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-gray-50">
+                      {siteConfig.footerLogo ? (
+                        <Image src={siteConfig.footerLogo} alt="Footer Logo" width={80} height={80} className="object-contain w-full h-full" />
+                      ) : (
+                        <ImageIcon className="h-8 w-8 text-gray-300" />
+                      )}
+                    </div>
+                    <div>
+                      <input ref={footerLogoRef} type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleImageUpload(e.target.files[0], "footerLogo"); }} />
+                      <Button variant="outline" size="sm" onClick={() => footerLogoRef.current?.click()} disabled={uploading === "footerLogo"}>
+                        {uploading === "footerLogo" ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Upload className="h-4 w-4 mr-2" />}
+                        Upload Footer Logo
+                      </Button>
+                      <p className="text-xs text-gray-400 mt-1">PNG, JPG, WEBP. Max 5MB.</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Footer Description</Label>
+                    <Textarea value={siteConfig.footerDescription || ""} onChange={(e) => updateField("footerDescription", e.target.value)} placeholder="Short description for the footer area..." rows={2} className="resize-none" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700">Copyright Text</Label>
+                    <Input value={siteConfig.copyright || ""} onChange={(e) => updateField("copyright", e.target.value)} placeholder="FitHome. All rights reserved." />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Social Media Links */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-pink-50 flex items-center justify-center">
+                        <LinkIcon className="h-4 w-4 text-pink-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800">Social Media Links</CardTitle>
+                        <p className="text-xs text-gray-500 mt-0.5">Add social media profiles with custom icons</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={addSocialLink}>
+                      <Plus className="h-4 w-4 mr-1" /> Add
+                    </Button>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-4">
+                  {(!siteConfig.socialMediaLinks || siteConfig.socialMediaLinks.length === 0) && (
+                    <p className="text-sm text-gray-400 text-center py-4">No social media links added yet. Click &quot;Add&quot; to start.</p>
+                  )}
+                  {(siteConfig.socialMediaLinks || []).map((link, idx) => (
+                    <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                      {/* Icon upload */}
+                      <div className="shrink-0">
+                        <div className="w-12 h-12 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-white cursor-pointer hover:border-primary/30 transition-colors"
+                          onClick={() => {
+                            const input = document.createElement("input");
+                            input.type = "file";
+                            input.accept = "image/*";
+                            input.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) handleImageUpload(file, "socialMediaLinks", idx, "icon");
+                            };
+                            input.click();
+                          }}
+                        >
+                          {uploading === `socialMediaLinks-${idx}` ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                          ) : link.icon ? (
+                            <Image src={link.icon} alt={link.name || "Social"} width={48} height={48} className="object-contain w-full h-full p-1" />
+                          ) : (
+                            <Upload className="h-4 w-4 text-gray-300" />
+                          )}
+                        </div>
+                      </div>
+                      {/* Fields */}
+                      <div className="flex-1 space-y-2">
+                        <Input placeholder="Name (e.g. Facebook)" value={link.name} onChange={(e) => updateSocialLink(idx, "name", e.target.value)} className="h-9 text-sm" />
+                        <Input placeholder="URL (e.g. https://facebook.com/...)" value={link.url} onChange={(e) => updateSocialLink(idx, "url", e.target.value)} className="h-9 text-sm" />
+                      </div>
+                      <Button variant="ghost" size="icon" className="shrink-0 h-9 w-9 text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => removeSocialLink(idx)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* App Download Links */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-cyan-50 flex items-center justify-center">
+                        <Globe className="h-4 w-4 text-cyan-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800">App Download Links</CardTitle>
+                        <p className="text-xs text-gray-500 mt-0.5">App store links shown in footer (upload logos)</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={addAppLink}>
+                      <Plus className="h-4 w-4 mr-1" /> Add
+                    </Button>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-4">
+                  {(!siteConfig.appDownloadLinks || siteConfig.appDownloadLinks.length === 0) && (
+                    <p className="text-sm text-gray-400 text-center py-4">No app download links added yet.</p>
+                  )}
+                  {(siteConfig.appDownloadLinks || []).map((link, idx) => (
+                    <div key={idx} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                      <div className="shrink-0">
+                        <div className="w-12 h-12 rounded-lg border-2 border-dashed border-gray-200 flex items-center justify-center overflow-hidden bg-white cursor-pointer hover:border-primary/30 transition-colors"
+                          onClick={() => {
+                            const input = document.createElement("input");
+                            input.type = "file";
+                            input.accept = "image/*";
+                            input.onchange = (e) => {
+                              const file = (e.target as HTMLInputElement).files?.[0];
+                              if (file) handleImageUpload(file, "appDownloadLinks", idx, "logo");
+                            };
+                            input.click();
+                          }}
+                        >
+                          {uploading === `appDownloadLinks-${idx}` ? (
+                            <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                          ) : link.logo ? (
+                            <Image src={link.logo} alt={link.name || "App"} width={48} height={48} className="object-contain w-full h-full p-1" />
+                          ) : (
+                            <Upload className="h-4 w-4 text-gray-300" />
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex-1 space-y-2">
+                        <Input placeholder="Name (e.g. App Store)" value={link.name} onChange={(e) => updateAppLink(idx, "name", e.target.value)} className="h-9 text-sm" />
+                        <Input placeholder="URL (e.g. https://apps.apple.com/...)" value={link.url} onChange={(e) => updateAppLink(idx, "url", e.target.value)} className="h-9 text-sm" />
+                      </div>
+                      <Button variant="ghost" size="icon" className="shrink-0 h-9 w-9 text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => removeAppLink(idx)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Footer Quick Links */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-indigo-50 flex items-center justify-center">
+                        <LinkIcon className="h-4 w-4 text-indigo-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800">Footer Quick Links</CardTitle>
+                        <p className="text-xs text-gray-500 mt-0.5">Custom navigation links in the footer</p>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={addQuickLink}>
+                      <Plus className="h-4 w-4 mr-1" /> Add
+                    </Button>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-3">
+                  {(!siteConfig.footerQuickLinks || siteConfig.footerQuickLinks.length === 0) && (
+                    <p className="text-sm text-gray-400 text-center py-4">No quick links added yet.</p>
+                  )}
+                  {(siteConfig.footerQuickLinks || []).map((link, idx) => (
+                    <div key={idx} className="flex items-center gap-3">
+                      <Input placeholder="Label" value={link.name} onChange={(e) => updateQuickLink(idx, "name", e.target.value)} className="h-9 text-sm flex-1" />
+                      <Input placeholder="URL (e.g. /about)" value={link.url} onChange={(e) => updateQuickLink(idx, "url", e.target.value)} className="h-9 text-sm flex-1" />
+                      <Button variant="ghost" size="icon" className="shrink-0 h-9 w-9 text-red-400 hover:text-red-600 hover:bg-red-50" onClick={() => removeQuickLink(idx)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Newsletter */}
+              <Card className="border border-gray-200 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-amber-50 flex items-center justify-center">
+                        <Globe className="h-4 w-4 text-amber-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800">Newsletter</CardTitle>
+                        <p className="text-xs text-gray-500 mt-0.5">Email subscription section in footer</p>
+                      </div>
+                    </div>
+                    <Switch checked={siteConfig.newsletter?.enabled ?? true} onCheckedChange={(v) => updateNestedField("newsletter", "enabled", v)} />
+                  </div>
+                </CardHeader>
+                {siteConfig.newsletter?.enabled && (
+                  <>
+                    <Separator />
+                    <CardContent className="pt-4 space-y-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-700">Title</Label>
+                        <Input value={siteConfig.newsletter?.title || ""} onChange={(e) => updateNestedField("newsletter", "title", e.target.value)} placeholder="Stay Updated" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-700">Description</Label>
+                        <Textarea value={siteConfig.newsletter?.description || ""} onChange={(e) => updateNestedField("newsletter", "description", e.target.value)} placeholder="Get fitness tips..." rows={2} className="resize-none" />
+                      </div>
+                    </CardContent>
+                  </>
+                )}
+              </Card>
+            </>
+          )}
+
+
+          {/* Save Button */}
+          <div className="flex justify-end pt-2 pb-6">
+            <Button onClick={handleSave} disabled={saving} className="gap-2 bg-primary hover:bg-primary/90 text-white px-8">
+              {saving ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" /> : <Save className="h-4 w-4" />}
+              {saving ? "Saving..." : "Save Settings"}
+            </Button>
+          </div>
+        </div>
       </div>
     </div>
   );

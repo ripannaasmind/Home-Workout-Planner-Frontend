@@ -476,6 +476,27 @@ export const adminApi = {
       body: data,
       token,
     }),
+
+  getSiteConfig: (token: string) =>
+    apiRequest<{ success: boolean; data: SiteConfig }>("/admin/site-config", { token }),
+
+  updateSiteConfig: (data: Partial<SiteConfig>, token: string) =>
+    apiRequest<{ success: boolean; data: SiteConfig }>("/admin/site-config", {
+      method: "PUT",
+      body: data,
+      token,
+    }),
+
+  uploadSiteImage: async (file: File, token: string) => {
+    const formData = new FormData();
+    formData.append("image", file);
+    const response = await fetch(`${API_URL}/admin/site-config/upload`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    });
+    return response.json() as Promise<{ success: boolean; data: { url: string } }>;
+  },
 };
 
 export const paymentApi = {
@@ -546,6 +567,26 @@ export interface PaymentSettings {
   stripe: { enabled: boolean; publishableKey: string; secretKey: string };
   paypal: { enabled: boolean; clientId: string; secret: string };
   cashOnDelivery: { enabled: boolean };
+}
+
+export interface SiteConfig {
+  _id?: string;
+  companyName: string;
+  tagline: string;
+  email: string;
+  phone: string;
+  address: string;
+  currency: string;
+  language: string;
+  timezone: string;
+  headerLogo: string;
+  footerLogo: string;
+  footerDescription: string;
+  appDownloadLinks: { name: string; url: string; logo: string }[];
+  socialMediaLinks: { name: string; url: string; icon: string }[];
+  footerQuickLinks: { name: string; url: string }[];
+  newsletter: { enabled: boolean; title: string; description: string };
+  copyright: string;
 }
 
 export interface AdminUser {
