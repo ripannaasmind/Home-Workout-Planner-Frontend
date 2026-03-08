@@ -466,7 +466,87 @@ export const adminApi = {
       method: "DELETE",
       token,
     }),
+
+  getPaymentSettings: (token: string) =>
+    apiRequest<{ success: boolean; data: PaymentSettings }>("/admin/payment-settings", { token }),
+
+  updatePaymentSettings: (data: Partial<PaymentSettings>, token: string) =>
+    apiRequest<{ success: boolean; data: PaymentSettings }>("/admin/payment-settings", {
+      method: "PUT",
+      body: data,
+      token,
+    }),
 };
+
+export const paymentApi = {
+  getPublicMethods: () =>
+    apiRequest<{ success: boolean; data: PublicPaymentMethods }>("/payment-settings"),
+};
+
+export const promoApi = {
+  validate: (code: string, orderAmount: number) =>
+    apiRequest<{ success: boolean; data: PromoCodeResult }>("/promo-codes/validate", {
+      method: "POST",
+      body: { code, orderAmount },
+    }),
+
+  getAll: (token: string) =>
+    apiRequest<{ success: boolean; data: PromoCode[] }>("/admin/promo-codes", { token }),
+
+  create: (data: Partial<PromoCode>, token: string) =>
+    apiRequest<{ success: boolean; data: PromoCode }>("/admin/promo-codes", {
+      method: "POST",
+      body: data,
+      token,
+    }),
+
+  update: (id: string, data: Partial<PromoCode>, token: string) =>
+    apiRequest<{ success: boolean; data: PromoCode }>(`/admin/promo-codes/${id}`, {
+      method: "PUT",
+      body: data,
+      token,
+    }),
+
+  delete: (id: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/admin/promo-codes/${id}`, {
+      method: "DELETE",
+      token,
+    }),
+};
+
+export const ordersApi = {
+  create: (data: CreateOrderPayload, token: string) =>
+    apiRequest<{ success: boolean; data: Order }>("/orders", {
+      method: "POST",
+      body: data,
+      token,
+    }),
+
+  getMyOrders: (token: string) =>
+    apiRequest<{ success: boolean; data: Order[] }>("/orders/my", { token }),
+
+  getAllOrders: (token: string) =>
+    apiRequest<{ success: boolean; data: Order[] }>("/admin/orders", { token }),
+
+  updateStatus: (id: string, status: string, token: string) =>
+    apiRequest<{ success: boolean; data: Order }>(`/admin/orders/${id}/status`, {
+      method: "PUT",
+      body: { status },
+      token,
+    }),
+};
+
+export interface PublicPaymentMethods {
+  stripe: { enabled: boolean; publishableKey: string };
+  paypal: { enabled: boolean; clientId: string };
+  cashOnDelivery: { enabled: boolean };
+}
+
+export interface PaymentSettings {
+  stripe: { enabled: boolean; publishableKey: string; secretKey: string };
+  paypal: { enabled: boolean; clientId: string; secret: string };
+  cashOnDelivery: { enabled: boolean };
+}
 
 export interface AdminUser {
   _id: string;
@@ -506,6 +586,66 @@ export interface WorkoutSession {
   caloriesBurned?: number;
   totalPausedMs?: number;
   pausedAt?: string;
+}
+
+export interface PromoCode {
+  _id: string;
+  code: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  minOrderAmount: number;
+  maxUses: number | null;
+  usedCount: number;
+  isActive: boolean;
+  expiresAt: string | null;
+  description: string;
+  createdAt: string;
+}
+
+export interface PromoCodeResult {
+  code: string;
+  discountType: "percentage" | "fixed";
+  discountValue: number;
+  discount: number;
+  description: string;
+}
+
+export interface OrderItem {
+  productId: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: string;
+}
+
+export interface Order {
+  _id: string;
+  user: string | { _id: string; name: string; email: string };
+  items: OrderItem[];
+  subtotal: number;
+  discount: number;
+  promoCode: string | null;
+  shipping: number;
+  tax: number;
+  total: number;
+  paymentMethod: "stripe" | "paypal" | "cod";
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  billingDetails: { firstName: string; lastName: string; email: string; phone: string };
+  shippingAddress: { firstName: string; lastName: string; address: string; city: string; state: string; zip: string };
+  createdAt: string;
+}
+
+export interface CreateOrderPayload {
+  items: OrderItem[];
+  subtotal: number;
+  discount: number;
+  promoCode: string | null;
+  shipping: number;
+  tax: number;
+  total: number;
+  paymentMethod: string;
+  billingDetails: { firstName: string; lastName: string; email: string; phone: string };
+  shippingAddress: { firstName: string; lastName: string; address: string; city: string; state: string; zip: string };
 }
 
 export default apiRequest;

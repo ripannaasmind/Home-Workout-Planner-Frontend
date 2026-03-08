@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -14,6 +14,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
+import { paymentApi, ordersApi, type PublicPaymentMethods } from "@/services/api";
+import { useRouter, useSearchParams } from "next/navigation";
+import toast from "react-hot-toast";
 import {
   sanitize,
   validateName,
@@ -31,23 +35,44 @@ import {
   ChevronRight,
   Dumbbell,
   AlertCircle,
+  Loader2,
 } from "lucide-react";
 
 
-// ------- Checkout Page Component -------
-export default function CheckoutPage() {
-  const { cart, totalPrice } = useCart();
+function CheckoutContent() {
+  const { cart, totalPrice, clearCart } = useCart();
+  const { user, token } = useAuth();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const promoCodeParam = searchParams.get("promo") || "";
+  const promoDiscountParam = parseFloat(searchParams.get("discount") || "0");
+
   const [sameAsBilling, setSameAsBilling] = useState(true);
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
-  const [paymentMethod, setPaymentMethod] = useState("card");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethods, setPaymentMethods] = useState<PublicPaymentMethods | null>(null);
+  const [placing, setPlacing] = useState(false);
 
-  
+  useEffect(() => {
+    paymentApi.getPublicMethods()
+      .then((res) => {
+        setPaymentMethods(res.data);
+        if (res.data.stripe.enabled) setPaymentMethod("stripe");
+        else if (res.data.paypal.enabled) setPaymentMethod("paypal");
+        else if (res.data.cashOnDelivery.enabled) setPaymentMethod("cod");
+      })
+      .catch(() => {
+        setPaymentMethods({ stripe: { enabled: false, publishableKey: "" }, paypal: { enabled: false, clientId: "" }, cashOnDelivery: { enabled: true } });
+        setPaymentMethod("cod");
+      });
+  }, []);
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [billingEmail, setBillingEmail] = useState("");
+  const [billingEmail, setBillingEmail] = useState(user?.email || "");
   const [phone, setPhone] = useState("");
 
-  
   const [shipFirstName, setShipFirstName] = useState("");
   const [shipLastName, setShipLastName] = useState("");
   const [shipAddress, setShipAddress] = useState("");
@@ -55,7 +80,6 @@ export default function CheckoutPage() {
   const [shipState, setShipState] = useState("");
   const [shipZip, setShipZip] = useState("");
 
-  
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
@@ -63,9 +87,12 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
 
   const shippingCost = deliveryMethod === "express" ? 15.00 : totalPrice >= 100 ? 0 : 5.00;
-  const total = totalPrice + shippingCost;
+  const discount = promoDiscountParam;
+  const subtotalAfterDiscount = Math.max(0, totalPrice - discount);
+  const tax = subtotalAfterDiscount * 0.08;
+  const total = subtotalAfterDiscount + shippingCost + tax;
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     setError("");
 
     let check = validateName(firstName);
@@ -92,7 +119,7 @@ export default function CheckoutPage() {
       if (!check.valid) { setError(check.message); return; }
     }
 
-    if (paymentMethod === "card") {
+    if (paymentMethod === "stripe") {
       check = validateCardNumber(cardNumber);
       if (!check.valid) { setError(check.message); return; }
       check = validateCardExpiry(expiry);
@@ -101,8 +128,45 @@ export default function CheckoutPage() {
       if (!check.valid) { setError(check.message); return; }
     }
 
-    
-    alert("Order placed successfully!");
+    if (!user || !token) { setError("You must be logged in to place an order"); return; }
+    if (cart.length === 0) { setError("Your cart is empty"); return; }
+
+    setPlacing(true);
+    ordersApi.create({
+      items: cart.map((item) => ({
+        productId: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image || "",
+      })),
+      subtotal: totalPrice,
+      discount,
+      promoCode: promoCodeParam || null,
+      shipping: shippingCost,
+      tax,
+      total,
+      paymentMethod: paymentMethod as "stripe" | "paypal" | "cod",
+      billingDetails: {
+        firstName: sanitize(firstName),
+        lastName: sanitize(lastName),
+        email: sanitize(billingEmail),
+        phone: sanitize(phone),
+      },
+      shippingAddress: sameAsBilling
+        ? { firstName: sanitize(firstName), lastName: sanitize(lastName), address: "", city: "", state: "", zip: "" }
+        : { firstName: sanitize(shipFirstName), lastName: sanitize(shipLastName), address: sanitize(shipAddress), city: sanitize(shipCity), state: sanitize(shipState), zip: sanitize(shipZip) },
+    }, token)
+      .then(() => {
+        clearCart();
+        toast.success("Order placed successfully!");
+        router.push("/dashboard/orders");
+      })
+      .catch((err: unknown) => {
+        const msg = err instanceof Error ? err.message : "Failed to place order";
+        setError(msg);
+      })
+      .finally(() => setPlacing(false));
   };
 
   return (
@@ -294,15 +358,23 @@ export default function CheckoutPage() {
                   <h2 className="text-lg font-semibold text-foreground mb-4">
                     Payment Method
                   </h2>
-                  
+
+                  {!paymentMethods ? (
+                    <div className="flex items-center justify-center py-6">
+                      <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent" />
+                    </div>
+                  ) : (
                   <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                     <div className="space-y-3">
+
+                      {paymentMethods.stripe.enabled && (
                       <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
-                        <RadioGroupItem value="card" id="card" />
-                        <Label htmlFor="card" className="flex-1 cursor-pointer">
+                        <RadioGroupItem value="stripe" id="stripe" />
+                        <Label htmlFor="stripe" className="flex-1 cursor-pointer">
                           <div className="flex items-center gap-2">
-                            <CreditCard className="h-4 w-4 text-primary" />
-                            <span className="font-medium">Credit Card</span>
+                            <CreditCard className="h-4 w-4 text-violet-600" />
+                            <span className="font-medium">Credit / Debit Card</span>
+                            <span className="text-xs bg-violet-50 text-violet-600 border border-violet-200 px-1.5 py-0.5 rounded font-medium">Stripe</span>
                           </div>
                           <div className="flex items-center gap-2 mt-2">
                             <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" width={32} height={20} className="object-contain" />
@@ -311,8 +383,9 @@ export default function CheckoutPage() {
                           </div>
                         </Label>
                       </div>
+                      )}
 
-                      {}
+                      {paymentMethods.paypal.enabled && (
                       <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
                         <RadioGroupItem value="paypal" id="paypal" />
                         <Label htmlFor="paypal" className="flex-1 cursor-pointer">
@@ -324,10 +397,29 @@ export default function CheckoutPage() {
                           </div>
                         </Label>
                       </div>
+                      )}
+
+                      {paymentMethods.cashOnDelivery.enabled && (
+                      <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
+                        <RadioGroupItem value="cod" id="cod" />
+                        <Label htmlFor="cod" className="flex-1 cursor-pointer">
+                          <div className="flex items-center gap-2">
+                            <Truck className="h-4 w-4 text-green-600" />
+                            <span className="font-medium">Cash on Delivery</span>
+                          </div>
+                          <p className="text-sm text-text-secondary mt-0.5">Pay when your order arrives</p>
+                        </Label>
+                      </div>
+                      )}
+
+                      {!paymentMethods.stripe.enabled && !paymentMethods.paypal.enabled && !paymentMethods.cashOnDelivery.enabled && (
+                        <p className="text-sm text-gray-500 text-center py-4">No payment methods are currently available.</p>
+                      )}
                     </div>
                   </RadioGroup>
+                  )}
 
-                  {paymentMethod === "card" && (
+                  {paymentMethod === "stripe" && (
                     <div className="mt-4 space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="cardNumber" className="text-sm">
@@ -370,6 +462,18 @@ export default function CheckoutPage() {
                           />
                         </div>
                       </div>
+                    </div>
+                  )}
+
+                  {paymentMethod === "paypal" && (
+                    <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-lg text-center">
+                      <p className="text-sm text-blue-700">You will be redirected to PayPal to complete your payment securely.</p>
+                    </div>
+                  )}
+
+                  {paymentMethod === "cod" && (
+                    <div className="mt-4 p-4 bg-green-50 border border-green-100 rounded-lg text-center">
+                      <p className="text-sm text-green-700">You will pay in cash when your order is delivered to your door.</p>
                     </div>
                   )}
                 </CardContent>
@@ -428,6 +532,12 @@ export default function CheckoutPage() {
                       <span className="text-text-secondary">Subtotal</span>
                       <span className="font-medium">${totalPrice.toFixed(2)}</span>
                     </div>
+                    {discount > 0 && (
+                      <div className="flex justify-between text-accent">
+                        <span>Promo ({promoCodeParam})</span>
+                        <span>-${discount.toFixed(2)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between">
                       <span className="text-text-secondary">Shipping</span>
                       <span className="font-medium">
@@ -437,6 +547,10 @@ export default function CheckoutPage() {
                           `$${shippingCost.toFixed(2)}`
                         )}
                       </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-text-secondary">Tax (8%)</span>
+                      <span className="font-medium">${tax.toFixed(2)}</span>
                     </div>
                   </div>
 
@@ -449,8 +563,8 @@ export default function CheckoutPage() {
                     </span>
                   </div>
 
-                  <Button onClick={handlePlaceOrder} className="w-full h-12 bg-primary hover:bg-primary-dark text-white font-semibold">
-                    Place Order
+                  <Button onClick={handlePlaceOrder} disabled={placing} className="w-full h-12 bg-primary hover:bg-primary-dark text-white font-semibold">
+                    {placing ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Placing Order...</> : "Place Order"}
                   </Button>
 
                   <p className="text-xs text-text-secondary text-center mt-3">
@@ -465,5 +579,15 @@ export default function CheckoutPage() {
 
       <Footer />
     </div>
+  );
+}
+
+
+// ------- Checkout Page Component -------
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+      <CheckoutContent />
+    </Suspense>
   );
 }

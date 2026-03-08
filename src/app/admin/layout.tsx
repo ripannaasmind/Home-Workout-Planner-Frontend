@@ -12,6 +12,8 @@ import {
   ShoppingBag,
   MessageSquare,
   LogOut,
+  Settings,
+  Tag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -24,6 +26,8 @@ const adminNav = [
   { href: "/admin/exercises", label: "Exercises", icon: Activity, exact: false },
   { href: "/admin/products", label: "Products", icon: ShoppingBag, exact: false },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare, exact: false },
+  { href: "/admin/promo-codes", label: "Promo Codes", icon: Tag, exact: false },
+  { href: "/admin/settings", label: "Settings", icon: Settings, exact: false },
 ];
 
 function AdminSidebar() {

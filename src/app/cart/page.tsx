@@ -21,15 +21,20 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
-import { productsApi } from "@/services/api";
+import { useRouter } from "next/navigation";
+import { productsApi, promoApi } from "@/services/api";
+import toast from "react-hot-toast";
 
 
 // ------- Cart Page Component -------
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, addToCart } = useCart();
+  const router = useRouter();
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [promoDiscount, setPromoDiscount] = useState(0);
+  const [promoData, setPromoData] = useState<{ code: string; discount: number; discountType: string; discountValue: number } | null>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -51,11 +56,37 @@ export default function CartPage() {
   const tax = (totalPrice - promoDiscount) * 0.08;
   const finalTotal = totalPrice - promoDiscount + shippingCost + tax;
 
-  const handleApplyPromo = () => {
-    if (promoCode.toLowerCase() === "fit10") {
-      setPromoDiscount(totalPrice * 0.1);
+  const handleApplyPromo = async () => {
+    if (!promoCode.trim()) return;
+    setPromoLoading(true);
+    try {
+      const res = await promoApi.validate(promoCode.trim(), totalPrice);
+      setPromoData(res.data);
+      setPromoDiscount(res.data.discount);
       setPromoApplied(true);
+      toast.success(`Promo "${res.data.code}" applied! -$${res.data.discount.toFixed(2)}`);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Invalid promo code";
+      toast.error(msg);
+    } finally {
+      setPromoLoading(false);
     }
+  };
+
+  const handleRemovePromo = () => {
+    setPromoCode("");
+    setPromoApplied(false);
+    setPromoDiscount(0);
+    setPromoData(null);
+  };
+
+  const handleCheckout = () => {
+    const params = new URLSearchParams();
+    if (promoData) {
+      params.set("promo", promoData.code);
+      params.set("discount", String(promoData.discount));
+    }
+    router.push(`/checkout?${params.toString()}`);
   };
 
   return (
@@ -196,7 +227,7 @@ export default function CartPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-7 px-0 text-destructive hover:text-destructive text-xs"
+                                  className="h-7 px-0 text-destructive hover:text-white text-xs"
                                   onClick={() => removeFromCart(item.id)}
                                 >
                                   <Trash2 className="h-3 w-3 mr-1" />
@@ -254,7 +285,7 @@ export default function CartPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-destructive hover:text-destructive"
+                        className="text-destructive hover:text-white"
                         onClick={clearCart}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
@@ -320,28 +351,30 @@ export default function CartPage() {
                             type="text"
                             placeholder="Promo code"
                             value={promoCode}
-                            onChange={(e) => setPromoCode(e.target.value)}
+                            onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
                             className="pl-10 h-10"
                             disabled={promoApplied}
+                            onKeyDown={(e) => e.key === "Enter" && !promoApplied && handleApplyPromo()}
                           />
                         </div>
-                        <Button
-                          variant="outline"
-                          className="h-10"
-                          onClick={handleApplyPromo}
-                          disabled={promoApplied || !promoCode}
-                        >
-                          {promoApplied ? "Applied" : "Apply"}
-                        </Button>
+                        {promoApplied ? (
+                          <Button variant="outline" className="h-10 text-red-500" onClick={handleRemovePromo}>Remove</Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            className="h-10"
+                            onClick={handleApplyPromo}
+                            disabled={promoLoading || !promoCode}
+                          >
+                            {promoLoading ? "..." : "Apply"}
+                          </Button>
+                        )}
                       </div>
-                      {promoApplied && (
+                      {promoApplied && promoData && (
                         <p className="text-xs text-accent mt-1">
-                          Promo code FIT10 applied! (-10%)
+                          ✓ "{promoData.code}" applied! -{promoData.discountType === "percentage" ? `${promoData.discountValue}%` : `$${promoData.discountValue}`} off (-${promoData.discount.toFixed(2)})
                         </p>
                       )}
-                      <p className="text-xs text-text-secondary mt-1">
-                        Try &quot;FIT10&quot; for 10% off
-                      </p>
                     </div>
 
                     <Separator className="my-4" />
@@ -393,8 +426,8 @@ export default function CartPage() {
                       </div>
                     )}
 
-                    {}
-                    <Button className="w-full h-11 sm:h-12 bg-primary hover:bg-primary-dark text-white text-sm sm:text-base font-semibold">
+                    {}  
+                    <Button onClick={handleCheckout} className="w-full h-11 sm:h-12 bg-primary hover:bg-primary-dark text-white text-sm sm:text-base font-semibold">
                       <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Proceed to Checkout
                     </Button>
