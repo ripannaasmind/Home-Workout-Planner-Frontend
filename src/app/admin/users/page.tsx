@@ -169,7 +169,7 @@ export default function AdminUsersPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0 text-gray-500 hover:text-primary"
+                          className="h-8 w-8 p-0 rounded-lg text-gray-500 hover:bg-primary hover:text-white transition-colors"
                           onClick={() => handleEdit(u)}
                         >
                           <Edit2 className="h-4 w-4" />
@@ -177,7 +177,7 @@ export default function AdminUsersPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className={`h-8 w-8 p-0 ${u.isBanned ? "text-green-600 hover:text-green-700" : "text-yellow-600 hover:text-yellow-700"}`}
+                          className={`h-8 w-8 p-0 rounded-lg transition-colors ${u.isBanned ? "text-green-600 hover:bg-green-500 hover:text-white" : "text-yellow-600 hover:bg-yellow-500 hover:text-white"}`}
                           onClick={() => handleBan(u)}
                         >
                           {u.isBanned ? <ShieldCheck className="h-4 w-4" /> : <ShieldOff className="h-4 w-4" />}
@@ -185,7 +185,7 @@ export default function AdminUsersPage() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                          className="h-8 w-8 p-0 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors"
                           onClick={() => setDeleteTarget(u)}
                         >
                           <Trash2 className="h-4 w-4" />

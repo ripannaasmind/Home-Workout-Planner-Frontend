@@ -185,10 +185,10 @@ export default function AdminWorkoutsPage() {
                     <td className="px-4 py-3 text-gray-600">{w.exercises?.length ?? 0}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-gray-500 hover:text-primary" onClick={() => openEdit(w)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg text-gray-500 hover:bg-primary hover:text-white transition-colors" onClick={() => openEdit(w)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-red-500 hover:text-red-700" onClick={() => setDeleteTarget(w)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-colors" onClick={() => setDeleteTarget(w)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
