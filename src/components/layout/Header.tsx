@@ -206,7 +206,7 @@ export function Header() {
                   <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                 </div>
                 <Link
-                  href="/dashboard"
+                  href={user.role === "admin" ? "/admin" : "/dashboard"}
                   className="flex items-center gap-2 px-3 py-2 text-sm text-foreground rounded-md hover:bg-muted transition-colors"
                 >
                   <LayoutDashboard className="h-4 w-4" />
@@ -314,7 +314,7 @@ export function Header() {
                           <p className="text-xs text-muted-foreground truncate">{user.email}</p>
                         </div>
                       </div>
-                      <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                      <Link href={user.role === "admin" ? "/admin" : "/dashboard"} onClick={() => setIsOpen(false)}>
                         <Button variant="outline" className="w-full h-11 gap-2">
                           <LayoutDashboard className="h-4 w-4" />
                           Dashboard

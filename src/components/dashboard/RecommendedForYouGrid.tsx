@@ -3,6 +3,7 @@
 import { ShoppingCart, Dumbbell, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { useTheme } from "@/context/ThemeContext";
 import { toast } from "sonner";
 
 interface Product {
@@ -45,6 +46,7 @@ interface RecommendedForYouGridProps {
 
 export function RecommendedForYouGrid({ products = defaultProducts }: RecommendedForYouGridProps) {
   const { addToCart } = useCart();
+  const { formatPrice } = useTheme();
 
   const handleAddToCart = (product: Product) => {
     addToCart({
@@ -75,7 +77,7 @@ export function RecommendedForYouGrid({ products = defaultProducts }: Recommende
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-gray-800 dark:text-gray-100 truncate">{product.name}</p>
-                <p className="text-sm font-bold text-primary">${product.price.toFixed(2)}</p>
+                <p className="text-sm font-bold text-primary">{formatPrice(product.price)}</p>
               </div>
               <Button
                 size="sm"

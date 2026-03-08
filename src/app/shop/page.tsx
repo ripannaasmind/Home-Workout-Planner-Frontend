@@ -18,6 +18,7 @@ import { Card } from "@/components/ui/card";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useCart, Product } from "@/context/CartContext";
+import { useTheme } from "@/context/ThemeContext";
 import { productsApi } from "@/services/api";
 import {
   Search,
@@ -43,6 +44,7 @@ const ITEMS_PER_PAGE = 8;
 // ------- Shop Page Component -------
 export default function ShopPage() {
   const { addToCart, cart } = useCart();
+  const { formatPrice } = useTheme();
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -194,8 +196,8 @@ export default function ShopPage() {
                     className="mb-3"
                   />
                   <div className="flex justify-between text-sm text-text-secondary">
-                    <span>${priceRange[0]}</span>
-                    <span>${priceRange[1]}</span>
+                    <span>{formatPrice(priceRange[0])}</span>
+                    <span>{formatPrice(priceRange[1])}</span>
                   </div>
                 </div>
               </div>
@@ -308,7 +310,7 @@ export default function ShopPage() {
                   {}
                   <div>
                     <label className="text-sm font-medium mb-2 block">
-                      Price: ${priceRange[0]} - ${priceRange[1]}
+                      Price: {formatPrice(priceRange[0])} - {formatPrice(priceRange[1])}
                     </label>
                     <Slider
                       value={priceRange}
@@ -388,7 +390,7 @@ export default function ShopPage() {
                             <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100">
                               <div className="flex items-center gap-1.5">
                                 <span className="text-base font-bold text-primary">
-                                  ${product.price.toFixed(2)}
+                                  {formatPrice(product.price)}
                                 </span>
                               </div>
                               <div className="flex items-center gap-1">
@@ -441,7 +443,7 @@ export default function ShopPage() {
                               </p>
                               <div className="flex items-center gap-4">
                                 <span className="text-lg sm:text-xl font-bold text-primary">
-                                  ${product.price.toFixed(2)}
+                                  {formatPrice(product.price)}
                                 </span>
                                 <div className="flex items-center gap-1">
                                   <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />

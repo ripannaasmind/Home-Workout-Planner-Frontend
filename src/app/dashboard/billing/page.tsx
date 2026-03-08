@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { subscriptionApi } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 
 interface Plan {
   id: string;
@@ -20,6 +21,7 @@ interface Plan {
 // ------- Billing Page Component -------
 export default function BillingPage() {
   const { token } = useAuth();
+  const { formatPrice } = useTheme();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlanId, setCurrentPlanId] = useState<string>("free");
   const [loading, setLoading] = useState(true);
@@ -42,8 +44,8 @@ export default function BillingPage() {
     plan.price === 0
       ? "Free"
       : plan.period
-      ? `$${plan.price}/${plan.period === "month" ? "mo" : plan.period}`
-      : `$${plan.price} once`;
+      ? `${formatPrice(plan.price)}/${plan.period === "month" ? "mo" : plan.period}`
+      : `${formatPrice(plan.price)} once`;
 
   return (
     <div className="space-y-6">

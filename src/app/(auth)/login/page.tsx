@@ -246,6 +246,29 @@ export default function LoginPage() {
               Sign up for free
             </Link>
           </p>
+
+          {/* Demo Login Buttons */}
+          <div className="mt-6 pt-5 border-t border-border">
+            <p className="text-xs text-muted-foreground text-center mb-3">Quick Demo Access</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 text-xs font-medium border-primary/30 hover:bg-primary/5 hover:border-primary/50 transition-colors"
+                onClick={() => { setEmail("user@demo.com"); setPassword("user123"); }}
+              >
+                <span className="mr-1.5">👤</span> Demo User
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 text-xs font-medium border-accent/30 hover:bg-accent/5 hover:border-accent/50 transition-colors"
+                onClick={() => { setEmail("admin@demo.com"); setPassword("admin123"); }}
+              >
+                <span className="mr-1.5">🔑</span> Demo Admin
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 

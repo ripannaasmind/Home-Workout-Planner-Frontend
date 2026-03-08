@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useCart, Product } from "@/context/CartContext";
+import { useTheme } from "@/context/ThemeContext";
 import {
   ShoppingCart,
   Minus,
@@ -29,6 +30,7 @@ import toast from "react-hot-toast";
 // ------- Cart Page Component -------
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, addToCart } = useCart();
+  const { formatPrice } = useTheme();
   const router = useRouter();
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
@@ -64,7 +66,7 @@ export default function CartPage() {
       setPromoData(res.data);
       setPromoDiscount(res.data.discount);
       setPromoApplied(true);
-      toast.success(`Promo "${res.data.code}" applied! -$${res.data.discount.toFixed(2)}`);
+      toast.success(`Promo "${res.data.code}" applied! -${formatPrice(res.data.discount)}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Invalid promo code";
       toast.error(msg);
@@ -163,7 +165,7 @@ export default function CartPage() {
                                   {item.category}
                                 </p>
                                 <p className="text-sm font-bold text-primary mt-1">
-                                  ${item.price.toFixed(2)}
+                                  {formatPrice(item.price)}
                                 </p>
                               </div>
                               <Button
@@ -199,7 +201,7 @@ export default function CartPage() {
                                 </Button>
                               </div>
                               <p className="text-base font-bold text-foreground">
-                                ${(item.price * item.quantity).toFixed(2)}
+                                {formatPrice(item.price * item.quantity)}
                               </p>
                             </div>
                           </div>
@@ -239,7 +241,7 @@ export default function CartPage() {
                             {}
                             <div className="col-span-2 text-center">
                               <span className="text-sm lg:text-base font-medium">
-                                ${item.price.toFixed(2)}
+                                {formatPrice(item.price)}
                               </span>
                             </div>
 
@@ -272,7 +274,7 @@ export default function CartPage() {
                             {}
                             <div className="col-span-2 text-right">
                               <span className="text-sm lg:text-base font-bold text-foreground">
-                                ${(item.price * item.quantity).toFixed(2)}
+                                {formatPrice(item.price * item.quantity)}
                               </span>
                             </div>
                           </div>
@@ -317,7 +319,7 @@ export default function CartPage() {
                             {product.name}
                           </h3>
                           <p className="text-sm font-bold text-primary mt-1">
-                            ${product.price.toFixed(2)}
+                            {formatPrice(product.price)}
                           </p>
                           <Button
                             variant="outline"
@@ -372,7 +374,7 @@ export default function CartPage() {
                       </div>
                       {promoApplied && promoData && (
                         <p className="text-xs text-accent mt-1">
-                          ✓ &ldquo;{promoData.code}&rdquo; applied! -{promoData.discountType === "percentage" ? `${promoData.discountValue}%` : `$${promoData.discountValue}`} off (-${promoData.discount.toFixed(2)})
+                          ✓ &ldquo;{promoData.code}&rdquo; applied! -{promoData.discountType === "percentage" ? `${promoData.discountValue}%` : formatPrice(promoData.discountValue)} off (-{formatPrice(promoData.discount)})
                         </p>
                       )}
                     </div>
@@ -383,12 +385,12 @@ export default function CartPage() {
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
                         <span className="text-text-secondary">Subtotal</span>
-                        <span className="font-medium">${totalPrice.toFixed(2)}</span>
+                        <span className="font-medium">{formatPrice(totalPrice)}</span>
                       </div>
                       {promoDiscount > 0 && (
                         <div className="flex justify-between text-accent">
                           <span>Discount</span>
-                          <span>-${promoDiscount.toFixed(2)}</span>
+                          <span>-{formatPrice(promoDiscount)}</span>
                         </div>
                       )}
                       <div className="flex justify-between">
@@ -397,13 +399,13 @@ export default function CartPage() {
                           {shippingCost === 0 ? (
                             <span className="text-accent">Free</span>
                           ) : (
-                            `$${shippingCost.toFixed(2)}`
+                            formatPrice(shippingCost)
                           )}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-text-secondary">Tax (8%)</span>
-                        <span className="font-medium">${tax.toFixed(2)}</span>
+                        <span className="font-medium">{formatPrice(tax)}</span>
                       </div>
                     </div>
 
@@ -413,7 +415,7 @@ export default function CartPage() {
                     <div className="flex justify-between items-center mb-6">
                       <span className="text-base font-semibold text-foreground">Total</span>
                       <span className="text-xl sm:text-2xl font-bold text-primary">
-                        ${finalTotal.toFixed(2)}
+                        {formatPrice(finalTotal)}
                       </span>
                     </div>
 
@@ -421,7 +423,7 @@ export default function CartPage() {
                     {totalPrice < 100 && (
                       <div className="bg-primary/10 rounded-lg p-3 mb-4">
                         <p className="text-xs sm:text-sm text-primary text-center">
-                          Add ${(100 - totalPrice).toFixed(2)} more for free shipping!
+                          Add {formatPrice(100 - totalPrice)} more for free shipping!
                         </p>
                       </div>
                     )}

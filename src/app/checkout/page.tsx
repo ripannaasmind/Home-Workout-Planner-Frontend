@@ -15,6 +15,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { paymentApi, ordersApi, type PublicPaymentMethods } from "@/services/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
@@ -42,6 +43,7 @@ import {
 function CheckoutContent() {
   const { cart, totalPrice, clearCart } = useCart();
   const { user, token } = useAuth();
+  const { formatPrice } = useTheme();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -332,7 +334,7 @@ function CheckoutContent() {
                             <span className="font-medium">Standard Delivery</span>
                           </div>
                           <p className="text-sm text-text-secondary mt-0.5">
-                            3-5 days • {totalPrice >= 100 ? "Free" : "$5.00"}
+                            3-5 days • {totalPrice >= 100 ? "Free" : formatPrice(5)}
                           </p>
                         </Label>
                       </div>
@@ -344,7 +346,7 @@ function CheckoutContent() {
                             <span className="font-medium">Express Delivery</span>
                           </div>
                           <p className="text-sm text-text-secondary mt-0.5">
-                            1-2 days • $15.00
+                            1-2 days • {formatPrice(15)}
                           </p>
                         </Label>
                       </div>
@@ -513,12 +515,12 @@ function CheckoutContent() {
                             {item.name}
                           </h4>
                           <p className="text-xs text-text-secondary">
-                            {item.quantity} × ${item.price.toFixed(2)}
+                            {item.quantity} × {formatPrice(item.price)}
                           </p>
                         </div>
                         <div className="text-right">
                           <span className="font-medium text-sm">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {formatPrice(item.price * item.quantity)}
                           </span>
                         </div>
                       </div>
@@ -531,12 +533,12 @@ function CheckoutContent() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-text-secondary">Subtotal</span>
-                      <span className="font-medium">${totalPrice.toFixed(2)}</span>
+                      <span className="font-medium">{formatPrice(totalPrice)}</span>
                     </div>
                     {discount > 0 && (
                       <div className="flex justify-between text-accent">
                         <span>Promo ({promoCodeParam})</span>
-                        <span>-${discount.toFixed(2)}</span>
+                        <span>-{formatPrice(discount)}</span>
                       </div>
                     )}
                     <div className="flex justify-between">
@@ -545,13 +547,13 @@ function CheckoutContent() {
                         {shippingCost === 0 ? (
                           <span className="text-accent">Free</span>
                         ) : (
-                          `$${shippingCost.toFixed(2)}`
+                          formatPrice(shippingCost)
                         )}
                       </span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-text-secondary">Tax (8%)</span>
-                      <span className="font-medium">${tax.toFixed(2)}</span>
+                      <span className="font-medium">{formatPrice(tax)}</span>
                     </div>
                   </div>
 
@@ -560,7 +562,7 @@ function CheckoutContent() {
                   <div className="flex justify-between items-center mb-6">
                     <span className="font-semibold text-foreground">Total</span>
                     <span className="text-xl font-bold text-primary">
-                      ${total.toFixed(2)}
+                      {formatPrice(total)}
                     </span>
                   </div>
 

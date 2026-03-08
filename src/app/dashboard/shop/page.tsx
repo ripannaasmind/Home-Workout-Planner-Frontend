@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { productsApi, Product } from "@/services/api";
 import { useCart } from "@/context/CartContext";
+import { useTheme } from "@/context/ThemeContext";
 import { toast } from "sonner";
 import Image from "next/image";
 
@@ -18,6 +19,7 @@ export default function ShopPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const { addToCart } = useCart();
+  const { formatPrice } = useTheme();
 
   useEffect(() => {
     productsApi.getAll({ limit: 12 })
@@ -96,9 +98,9 @@ export default function ShopPage() {
               </div>
               <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-100 dark:border-gray-800">
                 <div>
-                  <span className="text-gray-800 dark:text-gray-100 font-bold">${product.price.toFixed(2)}</span>
+                  <span className="text-gray-800 dark:text-gray-100 font-bold">{formatPrice(product.price)}</span>
                   {product.originalPrice && (
-                    <span className="text-gray-400 text-sm line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+                    <span className="text-gray-400 text-sm line-through ml-2">{formatPrice(product.originalPrice)}</span>
                   )}
                 </div>
                 <Button

@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Trash2, Edit2, Search, Tag, Loader2, Copy, Check } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { promoApi, type PromoCode } from "@/services/api";
 import toast from "react-hot-toast";
 
@@ -27,6 +28,7 @@ import toast from "react-hot-toast";
 // ------- Admin Promo Codes Page -------
 export default function AdminPromoCodesPage() {
   const { token } = useAuth();
+  const { formatPrice } = useTheme();
   const [promoCodes, setPromoCodes] = useState<PromoCode[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -211,9 +213,9 @@ export default function AdminPromoCodesPage() {
                       {p.description && <p className="text-xs text-gray-400 mt-0.5">{p.description}</p>}
                     </td>
                     <td className="px-4 py-3 text-gray-700 dark:text-gray-200 font-medium">
-                      {p.discountType === "percentage" ? `${p.discountValue}%` : `$${p.discountValue.toFixed(2)}`}
+                      {p.discountType === "percentage" ? `${p.discountValue}%` : formatPrice(p.discountValue)}
                     </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{p.minOrderAmount > 0 ? `$${p.minOrderAmount}` : "—"}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{p.minOrderAmount > 0 ? formatPrice(p.minOrderAmount) : "—"}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">
                       {p.usedCount}{p.maxUses !== null ? `/${p.maxUses}` : ""}
                     </td>

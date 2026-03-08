@@ -25,8 +25,8 @@
   --radius: 0.75rem;
   --background: #fafafa;
   --foreground: #1a1a1a;
-  --card: #ffffff;
-  --card-foreground: #1a1a1a;
+  --card: #172018;
+  --card-foreground: #ffffff;
   --popover: #ffffff;
   --popover-foreground: #1a1a1a;
   --primary-foreground: #ffffff;
@@ -69,10 +69,10 @@
   --text-secondary: #b0b0b0;
   --text-muted: #787878;
 
-  --background: #0f0f0f;
+  --background: #0f0f1a;
   --foreground: #e8e8e8;
-  --card: #1a1a1a;
-  --card-foreground: #e8e8e8;
+  --card: #172018;
+  --card-foreground: #ffffff;
   --popover: #1a1a1a;
   --popover-foreground: #e8e8e8;
   --primary-foreground: #ffffff;
@@ -279,8 +279,19 @@ body {
 }
 .card-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(76, 175, 80, 0.12), 0 4px 12px rgba(0,0,0,0.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   border-color: #87c98a;
+}
+
+/* Global card hover lift */
+[class*="bg-card"],
+.bg-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+[class*="bg-card"]:hover,
+.bg-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 /* Glass effect for cards */

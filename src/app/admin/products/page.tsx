@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Plus, Trash2, Edit2, Loader2, Search, Upload } from "lucide-react";
 import { adminApi, productsApi, Product } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,7 @@ const emptyForm = {
 // ------- Admin Products Page Component -------
 export default function AdminProductsPage() {
   const { token } = useAuth();
+  const { formatPrice } = useTheme();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -176,7 +178,7 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{p.name}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{p.category}</td>
-                    <td className="px-4 py-3 text-gray-800 dark:text-gray-100 font-medium">${p.price}</td>
+                    <td className="px-4 py-3 text-gray-800 dark:text-gray-100 font-medium">{formatPrice(p.price)}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{p.stock ?? 0}</td>
                     <td className="px-4 py-3">
                       {p.featured ? (
@@ -299,11 +301,11 @@ export default function AdminProductsPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Price ($) *</Label>
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Price *</Label>
                 <Input type="number" min={0} step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: Number(e.target.value) })} className="border-gray-200 dark:border-gray-800" />
               </div>
               <div>
-                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Original Price ($)</Label>
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Original Price</Label>
                 <Input type="number" min={0} step="0.01" value={form.originalPrice} onChange={(e) => setForm({ ...form, originalPrice: Number(e.target.value) })} className="border-gray-200 dark:border-gray-800" />
               </div>
             </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { ordersApi, type Order } from "@/services/api";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -27,6 +28,7 @@ const paymentLabel: Record<string, string> = {
 // ------- Orders Page Component -------
 export default function OrdersPage() {
   const { token } = useAuth();
+  const { formatPrice } = useTheme();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,7 +78,7 @@ export default function OrdersPage() {
                     <Badge className={`text-xs border ${statusColor[order.status] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200"}`}>
                       {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                     </Badge>
-                    <span className="text-sm font-bold text-primary">${order.total.toFixed(2)}</span>
+                    <span className="text-sm font-bold text-primary">{formatPrice(order.total)}</span>
                   </div>
                 </div>
 
@@ -84,15 +86,15 @@ export default function OrdersPage() {
                   {order.items.map((item, i) => (
                     <div key={i} className="flex justify-between items-center py-2 text-sm gap-2">
                       <span className="text-gray-700 dark:text-gray-200 min-w-0 truncate flex-1">{item.name} <span className="text-gray-400">×{item.quantity}</span></span>
-                      <span className="font-medium shrink-0">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="font-medium shrink-0">{formatPrice(item.price * item.quantity)}</span>
                     </div>
                   ))}
                 </div>
 
                 <div className="mt-3 pt-3 border-t border-gray-100 dark:border-gray-800 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
-                  {order.discount > 0 && <span className="text-green-600">Promo: -{order.promoCode} (-${order.discount.toFixed(2)})</span>}
-                  <span>Shipping: {order.shipping === 0 ? "Free" : `$${order.shipping.toFixed(2)}`}</span>
-                  <span>Tax: ${order.tax.toFixed(2)}</span>
+                  {order.discount > 0 && <span className="text-green-600">Promo: -{order.promoCode} (-{formatPrice(order.discount)})</span>}
+                  <span>Shipping: {order.shipping === 0 ? "Free" : formatPrice(order.shipping)}</span>
+                  <span>Tax: {formatPrice(order.tax)}</span>
                   <span>Payment: {paymentLabel[order.paymentMethod] ?? order.paymentMethod}</span>
                 </div>
               </CardContent>
