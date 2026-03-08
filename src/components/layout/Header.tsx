@@ -156,13 +156,13 @@ export function Header() {
 
           {/* Dark mode toggle */}
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="h-9 w-9"
+            className="h-9 w-9 border-border bg-muted hover:bg-accent transition-colors"
             onClick={() => setTheme(isDark ? "light" : "dark")}
             title={isDark ? "Switch to light mode" : "Switch to dark mode"}
           >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {isDark ? <Sun className="h-4 w-4 text-yellow-400" /> : <Moon className="h-4 w-4 text-slate-600" />}
           </Button>
 
           {}
@@ -238,12 +238,12 @@ export function Header() {
 
           {/* Dark mode toggle - mobile */}
           <Button
-            variant="ghost"
+            variant="outline"
             size="icon"
-            className="h-9 w-9"
+            className="h-9 w-9 border-border bg-muted hover:bg-accent transition-colors"
             onClick={() => setTheme(isDark ? "light" : "dark")}
           >
-            {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {isDark ? <Sun className="h-4 w-4 text-yellow-400" /> : <Moon className="h-4 w-4 text-slate-600" />}
           </Button>
 
           {}
