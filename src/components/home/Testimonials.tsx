@@ -51,7 +51,7 @@ export function Testimonials() {
         }
       } catch (error) {
         console.error("Failed to fetch testimonials:", error);
-        // Keep fallback data
+        
       } finally {
         setIsLoading(false);
       }
@@ -63,13 +63,13 @@ export function Testimonials() {
   return (
     <section id="testimonials" className="py-8 sm:py-12 md:py-16 lg:py-20 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+        {}
         <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-3">
             Loved by thousands of fitness enthusiasts
           </h2>
           
-          {/* Rating Summary */}
+          {}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 mt-4 sm:mt-6">
             <div className="flex items-center gap-2">
               <div className="flex">
@@ -91,7 +91,7 @@ export function Testimonials() {
           </div>
         </div>
 
-        {/* Bento Grid Testimonials */}
+        {}
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -110,10 +110,10 @@ export function Testimonials() {
                 key={testimonial._id || testimonial.id}
                 className={`relative bg-card rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 border border-border hover:border-primary/30 hover:shadow-xl transition-all duration-300 group overflow-hidden ${sizeClasses[testimonial.size]}`}
               >
-                {/* Quote Icon */}
+                {}
                 <Quote className="absolute top-3 right-3 sm:top-4 sm:right-4 w-6 h-6 sm:w-8 sm:h-8 text-primary/10 group-hover:text-primary/20 transition-colors" />
 
-                {/* Header */}
+                {}
                 <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
                   <div className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden ring-2 ring-primary/20">
                     <Image
@@ -132,12 +132,12 @@ export function Testimonials() {
                   </div>
                 </div>
 
-                {/* Rating */}
+                {}
                 <div className="mb-2 sm:mb-3">
                   <StarRating rating={testimonial.rating} />
                 </div>
 
-                {/* Comment */}
+                {}
                 <p className={`text-text-secondary leading-relaxed ${
                   testimonial.size === "small" 
                     ? "text-xs sm:text-sm line-clamp-3" 

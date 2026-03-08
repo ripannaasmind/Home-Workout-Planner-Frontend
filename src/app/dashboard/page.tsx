@@ -13,6 +13,8 @@ import { RecommendedForYouList } from "@/components/dashboard/RecommendedForYouL
 import { RecentOrdersGrid } from "@/components/dashboard/RecentOrdersGrid";
 import { RecommendedForYouGrid } from "@/components/dashboard/RecommendedForYouGrid";
 
+
+// ------- Dashboard Page Component -------
 export default function DashboardPage() {
   const { user, token } = useAuth();
   const [stats, setStats] = useState([
@@ -65,9 +67,9 @@ export default function DashboardPage() {
 
   return (
     <div className="flex gap-6">
-      {/* Main content */}
+      {}
       <div className="flex-1 min-w-0 space-y-5">
-        {/* Welcome section */}
+        {}
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
           <h2 className="text-base font-semibold text-gray-700 mt-0.5">
@@ -78,28 +80,28 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Profile card — visible only on small screens (right panel hidden on < lg) */}
+        {}
         <div className="lg:hidden">
           <UserProfileCard />
         </div>
 
-        {/* Stats 2×2 grid */}
+        {}
         <StatCards stats={stats} />
 
-        {/* Upcoming Workout carousel card */}
+        {}
         <UpcomingWorkout />
 
-        {/* Recent Orders table */}
+        {}
         <RecentOrdersTable />
 
-        {/* Bottom 2-col grid */}
+        {}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <RecentOrdersGrid />
           <RecommendedForYouGrid products={recommendedProducts} />
         </div>
       </div>
 
-      {/* Right panel */}
+      {}
       <div className="hidden lg:flex flex-col w-72 shrink-0 space-y-4">
         <UserProfileCard />
         <RecentActivity />

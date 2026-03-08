@@ -33,19 +33,21 @@ import {
   AlertCircle,
 } from "lucide-react";
 
+
+// ------- Checkout Page Component -------
 export default function CheckoutPage() {
   const { cart, totalPrice } = useCart();
   const [sameAsBilling, setSameAsBilling] = useState(true);
   const [deliveryMethod, setDeliveryMethod] = useState("standard");
   const [paymentMethod, setPaymentMethod] = useState("card");
 
-  // Billing
+  
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [billingEmail, setBillingEmail] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Shipping
+  
   const [shipFirstName, setShipFirstName] = useState("");
   const [shipLastName, setShipLastName] = useState("");
   const [shipAddress, setShipAddress] = useState("");
@@ -53,7 +55,7 @@ export default function CheckoutPage() {
   const [shipState, setShipState] = useState("");
   const [shipZip, setShipZip] = useState("");
 
-  // Card
+  
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
@@ -99,7 +101,7 @@ export default function CheckoutPage() {
       if (!check.valid) { setError(check.message); return; }
     }
 
-    // All valid — proceed (placeholder for actual order API)
+    
     alert("Order placed successfully!");
   };
 
@@ -109,7 +111,7 @@ export default function CheckoutPage() {
 
       <section className="py-6 sm:py-8 lg:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Breadcrumb */}
+          {}
           <nav className="flex items-center gap-2 text-sm text-text-secondary mb-6">
             <Link href="/" className="hover:text-primary">Home</Link>
             <ChevronRight className="h-4 w-4" />
@@ -120,7 +122,7 @@ export default function CheckoutPage() {
             <span className="text-foreground">Checkout</span>
           </nav>
 
-          {/* Page Header */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -135,9 +137,9 @@ export default function CheckoutPage() {
           </motion.div>
 
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            {/* Left Column - Form */}
+            {}
             <div className="flex-1 space-y-6">
-              {/* Error */}
+              {}
               {error && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
@@ -149,7 +151,7 @@ export default function CheckoutPage() {
                 </motion.div>
               )}
 
-              {/* Billing Details */}
+              {}
               <Card>
                 <CardContent className="p-4 sm:p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -213,7 +215,7 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
-              {/* Shipping Address */}
+              {}
               <Card>
                 <CardContent className="p-4 sm:p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -248,7 +250,7 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
-              {/* Delivery Method */}
+              {}
               <Card>
                 <CardContent className="p-4 sm:p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -286,7 +288,7 @@ export default function CheckoutPage() {
                 </CardContent>
               </Card>
 
-              {/* Payment Method */}
+              {}
               <Card>
                 <CardContent className="p-4 sm:p-6">
                   <h2 className="text-lg font-semibold text-foreground mb-4">
@@ -310,7 +312,7 @@ export default function CheckoutPage() {
                         </Label>
                       </div>
 
-                      {/* PayPal Option */}
+                      {}
                       <div className="flex items-center space-x-3 p-3 border border-border rounded-lg hover:border-primary/50 transition-colors">
                         <RadioGroupItem value="paypal" id="paypal" />
                         <Label htmlFor="paypal" className="flex-1 cursor-pointer">
@@ -374,7 +376,7 @@ export default function CheckoutPage() {
               </Card>
             </div>
 
-            {/* Right Column - Order Summary */}
+            {}
             <div className="w-full lg:w-80 xl:w-96">
               <Card className="sticky top-24">
                 <CardContent className="p-4 sm:p-6">
@@ -382,7 +384,7 @@ export default function CheckoutPage() {
                     Order Summary
                   </h2>
 
-                  {/* Cart Items */}
+                  {}
                   <div className="space-y-4 mb-4">
                     {cart.map((item) => (
                       <div key={item.id} className="flex gap-3">
@@ -420,7 +422,7 @@ export default function CheckoutPage() {
 
                   <Separator className="my-4" />
 
-                  {/* Summary */}
+                  {}
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-text-secondary">Subtotal</span>

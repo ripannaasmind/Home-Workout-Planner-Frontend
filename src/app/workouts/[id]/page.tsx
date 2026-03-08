@@ -30,7 +30,7 @@ import {
   Zap,
 } from "lucide-react";
 
-// YouTube video IDs for different workout categories
+
 const getWorkoutVideo = (category: string, name: string): string => {
   const videos: Record<string, string> = {
     full_body: "UBMk30rjy0o",
@@ -44,11 +44,11 @@ const getWorkoutVideo = (category: string, name: string): string => {
     default: "UBMk30rjy0o",
   };
   
-  // Try to match category first
+  
   const cat = category?.toLowerCase() || "";
   if (videos[cat]) return videos[cat];
   
-  // Try to match by name keywords
+  
   const lower = name?.toLowerCase() || "";
   if (lower.includes("hiit") || lower.includes("cardio")) return videos.hiit;
   if (lower.includes("yoga") || lower.includes("stretch") || lower.includes("flexibility")) return videos.flexibility;
@@ -83,6 +83,8 @@ function getCategoryIcon(category: string) {
   return Zap;
 }
 
+
+// ------- Workout Details Page Component -------
 export default function WorkoutDetailsPage() {
   const params = useParams();
   const router = useRouter();
@@ -153,9 +155,9 @@ export default function WorkoutDetailsPage() {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1">
-        {/* Hero Section with Video */}
+        {}
         <section className="relative bg-linear-to-br from-gray-900 via-gray-800 to-gray-900">
-          {/* Back Button */}
+          {}
           <div className="absolute top-4 left-4 z-20">
             <Button 
               variant="outline" 
@@ -170,7 +172,7 @@ export default function WorkoutDetailsPage() {
 
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10 py-8 sm:py-12 lg:py-16 items-center">
-              {/* Left: Info */}
+              {}
               <motion.div
                 initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -195,7 +197,7 @@ export default function WorkoutDetailsPage() {
                   {workout.description || "Transform your body with this expertly designed workout program. Follow along with our video guide and achieve your fitness goals."}
                 </p>
 
-                {/* Stats Grid */}
+                {}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
                   <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
                     <Clock className="w-5 h-5 mx-auto mb-1 text-primary" />
@@ -219,7 +221,7 @@ export default function WorkoutDetailsPage() {
                   </div>
                 </div>
 
-                {/* Action Buttons */}
+                {}
                 <div className="flex flex-wrap gap-3">
                   <Button size="lg" className="bg-primary hover:bg-primary-dark text-white gap-2">
                     <Play className="w-5 h-5" />
@@ -239,7 +241,7 @@ export default function WorkoutDetailsPage() {
                   </Button>
                 </div>
 
-                {/* Social Proof */}
+                {}
                 <div className="flex items-center gap-4 mt-6 pt-6 border-t border-white/10">
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4].map((i) => (
@@ -262,7 +264,7 @@ export default function WorkoutDetailsPage() {
                 </div>
               </motion.div>
 
-              {/* Right: YouTube Video */}
+              {}
               <motion.div
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -286,7 +288,7 @@ export default function WorkoutDetailsPage() {
           </div>
         </section>
 
-        {/* Target Muscle Groups */}
+        {}
         {workout.targetMuscleGroups && workout.targetMuscleGroups.length > 0 && (
           <section className="py-8 bg-muted/30 border-b border-border">
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -302,7 +304,7 @@ export default function WorkoutDetailsPage() {
           </section>
         )}
 
-        {/* Exercises List */}
+        {}
         <section className="py-10 sm:py-12 lg:py-16 bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-6 sm:mb-8">
@@ -331,12 +333,12 @@ export default function WorkoutDetailsPage() {
                       <Card className="overflow-hidden hover:shadow-md transition-shadow">
                         <CardContent className="p-0">
                           <div className="flex flex-col sm:flex-row">
-                            {/* Exercise Number */}
+                            {}
                             <div className="flex sm:flex-col items-center justify-center bg-primary/10 px-4 py-3 sm:py-0 sm:w-16">
                               <span className="text-2xl font-bold text-primary">{index + 1}</span>
                             </div>
                             
-                            {/* Exercise Image */}
+                            {}
                             <div className="relative w-full sm:w-32 h-32 sm:h-auto bg-muted shrink-0">
                               {exercise.image && exercise.image.startsWith("http") ? (
                                 <Image
@@ -352,7 +354,7 @@ export default function WorkoutDetailsPage() {
                               )}
                             </div>
 
-                            {/* Exercise Info */}
+                            {}
                             <div className="flex-1 p-4">
                               <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                 <div className="flex-1">
@@ -378,7 +380,7 @@ export default function WorkoutDetailsPage() {
                                   </div>
                                 </div>
 
-                                {/* Sets/Reps/Duration */}
+                                {}
                                 <div className="flex gap-4 sm:gap-6 text-center shrink-0">
                                   <div>
                                     <p className="text-2xl font-bold text-primary">{exerciseItem.sets}</p>
@@ -419,7 +421,7 @@ export default function WorkoutDetailsPage() {
           </div>
         </section>
 
-        {/* Tips Section */}
+        {}
         <section className="py-10 sm:py-12 bg-muted/30">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6">Pro Tips</h2>
@@ -461,7 +463,7 @@ export default function WorkoutDetailsPage() {
           </div>
         </section>
 
-        {/* CTA */}
+        {}
         <section className="py-12 sm:py-16 bg-linear-to-r from-primary via-primary-dark to-primary">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Ready to Start?</h2>

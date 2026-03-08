@@ -23,6 +23,8 @@ import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { productsApi } from "@/services/api";
 
+
+// ------- Cart Page Component -------
 export default function CartPage() {
   const { cart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice, addToCart } = useCart();
   const [promoCode, setPromoCode] = useState("");
@@ -62,7 +64,7 @@ export default function CartPage() {
 
       <section className="py-6 sm:py-8 lg:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Page Header */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -88,11 +90,11 @@ export default function CartPage() {
 
           {cart.length > 0 ? (
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-              {/* Cart Items */}
+              {}
               <div className="flex-1">
                 <Card>
                   <CardContent className="p-4 sm:p-6">
-                    {/* Cart Header - Desktop */}
+                    {}
                     <div className="hidden sm:grid grid-cols-12 gap-4 text-sm font-medium text-text-secondary mb-4 pb-4 border-b border-border">
                       <div className="col-span-6">Product</div>
                       <div className="col-span-2 text-center">Price</div>
@@ -100,7 +102,7 @@ export default function CartPage() {
                       <div className="col-span-2 text-right">Total</div>
                     </div>
 
-                    {/* Cart Items */}
+                    {}
                     <div className="space-y-4 sm:space-y-0 sm:divide-y sm:divide-border">
                       {cart.map((item, index) => (
                         <motion.div
@@ -110,7 +112,7 @@ export default function CartPage() {
                           transition={{ delay: index * 0.1 }}
                           className="sm:py-4 first:pt-0 last:pb-0"
                         >
-                          {/* Mobile Layout */}
+                          {}
                           <div className="sm:hidden bg-muted/50 rounded-lg p-4">
                             <div className="flex gap-3 mb-3">
                               <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden relative shrink-0">
@@ -171,9 +173,9 @@ export default function CartPage() {
                             </div>
                           </div>
 
-                          {/* Desktop Layout */}
+                          {}
                           <div className="hidden sm:grid grid-cols-12 gap-4 items-center">
-                            {/* Product Info */}
+                            {}
                             <div className="col-span-6 flex items-center gap-4">
                               <div className="w-16 h-16 lg:w-20 lg:h-20 bg-muted rounded-lg overflow-hidden relative shrink-0">
                                 {item.image && item.image.startsWith("http") ? (
@@ -203,14 +205,14 @@ export default function CartPage() {
                               </div>
                             </div>
 
-                            {/* Price */}
+                            {}
                             <div className="col-span-2 text-center">
                               <span className="text-sm lg:text-base font-medium">
                                 ${item.price.toFixed(2)}
                               </span>
                             </div>
 
-                            {/* Quantity */}
+                            {}
                             <div className="col-span-2 flex justify-center">
                               <div className="flex items-center border border-border rounded-lg">
                                 <Button
@@ -236,7 +238,7 @@ export default function CartPage() {
                               </div>
                             </div>
 
-                            {/* Total */}
+                            {}
                             <div className="col-span-2 text-right">
                               <span className="text-sm lg:text-base font-bold text-foreground">
                                 ${(item.price * item.quantity).toFixed(2)}
@@ -247,7 +249,7 @@ export default function CartPage() {
                       ))}
                     </div>
 
-                    {/* Clear Cart */}
+                    {}
                     <div className="mt-6 pt-4 border-t border-border flex justify-end">
                       <Button
                         variant="outline"
@@ -262,7 +264,7 @@ export default function CartPage() {
                   </CardContent>
                 </Card>
 
-                {/* Related Products */}
+                {}
                 <div className="mt-8">
                   <h2 className="text-lg sm:text-xl font-semibold text-foreground mb-4">
                     You might also like
@@ -301,7 +303,7 @@ export default function CartPage() {
                 </div>
               </div>
 
-              {/* Order Summary */}
+              {}
               <div className="w-full lg:w-80 xl:w-96">
                 <Card className="sticky top-24">
                   <CardContent className="p-4 sm:p-6">
@@ -309,7 +311,7 @@ export default function CartPage() {
                       Order Summary
                     </h2>
 
-                    {/* Promo Code */}
+                    {}
                     <div className="mb-4">
                       <div className="flex gap-2">
                         <div className="relative flex-1">
@@ -344,7 +346,7 @@ export default function CartPage() {
 
                     <Separator className="my-4" />
 
-                    {/* Summary Details */}
+                    {}
                     <div className="space-y-3 text-sm">
                       <div className="flex justify-between">
                         <span className="text-text-secondary">Subtotal</span>
@@ -374,7 +376,7 @@ export default function CartPage() {
 
                     <Separator className="my-4" />
 
-                    {/* Total */}
+                    {}
                     <div className="flex justify-between items-center mb-6">
                       <span className="text-base font-semibold text-foreground">Total</span>
                       <span className="text-xl sm:text-2xl font-bold text-primary">
@@ -382,7 +384,7 @@ export default function CartPage() {
                       </span>
                     </div>
 
-                    {/* Free Shipping Notice */}
+                    {}
                     {totalPrice < 100 && (
                       <div className="bg-primary/10 rounded-lg p-3 mb-4">
                         <p className="text-xs sm:text-sm text-primary text-center">
@@ -391,13 +393,13 @@ export default function CartPage() {
                       </div>
                     )}
 
-                    {/* Checkout Button */}
+                    {}
                     <Button className="w-full h-11 sm:h-12 bg-primary hover:bg-primary-dark text-white text-sm sm:text-base font-semibold">
                       <CreditCard className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
                       Proceed to Checkout
                     </Button>
 
-                    {/* Secure Checkout */}
+                    {}
                     <p className="text-xs text-text-secondary text-center mt-3">
                       🔒 Secure checkout powered by Stripe
                     </p>
@@ -406,7 +408,7 @@ export default function CartPage() {
               </div>
             </div>
           ) : (
-            /* Empty Cart */
+            
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

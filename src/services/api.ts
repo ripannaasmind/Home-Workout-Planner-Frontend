@@ -36,7 +36,7 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
   return data;
 }
 
-// Products API
+
 export const productsApi = {
   getAll: (params?: {
     category?: string;
@@ -75,13 +75,13 @@ export const productsApi = {
     apiRequest<{ success: boolean; data: string[] }>("/products/categories"),
 };
 
-// Testimonials API
+
 export const testimonialsApi = {
   getAll: () =>
     apiRequest<{ success: boolean; data: Testimonial[] }>("/testimonials"),
 };
 
-// Workouts API
+
 export const workoutsApi = {
   getAll: (params?: { category?: string; difficulty?: string; page?: number; limit?: number }) => {
     const searchParams = new URLSearchParams();
@@ -105,14 +105,14 @@ export const workoutsApi = {
     }>(`/workouts${query ? `?${query}` : ""}`);
   },
 
-  // Public library endpoint (no auth required)
+  
   getLibrary: () =>
     apiRequest<{
       success: boolean;
       data: Workout[];
     }>("/workouts/library"),
 
-  // Public library workout by ID (no auth required)
+  
   getLibraryById: (id: string) =>
     apiRequest<{ success: boolean; data: Workout }>(`/workouts/library/${id}`),
 
@@ -120,7 +120,7 @@ export const workoutsApi = {
     apiRequest<{ success: boolean; data: Workout }>(`/workouts/${id}`),
 };
 
-// Exercises API
+
 export const exercisesApi = {
   getAll: (params?: { muscleGroup?: string; equipment?: string; page?: number; limit?: number }) => {
     const searchParams = new URLSearchParams();
@@ -139,7 +139,7 @@ export const exercisesApi = {
   },
 };
 
-// Types
+
 export interface Product {
   _id?: string;
   id?: string;
@@ -201,7 +201,7 @@ export interface Exercise {
   video?: string;
 }
 
-// User / Profile API
+
 export const userApi = {
   updateProfile: (data: { name: string; avatar?: string }, token: string) =>
     apiRequest<{ success: boolean; data: { _id: string; name: string; email: string; avatar?: string; role: "user" | "admin"; isVerified: boolean } }>(
@@ -222,7 +222,7 @@ export const userApi = {
     ),
 };
 
-// Dashboard API
+
 export const dashboardApi = {
   getData: (token: string) =>
     apiRequest<{
@@ -243,7 +243,7 @@ export const dashboardApi = {
     }>("/dashboard", { token }),
 };
 
-// Subscription API
+
 export const subscriptionApi = {
   getPlans: (token: string) =>
     apiRequest<{
@@ -270,7 +270,7 @@ export const subscriptionApi = {
     ),
 };
 
-// Sessions API
+
 export const sessionsApi = {
   getStats: (token: string) =>
     apiRequest<{
@@ -323,7 +323,7 @@ export const sessionsApi = {
     }),
 };
 
-// Admin API
+
 export const adminApi = {
   getDashboard: (token: string) =>
     apiRequest<{

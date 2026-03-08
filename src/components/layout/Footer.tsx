@@ -61,14 +61,14 @@ export function Footer() {
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle subscription
+    
     console.log("Subscribe:", email);
     setEmail("");
   };
 
   return (
     <footer className="bg-muted/50">
-      {/* Top Section - Logo & Tagline */}
+      {}
       <div className="border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12 lg:py-16">
           <div className="text-center">
@@ -85,7 +85,7 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Links Grid */}
+      {}
       <div className="border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 lg:gap-12">
@@ -112,10 +112,10 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Newsletter & App Store */}
+      {}
       <div className="border-b border-border">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-          {/* Newsletter */}
+          {}
           <div className="bg-card rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 border border-border mb-6 sm:mb-8">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8">
               <div className="text-center lg:text-left">
@@ -146,7 +146,7 @@ export function Footer() {
             </div>
           </div>
 
-          {/* App Store Buttons */}
+          {}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Button 
               variant="outline"
@@ -175,17 +175,17 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Bottom Bar */}
+      {}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Copyright */}
+          {}
           <p className="text-xs sm:text-sm text-text-secondary text-center sm:text-left order-2 sm:order-1">
             © {new Date().getFullYear()} FitHome. All rights reserved.
           </p>
 
-          {/* Links & Social */}
+          {}
           <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 order-1 sm:order-2">
-            {/* Policy Links */}
+            {}
             <div className="flex items-center gap-2 sm:gap-4">
               <Link href="/privacy" className="text-xs sm:text-sm text-text-secondary hover:text-primary transition-colors">
                 Privacy Policy
@@ -196,7 +196,7 @@ export function Footer() {
               </Link>
             </div>
 
-            {/* Social Icons */}
+            {}
             <div className="flex items-center gap-2">
               {socialLinks.map((social) => (
                 <a

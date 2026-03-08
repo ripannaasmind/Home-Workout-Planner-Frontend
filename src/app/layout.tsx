@@ -15,11 +15,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// ------- Metadata -------
 export const metadata: Metadata = {
   title: "FitHome - Personalized Workouts, Anytime, Anywhere",
   description: "Your personal fitness companion—get fit at your pace with customized workouts that fit your lifestyle.",
 };
 
+// ------- Root Layout Component -------
 export default function RootLayout({
   children,
 }: Readonly<{

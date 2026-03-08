@@ -73,6 +73,8 @@ function AdminSidebar() {
   );
 }
 
+
+// ------- Admin Layout Component -------
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const router = useRouter();

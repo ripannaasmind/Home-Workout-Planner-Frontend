@@ -1,4 +1,3 @@
-// ImgBB Image Upload Service
 const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || '062499640037b87a330cb09793b95435';
 const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
 
@@ -44,22 +43,20 @@ export interface ImgBBResponse {
   };
 }
 
-/**
- * Upload a single image to ImgBB
- * @param file - File object or base64 string
- * @returns Promise with the uploaded image URL
- */
+
+
+// ------- Upload Image -------
 export const uploadImage = async (file: File | string): Promise<string> => {
   try {
     const formData = new FormData();
     formData.append('key', IMGBB_API_KEY);
 
     if (typeof file === 'string') {
-      // If it's a base64 string, remove the data URL prefix if present
+      
       const base64Data = file.includes('base64,') ? file.split('base64,')[1] : file;
       formData.append('image', base64Data);
     } else {
-      // If it's a File object
+      
       formData.append('image', file);
     }
 
@@ -81,11 +78,9 @@ export const uploadImage = async (file: File | string): Promise<string> => {
   }
 };
 
-/**
- * Upload multiple images to ImgBB
- * @param files - Array of File objects
- * @returns Promise with array of uploaded image URLs
- */
+
+
+// ------- Upload Multiple Images -------
 export const uploadMultipleImages = async (files: File[]): Promise<string[]> => {
   try {
     const uploadPromises = files.map(file => uploadImage(file));
@@ -97,11 +92,7 @@ export const uploadMultipleImages = async (files: File[]): Promise<string[]> => 
   }
 };
 
-/**
- * Convert File to base64 string
- * @param file - File object
- * @returns Promise with base64 string
- */
+
 export const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -111,12 +102,9 @@ export const fileToBase64 = (file: File): Promise<string> => {
   });
 };
 
-/**
- * Validate image file
- * @param file - File object
- * @param maxSizeMB - Maximum file size in MB (default 5MB)
- * @returns Object with isValid and error message
- */
+
+
+// ------- Validate Image File -------
 export const validateImageFile = (file: File, maxSizeMB: number = 5): { isValid: boolean; error?: string } => {
   const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 

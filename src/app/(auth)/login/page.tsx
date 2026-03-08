@@ -24,6 +24,8 @@ import {
   AlertCircle,
 } from "lucide-react";
 
+
+// ------- Login Page Component -------
 export default function LoginPage() {
   const router = useRouter();
   const { login, googleLogin } = useAuth();
@@ -79,10 +81,10 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Form */}
+      {}
       <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
         <div className="mx-auto w-full max-w-sm sm:max-w-md">
-          {/* Logo */}
+          {}
           <Link href="/" className="flex items-center gap-2 mb-6 sm:mb-8">
             <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-primary">
               <Dumbbell className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
@@ -90,7 +92,7 @@ export default function LoginPage() {
             <span className="text-xl sm:text-2xl font-bold text-foreground">FitHome</span>
           </Link>
 
-          {/* Header */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -104,7 +106,7 @@ export default function LoginPage() {
             </p>
           </motion.div>
 
-          {/* Error Message */}
+          {}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -116,7 +118,7 @@ export default function LoginPage() {
             </motion.div>
           )}
 
-          {/* Social Login */}
+          {}
           <div className="space-y-3 mb-6">
             <Button
               variant="outline"
@@ -157,7 +159,7 @@ export default function LoginPage() {
             </span>
           </div>
 
-          {/* Login Form */}
+          {}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
@@ -241,7 +243,7 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          {/* Sign Up Link */}
+          {}
           <p className="mt-6 text-center text-sm text-text-secondary">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-primary font-medium hover:underline">
@@ -251,7 +253,7 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* Right Side - Image (Hidden on mobile) */}
+      {}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative bg-primary/5">
         <div className="absolute inset-0">
           <Image

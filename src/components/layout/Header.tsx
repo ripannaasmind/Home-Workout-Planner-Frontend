@@ -41,14 +41,14 @@ export function Header() {
     return name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
-  // Focus search input when opened
+  
   useEffect(() => {
     if (isSearchOpen && searchInputRef.current) {
       searchInputRef.current.focus();
     }
   }, [isSearchOpen]);
 
-  // Close search on escape
+  
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -62,7 +62,7 @@ export function Header() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Navigate to shop with search query
+      
       window.location.href = `/shop?search=${encodeURIComponent(searchQuery)}`;
       setIsSearchOpen(false);
       setSearchQuery("");
@@ -77,7 +77,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
+        {}
         <Link href="/" className="flex items-center gap-2">
           <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-primary">
             <Dumbbell className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
@@ -85,7 +85,7 @@ export function Header() {
           <span className="text-lg sm:text-xl font-bold text-foreground">FitHome</span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {}
         <nav className="hidden md:flex items-center gap-6 lg:gap-8">
           {navLinks.map((link) => (
             <Link
@@ -102,9 +102,9 @@ export function Header() {
           ))}
         </nav>
 
-        {/* Desktop Actions */}
+        {}
         <div className="hidden md:flex items-center gap-2 lg:gap-3">
-          {/* Search */}
+          {}
           {isSearchOpen ? (
             <form onSubmit={handleSearch} className="flex items-center gap-2">
               <Input
@@ -139,7 +139,7 @@ export function Header() {
             </Button>
           )}
 
-          {/* Cart */}
+          {}
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="h-9 w-9 relative">
               <ShoppingCart className="h-4 w-4" />
@@ -159,7 +159,7 @@ export function Header() {
             </Link>
           )}
 
-          {/* User Avatar - shown when logged in */}
+          {}
           {isAuthenticated && user && (
             <Popover>
               <PopoverTrigger asChild>
@@ -198,9 +198,9 @@ export function Header() {
           )}
         </div>
 
-        {/* Mobile Actions */}
+        {}
         <div className="flex md:hidden items-center gap-1 sm:gap-2">
-          {/* Mobile Search */}
+          {}
           <Button
             variant="ghost"
             size="icon"
@@ -210,7 +210,7 @@ export function Header() {
             <Search className="h-4 w-4" />
           </Button>
 
-          {/* Mobile Cart */}
+          {}
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="h-9 w-9 relative">
               <ShoppingCart className="h-4 w-4" />
@@ -222,7 +222,7 @@ export function Header() {
             </Button>
           </Link>
 
-          {/* Mobile Menu */}
+          {}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9">
@@ -232,7 +232,7 @@ export function Header() {
             <SheetContent side="right" className="w-70 sm:w-[320px]">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex flex-col gap-6 mt-6">
-                {/* Mobile Logo */}
+                {}
                 <div className="flex items-center justify-between">
                   <Link href="/" className="flex items-center gap-2" onClick={() => setIsOpen(false)}>
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
@@ -242,7 +242,7 @@ export function Header() {
                   </Link>
                 </div>
 
-                {/* Mobile Nav Links */}
+                {}
                 <nav className="flex flex-col gap-2">
                   {navLinks.map((link) => (
                     <Link
@@ -260,7 +260,7 @@ export function Header() {
                   ))}
                 </nav>
 
-                {/* Mobile CTA */}
+                {}
                 <div className="flex flex-col gap-3 mt-4">
                   {isAuthenticated && user ? (
                     <>
@@ -314,7 +314,7 @@ export function Header() {
         </div>
       </div>
 
-      {/* Mobile Search Bar */}
+      {}
       {isSearchOpen && (
         <div className="md:hidden border-t border-border bg-background px-4 py-3">
           <form onSubmit={handleSearch} className="flex gap-2">

@@ -29,7 +29,7 @@ export function Features() {
   return (
     <section id="features" className="py-8 sm:py-12 md:py-16 lg:py-20 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+        {}
         <div className="text-center mb-6 sm:mb-8 md:mb-10 lg:mb-12">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-2 sm:mb-3">
             Why Choose FitHome?
@@ -39,7 +39,7 @@ export function Features() {
           </p>
         </div>
 
-        {/* Features Grid */}
+        {}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 lg:gap-6">
           {features.map((feature, index) => (
             <div

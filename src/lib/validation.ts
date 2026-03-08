@@ -1,11 +1,8 @@
-// ── Sanitization ──────────────────────────────────────────────
-
-/** Strip HTML tags and trim whitespace */
 export function sanitize(input: string): string {
   return input.replace(/<[^>]*>/g, "").trim();
 }
 
-// ── Validators ───────────────────────────────────────────────
+
 
 export interface ValidationResult {
   valid: boolean;
@@ -15,7 +12,7 @@ export interface ValidationResult {
 const ok: ValidationResult = { valid: true, message: "" };
 const fail = (message: string): ValidationResult => ({ valid: false, message });
 
-// ── Generic ──
+
 
 export function validateRequired(value: string, fieldName = "This field"): ValidationResult {
   if (!value || !value.trim()) return fail(`${fieldName} is required`);
@@ -32,7 +29,7 @@ export function validateMaxLength(value: string, max: number, fieldName = "This 
   return ok;
 }
 
-// ── Name ──
+
 
 export function validateName(value: string): ValidationResult {
   const name = sanitize(value);

@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load auth state from localStorage on mount
+  
   useEffect(() => {
     const savedToken = localStorage.getItem("fithome-token");
     const savedUser = localStorage.getItem("fithome-user");
@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  // Save auth state to localStorage
+  
   useEffect(() => {
     if (token && user) {
       localStorage.setItem("fithome-token", token);

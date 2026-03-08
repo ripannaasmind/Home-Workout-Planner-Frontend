@@ -36,6 +36,8 @@ function StarRating({ rating }: { rating: number }) {
   );
 }
 
+
+// ------- Testimonials Page Component -------
 export default function TestimonialsPage() {
   const [testimonialList, setTestimonialList] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,7 +58,7 @@ export default function TestimonialsPage() {
     fetchTestimonials();
   }, []);
 
-  // Split testimonials into two columns for masonry effect
+  
   const leftColumn = testimonialList.filter((_, i) => i % 2 === 0);
   const rightColumn = testimonialList.filter((_, i) => i % 2 === 1);
 
@@ -64,7 +66,7 @@ export default function TestimonialsPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        {/* Hero Section */}
+        {}
         <section className="relative overflow-hidden bg-linear-to-br from-background via-background to-primary/5 py-10 sm:py-14 lg:py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div 
@@ -73,7 +75,7 @@ export default function TestimonialsPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {/* Left Content */}
+              {}
               <div className="text-center lg:text-left">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-foreground mb-3 sm:mb-4">
                   See Why Users Love FitHome
@@ -82,7 +84,7 @@ export default function TestimonialsPage() {
                   FitHome has helped thousands of people achieve their <strong>fitness</strong> goals. Read what our satisfied users have to say about their journey and results.
                 </p>
 
-                {/* Rating Summary */}
+                {}
                 <div className="flex items-center gap-3 justify-center lg:justify-start">
                   <div className="flex">
                     {[...Array(5)].map((_, i) => (
@@ -99,7 +101,7 @@ export default function TestimonialsPage() {
                 </div>
               </div>
 
-              {/* Right Decorative */}
+              {}
               <div className="hidden lg:flex justify-end">
                 <div className="flex items-center gap-6">
                   <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center">
@@ -115,7 +117,7 @@ export default function TestimonialsPage() {
           <div className="absolute inset-0 gym-pattern pointer-events-none" />
         </section>
 
-        {/* Testimonials Grid */}
+        {}
         <section className="py-10 sm:py-12 lg:py-16 bg-muted/30">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             {loading ? (
@@ -124,9 +126,9 @@ export default function TestimonialsPage() {
               </div>
             ) : (
               <>
-                {/* Mobile: Single Column, Tablet+: Two Column Masonry */}
+                {}
                 <div className="hidden sm:grid sm:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Left Column */}
+                  {}
                   <div className="space-y-4 sm:space-y-6">
                     {leftColumn.map((testimonial, index) => (
                       <motion.div
@@ -141,7 +143,7 @@ export default function TestimonialsPage() {
                     ))}
                   </div>
                   
-                  {/* Right Column */}
+                  {}
                   <div className="space-y-4 sm:space-y-6 sm:mt-8 lg:mt-12">
                     {rightColumn.map((testimonial, index) => (
                       <motion.div
@@ -157,7 +159,7 @@ export default function TestimonialsPage() {
                   </div>
                 </div>
 
-                {/* Mobile: Single Column */}
+                {}
                 <div className="sm:hidden space-y-4">
                   {testimonialList.map((testimonial, index) => (
                     <motion.div
@@ -174,7 +176,7 @@ export default function TestimonialsPage() {
               </>
             )}
 
-            {/* Carousel Dots */}
+            {}
             <div className="flex justify-center gap-2 mt-8">
               {[...Array(5)].map((_, i) => (
                 <button
@@ -188,7 +190,7 @@ export default function TestimonialsPage() {
           </div>
         </section>
 
-        {/* CTA Section */}
+        {}
         <CTA 
           title="Join the FitHome community and achieve your fitness goals!"
           description="Start your fitness journey today—download FitHome and see the results for yourself!"
@@ -202,7 +204,7 @@ export default function TestimonialsPage() {
 function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
   return (
     <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 border border-border shadow-sm hover:shadow-md transition-all duration-300">
-      {/* Avatar and Name */}
+      {}
       <div className="flex items-center gap-3 mb-3 sm:mb-4">
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">
           {testimonial.avatar ? (
@@ -225,7 +227,7 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
         </div>
       </div>
 
-      {/* Comment */}
+      {}
       <p className="text-xs sm:text-sm lg:text-base text-text-secondary leading-relaxed">
         {testimonial.comment}
       </p>

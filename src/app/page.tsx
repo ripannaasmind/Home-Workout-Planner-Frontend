@@ -5,6 +5,7 @@ import { Features } from "@/components/home/Features";
 import { Workouts } from "@/components/home/Workouts";
 import { Testimonials } from "@/components/home/Testimonials";
 
+// ------- Home Page Component -------
 export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col">

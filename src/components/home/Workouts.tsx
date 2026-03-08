@@ -10,7 +10,7 @@ import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { workoutsApi } from "@/services/api";
 
 
-// Fallback images based on workout type
+
 const getFallbackImage = (title: string): string => {
   const lower = (title || "").toLowerCase();
   if (lower.includes("yoga") || lower.includes("stretch") || lower.includes("flexibility")) 
@@ -48,7 +48,7 @@ export function Workouts() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [itemsToShow, setItemsToShow] = useState(4);
 
-  // Fetch workouts from API
+  
   useEffect(() => {
     const fetchWorkouts = async () => {
       try {
@@ -80,7 +80,7 @@ export function Workouts() {
     fetchWorkouts();
   }, []);
 
-  // Handle responsive items to show
+  
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 640) {
@@ -101,7 +101,7 @@ export function Workouts() {
 
   const maxIndex = Math.max(0, workouts.length - itemsToShow);
 
-  // Auto-slide functionality
+  
   useEffect(() => {
     if (isLoading || workouts.length <= itemsToShow) return;
     
@@ -110,7 +110,7 @@ export function Workouts() {
         if (prev >= maxIndex) return 0;
         return prev + 1;
       });
-    }, 4000); // Auto-slide every 4 seconds
+    }, 4000); 
 
     return () => clearInterval(interval);
   }, [isLoading, workouts.length, itemsToShow, maxIndex]);
@@ -130,7 +130,7 @@ export function Workouts() {
   return (
     <section id="workouts" className="py-8 sm:py-12 md:py-16 lg:py-20 bg-muted/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
+        {}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -146,15 +146,15 @@ export function Workouts() {
           </p>
         </motion.div>
 
-        {/* Loading State */}
+        {}
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-        /* Carousel Container */
+        
         <div className="relative">
-          {/* Navigation Arrows - Desktop */}
+          {}
           <Button
             variant="outline"
             size="icon"
@@ -175,7 +175,7 @@ export function Workouts() {
             <ChevronRight className="h-5 w-5" />
           </Button>
 
-          {/* Workout Cards */}
+          {}
           <div className="overflow-hidden">
             <div
               className="flex transition-transform duration-300 ease-out gap-4"
@@ -195,7 +195,7 @@ export function Workouts() {
                   style={{ width: `calc(${100 / itemsToShow}% - ${(itemsToShow - 1) * 16 / itemsToShow}px)` }}
                 >
                   <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group">
-                    {/* Image */}
+                    {}
                     <div className={`aspect-4/3 bg-linear-to-br ${workout.color} flex items-center justify-center relative overflow-hidden`}>
                       <Image
                         src={workout.image && workout.image.startsWith("http") ? workout.image : getFallbackImage(workout.title || workout.name || "")}
@@ -205,7 +205,7 @@ export function Workouts() {
                       />
                     </div>
 
-                    {/* Content */}
+                    {}
                     <div className="p-3 sm:p-4">
                       <h3 className="font-semibold text-sm sm:text-base md:text-lg text-foreground mb-1 sm:mb-2 truncate">
                         {workout.title || workout.name}
@@ -239,7 +239,7 @@ export function Workouts() {
             </div>
           </div>
 
-          {/* Dots Navigation */}
+          {}
           <div className="flex justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6">
             {Array.from({ length: maxIndex + 1 }).map((_, index) => (
               <button

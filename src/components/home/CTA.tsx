@@ -27,7 +27,7 @@ export function CTA({
             {description}
           </p>
           
-          {/* App Store Buttons */}
+          {}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
             <Button 
               size="lg"

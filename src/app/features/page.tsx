@@ -51,16 +51,18 @@ const featureCards = [
   },
 ];
 
+
+// ------- Features Page Component -------
 export default function FeaturesPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        {/* Hero Section */}
+        {}
         <section className="relative overflow-hidden bg-gradient-to-br from-background via-background to-primary/5 py-12 sm:py-16 lg:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-              {/* Left Content */}
+              {}
               <div className="text-center lg:text-left order-2 lg:order-1">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight text-foreground mb-4 sm:mb-6">
                   Achieve Your Fitness Goals with FitHome&apos;s{" "}
@@ -71,7 +73,7 @@ export default function FeaturesPage() {
                 </p>
               </div>
 
-              {/* Right Content - Phone Mockup */}
+              {}
               <motion.div 
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -79,7 +81,7 @@ export default function FeaturesPage() {
                 className="relative flex justify-center lg:justify-end order-1 lg:order-2"
               >
                 <div className="relative w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[320px]">
-                  {/* Decorative Elements */}
+                  {}
                   <div className="absolute -top-4 -right-4 w-16 h-16 sm:w-20 sm:h-20 bg-primary/10 rounded-full flex items-center justify-center">
                     <Dumbbell className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                   </div>
@@ -87,11 +89,11 @@ export default function FeaturesPage() {
                     <Activity className="w-8 h-8 sm:w-10 sm:h-10 text-accent" />
                   </div>
                   
-                  {/* Phone Frame */}
+                  {}
                   <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2rem] sm:rounded-[2.5rem] p-2 shadow-2xl">
                     <div className="bg-white rounded-[1.5rem] sm:rounded-[2rem] overflow-hidden">
                       <div className="aspect-[9/16] bg-gradient-to-b from-gray-50 to-white p-3 sm:p-4">
-                        {/* App Header */}
+                        {}
                         <div className="flex items-center justify-between mb-3 sm:mb-4">
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -102,7 +104,7 @@ export default function FeaturesPage() {
                           <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gray-200" />
                         </div>
                         
-                        {/* User Greeting */}
+                        {}
                         <div className="bg-primary/10 rounded-lg sm:rounded-xl p-2 sm:p-3 mb-3 sm:mb-4">
                           <p className="text-[10px] sm:text-xs text-primary font-medium flex items-center gap-1">
                             <User className="w-3 h-3" /> Hi Talha Jailvajr
@@ -119,12 +121,12 @@ export default function FeaturesPage() {
                           </div>
                         </div>
                         
-                        {/* Start Workout Button */}
+                        {}
                         <Button className="w-full bg-primary hover:bg-primary-dark text-white text-xs sm:text-sm h-8 sm:h-10 rounded-lg sm:rounded-xl mb-3 sm:mb-4">
                           Start Workout
                         </Button>
                         
-                        {/* Partners Section */}
+                        {}
                         <div className="text-center">
                           <p className="text-[10px] sm:text-xs text-text-muted">Partners</p>
                         </div>
@@ -136,11 +138,11 @@ export default function FeaturesPage() {
             </div>
           </div>
           
-          {/* Background Pattern */}
+          {}
           <div className="absolute inset-0 gym-pattern pointer-events-none" />
         </section>
 
-        {/* Feature Cards Section */}
+        {}
         <section className="py-12 sm:py-16 lg:py-20 bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="space-y-16 sm:space-y-20 lg:space-y-24">
@@ -153,7 +155,7 @@ export default function FeaturesPage() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center ${feature.reverse ? "lg:flex-row-reverse" : ""}`}
                 >
-                  {/* Text Content */}
+                  {}
                   <div className={`text-center lg:text-left ${feature.reverse ? "lg:order-2" : "lg:order-1"}`}>
                     <div className="flex items-center gap-3 mb-4 justify-center lg:justify-start">
                       <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center">
@@ -168,10 +170,10 @@ export default function FeaturesPage() {
                     </p>
                   </div>
                   
-                  {/* Image/Visual Content */}
+                  {}
                   <div className={`${feature.reverse ? "lg:order-1" : "lg:order-2"}`}>
                     {feature.badges ? (
-                      /* Achievement Badges */
+                      
                       <div className="flex flex-wrap justify-center gap-3 sm:gap-4 lg:gap-6">
                         {feature.badges.map((badge, badgeIndex) => {
                           const BadgeIcon = badge.icon;
@@ -194,7 +196,7 @@ export default function FeaturesPage() {
                         })}
                       </div>
                     ) : (
-                      /* Feature Image Card */
+                      
                       <div className="bg-card rounded-2xl p-4 sm:p-6 border border-border shadow-lg">
                         <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl flex items-center justify-center">
                           {feature.featureIcon && <feature.featureIcon className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 text-primary/60" />}
@@ -208,7 +210,7 @@ export default function FeaturesPage() {
           </div>
         </section>
 
-        {/* CTA Section */}
+        {}
         <CTA />
       </main>
       <Footer />

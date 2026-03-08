@@ -10,7 +10,7 @@ export function Hero() {
     <section className="relative overflow-hidden bg-linear-to-br from-background via-background to-primary/5">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left Content */}
+          {}
           <motion.div 
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -26,7 +26,7 @@ export function Hero() {
               Your personal fitness companion—get fit at your pace with customized workouts that fit your lifestyle.
             </p>
 
-            {/* CTA Buttons */}
+            {}
             <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
               <Button 
                 size="lg" 
@@ -43,7 +43,7 @@ export function Hero() {
               </Button>
             </div>
 
-            {/* App Store Ratings */}
+            {}
             <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 justify-center lg:justify-start mt-4">
               <div className="flex items-center gap-2">
                 <Image src="/Images/App_Store_(iOS).svg.png" alt="Apple Store" width={35} height={35}/>
@@ -74,7 +74,7 @@ export function Hero() {
             </div>
           </motion.div>
 
-          {/* Right Content - Phone Mockup */}
+          {}
           <motion.div 
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -82,15 +82,15 @@ export function Hero() {
             className="relative flex justify-center lg:justify-end order-1 lg:order-2"
           >
             <div className="relative w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[380px]">
-              {/* Background Decoration */}
+              {}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-[2rem] transform rotate-3 scale-105" />
               
-              {/* Phone Frame */}
+              {}
               <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2.5rem] p-2 shadow-2xl">
                 <div className="bg-white rounded-[2rem] overflow-hidden">
-                  {/* Phone Screen Content */}
+                  {}
                   <div className="aspect-[9/19] bg-gradient-to-b from-gray-50 to-white p-4">
-                    {/* App Header */}
+                    {}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -101,7 +101,7 @@ export function Hero() {
                       <div className="w-8 h-8 rounded-full bg-gray-200" />
                     </div>
                     
-                    {/* User Greeting */}
+                    {}
                     <div className="bg-primary/10 rounded-xl p-3 mb-4">
                       <p className="text-xs text-primary font-medium flex items-center gap-1">
                         <User className="w-3 h-3" /> Hi Talha
@@ -119,12 +119,12 @@ export function Hero() {
                       </div>
                     </div>
                     
-                    {/* Start Workout Button */}
+                    {}
                     <Button className="w-full bg-primary hover:bg-primary-dark text-white text-sm h-10 rounded-xl mb-4">
                       Start Workout
                     </Button>
                     
-                    {/* Featured Workout */}
+                    {}
                     <div className="bg-gray-100 rounded-xl p-3">
                       <p className="text-xs text-text-muted mb-2">Upcoming Session</p>
                       <div className="flex items-center gap-3">
@@ -144,7 +144,7 @@ export function Hero() {
                 </div>
               </div>
               
-              {/* Floating Person Image */}
+              {}
               <motion.div 
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -160,7 +160,7 @@ export function Hero() {
         </div>
       </div>
       
-      {/* Background Pattern */}
+      {}
       <div className="absolute inset-0 gym-pattern pointer-events-none" />
     </section>
   );

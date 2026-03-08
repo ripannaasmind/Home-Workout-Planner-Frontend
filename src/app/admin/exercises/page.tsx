@@ -30,6 +30,8 @@ const emptyForm = {
   image: "",
 };
 
+
+// ------- Admin Exercises Page Component -------
 export default function AdminExercisesPage() {
   const { token } = useAuth();
   const [exercises, setExercises] = useState<Exercise[]>([]);
@@ -183,7 +185,7 @@ export default function AdminExercisesPage() {
         )}
       </div>
 
-      {/* Create/Edit Dialog */}
+      {}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -280,7 +282,7 @@ export default function AdminExercisesPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirm */}
+      {}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Delete Exercise</DialogTitle></DialogHeader>

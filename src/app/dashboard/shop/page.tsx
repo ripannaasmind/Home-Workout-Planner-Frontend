@@ -11,6 +11,8 @@ import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
 import Image from "next/image";
 
+
+// ------- Shop Page Component -------
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

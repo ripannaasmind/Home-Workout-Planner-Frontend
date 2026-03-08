@@ -14,7 +14,7 @@ import { ChevronRight, Dumbbell, Activity, Loader2 } from "lucide-react";
 import { workoutsApi } from "@/services/api";
 
 
-// Fallback images based on workout type
+
 const getFallbackImage = (title: string): string => {
   const lower = (title || "").toLowerCase();
   if (lower.includes("yoga") || lower.includes("stretch") || lower.includes("flexibility")) 
@@ -63,6 +63,8 @@ function getLevelColor(level: string) {
   }
 }
 
+
+// ------- Workouts Page Component -------
 export default function WorkoutsPage() {
   const [workouts, setWorkouts] = useState<WorkoutData[]>([]);
   const [popularPrograms, setPopularPrograms] = useState<WorkoutData[]>([]);
@@ -71,7 +73,7 @@ export default function WorkoutsPage() {
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState("popularity");
 
-  // Fetch workouts from API
+  
   useEffect(() => {
     const fetchWorkouts = async () => {
       try {
@@ -93,7 +95,7 @@ export default function WorkoutsPage() {
             color: colors[i % colors.length],
           }));
           setWorkouts(mapped);
-          // Popular programs: first 6 items shown in horizontal scroll
+          
           setPopularPrograms(mapped.slice(0, 6));
         }
       } catch (error) {
@@ -105,7 +107,7 @@ export default function WorkoutsPage() {
     fetchWorkouts();
   }, []);
 
-  // Dynamic filter options from actual data
+  
   const availableLevels = useMemo(() => {
     const found = new Set(workouts.map((w) => (w.level || w.difficulty || "").toLowerCase()));
     return ["All", ...levels.slice(1).filter((l) => found.has(l.toLowerCase()))];
@@ -124,7 +126,7 @@ export default function WorkoutsPage() {
       return matchLevel && matchCat;
     });
 
-    // Sort workouts
+    
     switch (sortBy) {
       case "name":
         filtered.sort((a, b) => (a.title || a.name || "").localeCompare(b.title || b.name || ""));
@@ -139,7 +141,7 @@ export default function WorkoutsPage() {
       case "newest":
         filtered.reverse();
         break;
-      default: // popularity
+      default: 
         break;
     }
 
@@ -150,11 +152,11 @@ export default function WorkoutsPage() {
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-1">
-        {/* Hero Section */}
+        {}
         <section className="relative overflow-hidden bg-linear-to-br from-background via-background to-primary/5 py-10 sm:py-14 lg:py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-              {/* Left Content */}
+              {}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -169,7 +171,7 @@ export default function WorkoutsPage() {
                 </p>
               </motion.div>
 
-              {/* Right Decorative */}
+              {}
               <motion.div 
                 initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -190,12 +192,12 @@ export default function WorkoutsPage() {
           <div className="absolute inset-0 gym-pattern pointer-events-none" />
         </section>
 
-        {/* Filters Section */}
+        {}
         <section className="py-6 sm:py-8 bg-background border-b border-border">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap gap-3 items-center justify-between">
-                {/* Difficulty Tabs - dynamic from data */}
+                {}
                 <div className="flex flex-wrap gap-2">
                   {availableLevels.map((level) => (
                     <Button
@@ -214,7 +216,7 @@ export default function WorkoutsPage() {
                   ))}
                 </div>
 
-                {/* Sort Dropdown */}
+                {}
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm text-text-muted whitespace-nowrap">Sort by:</span>
                   <Select value={sortBy} onValueChange={setSortBy}>
@@ -231,7 +233,7 @@ export default function WorkoutsPage() {
                 </div>
               </div>
 
-              {/* Category Tabs - dynamic from data */}
+              {}
               {availableCategories.length > 2 && (
                 <div className="flex flex-wrap gap-2">
                   {availableCategories.map((cat) => (
@@ -253,7 +255,7 @@ export default function WorkoutsPage() {
           </div>
         </section>
 
-        {/* Workout Cards Grid */}
+        {}
         <section className="py-8 sm:py-10 lg:py-12 bg-muted/30">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             {isLoading ? (
@@ -272,7 +274,7 @@ export default function WorkoutsPage() {
                   transition={{ duration: 0.4, delay: index * 0.05 }}
                   className="bg-white rounded-xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group"
                 >
-                  {/* Image */}
+                  {}
                   <div className={`aspect-4/3 bg-linear-to-br ${workout.color} flex items-center justify-center relative overflow-hidden`}>
                     <Image
                       src={workout.image && workout.image.startsWith("http") ? workout.image : getFallbackImage(workout.title || workout.name || "")}
@@ -282,7 +284,7 @@ export default function WorkoutsPage() {
                     />
                   </div>
 
-                  {/* Content */}
+                  {}
                   <div className="p-3 sm:p-4">
                     <h3 className="font-semibold text-sm sm:text-base text-foreground mb-1 truncate">
                       {workout.title || workout.name}
@@ -310,10 +312,10 @@ export default function WorkoutsPage() {
           </div>
         </section>
 
-        {/* Popular Programs Section */}
+        {}
         <section className="py-10 sm:py-12 lg:py-16 bg-background">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            {/* Section Header */}
+            {}
             <div className="flex items-center justify-between mb-6 sm:mb-8">
               <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground">
                 Popular Programs
@@ -324,7 +326,7 @@ export default function WorkoutsPage() {
               </Button>
             </div>
 
-            {/* Programs Horizontal Scroll */}
+            {}
             <div className="flex gap-4 overflow-x-auto pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 scrollbar-thin">
               {popularPrograms.map((program, index) => {
                 return (
@@ -336,7 +338,7 @@ export default function WorkoutsPage() {
                   transition={{ duration: 0.3, delay: index * 0.1 }}
                   className="shrink-0 w-50 sm:w-55 lg:w-65 bg-white rounded-xl overflow-hidden shadow-sm border border-border hover:shadow-lg transition-all duration-300 card-hover group"
                 >
-                  {/* Image */}
+                  {}
                   <div className={`aspect-4/3 bg-linear-to-br ${program.color} flex items-center justify-center relative overflow-hidden`}>
                     <Image
                       src={program.image && program.image.startsWith("http") ? program.image : getFallbackImage(program.title || program.name || "")}
@@ -346,7 +348,7 @@ export default function WorkoutsPage() {
                     />
                   </div>
 
-                  {/* Content */}
+                  {}
                   <div className="p-3 sm:p-4">
                     <h3 className="font-semibold text-sm sm:text-base text-foreground mb-1 truncate">
                       {program.title || program.name}
@@ -373,7 +375,7 @@ export default function WorkoutsPage() {
           </div>
         </section>
 
-        {/* CTA Section */}
+        {}
         <CTA 
           title="Start Your Fitness Journey Today"
           description="Download FitHome and access a variety of workouts. Achieve your fitness goals with personalized plans."

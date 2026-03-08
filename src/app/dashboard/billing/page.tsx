@@ -16,6 +16,8 @@ interface Plan {
   features: string[];
 }
 
+
+// ------- Billing Page Component -------
 export default function BillingPage() {
   const { token } = useAuth();
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -52,7 +54,7 @@ export default function BillingPage() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        /* Plans */
+        
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           {plans.map((plan) => {
             const isCurrent = plan.id === currentPlanId;
@@ -90,7 +92,7 @@ export default function BillingPage() {
         </div>
       )}
 
-      {/* Payment methods */}
+      {}
       <div className="rounded-2xl bg-white border border-gray-200 shadow-sm p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-gray-800 font-semibold">Payment Methods</h3>

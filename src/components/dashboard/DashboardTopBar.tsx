@@ -17,7 +17,7 @@ export function DashboardTopBar({ title = "Dashboard" }: DashboardTopBarProps) {
 
   return (
     <div className="flex items-center justify-between gap-4 px-1 mb-6">
-      {/* Left: mobile menu + title */}
+      {}
       <div className="flex items-center gap-3">
         <Button
           variant="ghost"
@@ -29,7 +29,7 @@ export function DashboardTopBar({ title = "Dashboard" }: DashboardTopBarProps) {
         <h1 className="text-sm font-bold text-gray-800">{title}</h1>
       </div>
 
-      {/* Center: search */}
+      {}
       <div className="hidden md:flex flex-1 max-w-sm">
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -40,7 +40,7 @@ export function DashboardTopBar({ title = "Dashboard" }: DashboardTopBarProps) {
         </div>
       </div>
 
-      {/* Right: notifications + avatar */}
+      {}
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"

@@ -13,6 +13,8 @@ import { useAuth } from "@/context/AuthContext";
 import { userApi } from "@/services/api";
 import { uploadImage, validateImageFile } from "@/services/imageUploadService";
 
+
+// ------- Profile Page Component -------
 export default function ProfilePage() {
   const { user, token, updateUser } = useAuth();
 
@@ -22,13 +24,13 @@ export default function ProfilePage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sync on initial load if auth was still loading when component first mounted
+  
   useEffect(() => {
     if (user) {
       if (!name) setName(user.name);
       if (avatarPreview === undefined) setAvatarPreview(user.avatar);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [user?._id]);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,7 +49,7 @@ export default function ProfilePage() {
       toast.error("Failed to upload image. Please try again.");
     } finally {
       setUploadingAvatar(false);
-      // Reset input so the same file can be re-selected if needed
+      
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
@@ -60,26 +62,26 @@ export default function ProfilePage() {
     if (!user) return;
     setSaving(true);
 
-    // Update locally immediately so the UI reflects changes right away
+    
     const updatedUser = { ...user, name: name.trim(), avatar: avatarPreview };
     updateUser(updatedUser);
-    // Persist to localStorage directly as well (backup if the useEffect hasn't fired yet)
+    
     localStorage.setItem("fithome-user", JSON.stringify(updatedUser));
 
     toast.success("Profile updated successfully");
 
-    // Best-effort sync with backend (non-blocking)
+    
     if (token) {
       try {
         const res = await userApi.updateProfile(
           { name: name.trim(), avatar: avatarPreview },
           token
         );
-        // Merge any server-side fields back (e.g. updated avatar URL)
+        
         updateUser({ ...updatedUser, ...res.data });
         localStorage.setItem("fithome-user", JSON.stringify({ ...updatedUser, ...res.data }));
       } catch {
-        // Backend sync failed – local update already applied, no need to show error
+        
       }
     }
 
@@ -95,7 +97,7 @@ export default function ProfilePage() {
         <p className="text-gray-400 text-sm mt-0.5">Manage your personal information</p>
       </div>
 
-      {/* Profile photo */}
+      {}
       <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6">
         <h3 className="text-gray-800 font-semibold mb-4">Profile Photo</h3>
         <Separator className="bg-gray-100 mb-4" />
@@ -153,7 +155,7 @@ export default function ProfilePage() {
         </div>
       </section>
 
-      {/* Personal info */}
+      {}
       <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6">
         <h3 className="text-gray-800 font-semibold mb-4">Personal Information</h3>
         <Separator className="bg-gray-100 mb-4" />

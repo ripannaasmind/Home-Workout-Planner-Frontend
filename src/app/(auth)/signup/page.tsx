@@ -26,6 +26,8 @@ import {
   Check,
 } from "lucide-react";
 
+
+// ------- Signup Page Component -------
 export default function SignupPage() {
   const router = useRouter();
   const { register, googleLogin } = useAuth();
@@ -39,7 +41,7 @@ export default function SignupPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Password strength
+  
   const getPasswordStrength = (pass: string) => {
     let strength = 0;
     if (pass.length >= 8) strength++;
@@ -109,7 +111,7 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Image (Hidden on mobile) */}
+      {}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[45%] relative bg-primary/5">
         <div className="absolute inset-0">
           <Image
@@ -134,7 +136,7 @@ export default function SignupPage() {
               Create your free account and get access to personalized workout plans.
             </p>
             
-            {/* Features */}
+            {}
             <div className="space-y-4">
               {[
                 "Personalized workout plans",
@@ -154,10 +156,10 @@ export default function SignupPage() {
         </div>
       </div>
 
-      {/* Right Side - Form */}
+      {}
       <div className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-12 overflow-y-auto">
         <div className="mx-auto w-full max-w-sm sm:max-w-md">
-          {/* Logo */}
+          {}
           <Link href="/" className="flex items-center gap-2 mb-6 sm:mb-8">
             <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-lg bg-primary">
               <Dumbbell className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
@@ -165,7 +167,7 @@ export default function SignupPage() {
             <span className="text-xl sm:text-2xl font-bold text-foreground">FitHome</span>
           </Link>
 
-          {/* Header */}
+          {}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -179,7 +181,7 @@ export default function SignupPage() {
             </p>
           </motion.div>
 
-          {/* Error Message */}
+          {}
           {error && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
@@ -191,7 +193,7 @@ export default function SignupPage() {
             </motion.div>
           )}
 
-          {/* Social Signup */}
+          {}
           <div className="mb-6">
             <Button
               variant="outline"
@@ -232,7 +234,7 @@ export default function SignupPage() {
             </span>
           </div>
 
-          {/* Signup Form */}
+          {}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name" className="text-sm font-medium">
@@ -297,7 +299,7 @@ export default function SignupPage() {
                   )}
                 </button>
               </div>
-              {/* Password Strength Indicator */}
+              {}
               {password && (
                 <div className="space-y-1">
                   <div className="flex gap-1">
@@ -375,7 +377,7 @@ export default function SignupPage() {
             </Button>
           </form>
 
-          {/* Sign In Link */}
+          {}
           <p className="mt-6 text-center text-sm text-text-secondary">
             Already have an account?{" "}
             <Link href="/login" className="text-primary font-medium hover:underline">

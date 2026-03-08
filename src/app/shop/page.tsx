@@ -39,6 +39,8 @@ const categories = ["All", "Dumbbells", "Yoga Mats", "Resistance Bands", "Supple
 
 const ITEMS_PER_PAGE = 8;
 
+
+// ------- Shop Page Component -------
 export default function ShopPage() {
   const { addToCart, cart } = useCart();
   const [allProducts, setAllProducts] = useState<Product[]>([]);
@@ -52,13 +54,13 @@ export default function ShopPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [addedToCart, setAddedToCart] = useState<string | null>(null);
 
-  // Fetch products from API
+  
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const response = await productsApi.getAll();
         if (response.success && response.data && response.data.length > 0) {
-          // Map API response to Product interface
+          
           const mappedProducts: Product[] = response.data.map((p, index) => ({
             id: p._id || p.id || String(index + 1),
             name: p.name,
@@ -71,7 +73,7 @@ export default function ShopPage() {
         }
       } catch (error) {
         console.error("Failed to fetch products:", error);
-        // Keep fallback data
+        
       } finally {
         setIsLoading(false);
       }
@@ -80,7 +82,7 @@ export default function ShopPage() {
     fetchProducts();
   }, []);
 
-  // Filter and sort products
+  
   const filteredProducts = useMemo(() => {
     const filtered = allProducts.filter((product) => {
       const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -89,7 +91,7 @@ export default function ShopPage() {
       return matchesSearch && matchesCategory && matchesPrice;
     });
 
-    // Sort products
+    
     switch (sortBy) {
       case "price-low":
         filtered.sort((a, b) => a.price - b.price);
@@ -107,7 +109,7 @@ export default function ShopPage() {
     return filtered;
   }, [allProducts, searchQuery, selectedCategory, priceRange, sortBy]);
 
-  // Pagination
+  
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
   const paginatedProducts = filteredProducts.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -128,7 +130,7 @@ export default function ShopPage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Hero Section */}
+      {}
       <section className="bg-linear-to-r from-primary/10 via-accent/5 to-primary/10 py-8 sm:py-12 lg:py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -149,14 +151,14 @@ export default function ShopPage() {
         </div>
       </section>
 
-      {/* Main Content */}
+      {}
       <section className="py-6 sm:py-8 lg:py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-            {/* Sidebar Filters - Desktop */}
+            {}
             <aside className="hidden lg:block w-64 shrink-0">
               <div className="sticky top-24 space-y-6">
-                {/* Categories */}
+                {}
                 <div className="bg-card rounded-xl p-5 border border-border">
                   <h3 className="font-semibold text-foreground mb-4">Categories</h3>
                   <div className="space-y-2">
@@ -179,7 +181,7 @@ export default function ShopPage() {
                   </div>
                 </div>
 
-                {/* Price Range */}
+                {}
                 <div className="bg-card rounded-xl p-5 border border-border">
                   <h3 className="font-semibold text-foreground mb-4">Price Range</h3>
                   <Slider
@@ -200,11 +202,11 @@ export default function ShopPage() {
               </div>
             </aside>
 
-            {/* Main Content Area */}
+            {}
             <div className="flex-1">
-              {/* Toolbar */}
+              {}
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-start sm:items-center justify-between mb-6">
-                {/* Search */}
+                {}
                 <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -220,7 +222,7 @@ export default function ShopPage() {
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                  {/* Mobile Filter Toggle */}
+                  {}
                   <Button
                     variant="outline"
                     size="sm"
@@ -231,7 +233,7 @@ export default function ShopPage() {
                     Filters
                   </Button>
 
-                  {/* Sort */}
+                  {}
                   <Select value={sortBy} onValueChange={setSortBy}>
                     <SelectTrigger className="w-full sm:w-40 h-10">
                       <SelectValue placeholder="Sort by" />
@@ -244,7 +246,7 @@ export default function ShopPage() {
                     </SelectContent>
                   </Select>
 
-                  {/* View Mode */}
+                  {}
                   <div className="hidden sm:flex items-center border border-border rounded-lg">
                     <Button
                       variant="ghost"
@@ -266,7 +268,7 @@ export default function ShopPage() {
                 </div>
               </div>
 
-              {/* Mobile Filters */}
+              {}
               {showFilters && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
@@ -281,7 +283,7 @@ export default function ShopPage() {
                     </Button>
                   </div>
 
-                  {/* Category Select */}
+                  {}
                   <div className="mb-4">
                     <label className="text-sm font-medium mb-2 block">Category</label>
                     <Select
@@ -304,7 +306,7 @@ export default function ShopPage() {
                     </Select>
                   </div>
 
-                  {/* Price Range */}
+                  {}
                   <div>
                     <label className="text-sm font-medium mb-2 block">
                       Price: ${priceRange[0]} - ${priceRange[1]}
@@ -322,19 +324,19 @@ export default function ShopPage() {
                 </motion.div>
               )}
 
-              {/* Results Count */}
+              {}
               <p className="text-sm text-text-secondary mb-4">
                 Showing {paginatedProducts.length} of {filteredProducts.length} products
               </p>
 
-              {/* Loading State */}
+              {}
               {isLoading ? (
                 <div className="flex flex-col items-center justify-center py-16">
                   <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
                   <p className="text-text-secondary">Loading products...</p>
                 </div>
               ) : filteredProducts.length > 0 ? (
-              /* Products Grid */
+              
                 <div
                   className={
                     viewMode === "grid"
@@ -352,7 +354,7 @@ export default function ShopPage() {
                     >
                       {viewMode === "grid" ? (
                         <div className="rounded-2xl bg-white border border-gray-100 shadow-sm flex flex-col hover:shadow-md transition-shadow overflow-hidden">
-                          {/* Product Image */}
+                          {}
                           <div className="relative aspect-4/3 bg-gray-50 overflow-hidden">
                             {product.image && product.image.startsWith("http") ? (
                               <Image
@@ -366,7 +368,7 @@ export default function ShopPage() {
                                 <Dumbbell className="w-12 h-12 text-primary/40" />
                               </div>
                             )}
-                            {/* In Cart Badge */}
+                            {}
                             {isInCart(product.id) && (
                               <Badge className="absolute top-2 right-2 bg-accent text-white text-xs shadow">
                                 In Cart
@@ -374,7 +376,7 @@ export default function ShopPage() {
                             )}
                           </div>
 
-                          {/* Card body */}
+                          {}
                           <div className="p-4 flex flex-col gap-2 flex-1">
                             <Badge className="self-start bg-primary/10 text-primary border-0 text-xs">
                               {product.category}
@@ -411,7 +413,7 @@ export default function ShopPage() {
                           </div>
                         </div>
                       ) : (
-                        /* List View */
+                        
                         <Card className="overflow-hidden">
                           <div className="flex gap-4 p-4">
                             <div className="w-24 h-24 sm:w-32 sm:h-32 bg-muted rounded-lg overflow-hidden relative shrink-0">
@@ -482,7 +484,7 @@ export default function ShopPage() {
                 </div>
               )}
 
-              {/* Pagination */}
+              {}
               {totalPages > 1 && (
                 <div className="flex items-center justify-center gap-2 mt-8 sm:mt-10">
                   <Button

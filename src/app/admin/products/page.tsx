@@ -26,6 +26,8 @@ const emptyForm = {
   image: "",
 };
 
+
+// ------- Admin Products Page Component -------
 export default function AdminProductsPage() {
   const { token } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
@@ -189,7 +191,7 @@ export default function AdminProductsPage() {
         )}
       </div>
 
-      {/* Create/Edit Dialog */}
+      {}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -306,7 +308,7 @@ export default function AdminProductsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirm */}
+      {}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Delete Product</DialogTitle></DialogHeader>

@@ -37,7 +37,7 @@ export function DashboardSidebar() {
 
   return (
     <aside className="hidden lg:flex flex-col w-52 shrink-0 bg-white border-r border-gray-200 sticky top-16 h-[calc(100vh-80px)] overflow-y-auto py-4">
-      {/* Nav items */}
+      {}
       <nav className="flex-1 px-3 space-y-0.5">
         {navItems.map(({ href, label, icon: Icon }) => (
           <Link
@@ -56,7 +56,7 @@ export function DashboardSidebar() {
         ))}
       </nav>
 
-      {/* Log Out */}
+      {}
       <div className="px-3 mt-2 border-t border-gray-100 pt-2">
         {user?.role === "admin" && (
           <Link

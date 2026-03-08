@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
+
+// ------- Admin Users Page Component -------
 export default function AdminUsersPage() {
   const { token } = useAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
@@ -96,7 +98,7 @@ export default function AdminUsersPage() {
         <p className="text-gray-500 text-sm mt-1">Manage all platform users</p>
       </div>
 
-      {/* Filters */}
+      {}
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -119,7 +121,7 @@ export default function AdminUsersPage() {
         </Select>
       </div>
 
-      {/* Table */}
+      {}
       <div className="rounded-2xl bg-white border border-gray-200 shadow-sm overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-20">
@@ -198,7 +200,7 @@ export default function AdminUsersPage() {
         )}
       </div>
 
-      {/* Edit Dialog */}
+      {}
       <Dialog open={!!editUser} onOpenChange={() => setEditUser(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
@@ -236,7 +238,7 @@ export default function AdminUsersPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirm Dialog */}
+      {}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>

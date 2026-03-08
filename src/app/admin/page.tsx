@@ -21,6 +21,8 @@ const statConfig = [
   { key: "newUsersLast7Days", label: "New Users (7 days)", icon: TrendingUp, color: "bg-pink-50 text-pink-600" },
 ] as const;
 
+
+// ------- Admin Dashboard Component -------
 export default function AdminDashboard() {
   const { token } = useAuth();
   const [stats, setStats] = useState<DashStats | null>(null);

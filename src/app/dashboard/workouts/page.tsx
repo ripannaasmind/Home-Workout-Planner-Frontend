@@ -26,6 +26,8 @@ function formatTime(seconds: number) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+
+// ------- Workouts Page Component -------
 export default function WorkoutsPage() {
   const { token } = useAuth();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -34,13 +36,13 @@ export default function WorkoutsPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
 
-  // Active session / timer state
+  
   const [activeSession, setActiveSession] = useState<WorkoutSession | null>(null);
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
   const [timerOpen, setTimerOpen] = useState(false);
-  const [elapsed, setElapsed] = useState(0); // seconds
+  const [elapsed, setElapsed] = useState(0); 
   const [paused, setPaused] = useState(false);
-  const [starting, setStarting] = useState<string | null>(null); // workout _id being started
+  const [starting, setStarting] = useState<string | null>(null); 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function WorkoutsPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Check for existing active session on load
+  
   useEffect(() => {
     if (!token) return;
     sessionsApi.getActive(token).then((res) => {
@@ -68,7 +70,7 @@ export default function WorkoutsPage() {
     }).catch(() => {});
   }, [token]);
 
-  // Timer tick
+  
   useEffect(() => {
     if (timerOpen && !paused) {
       intervalRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
@@ -78,7 +80,7 @@ export default function WorkoutsPage() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [timerOpen, paused]);
 
-  // Derived filter options from data
+  
   const categories = ["all", ...Array.from(new Set(workouts.map((w) => w.category))).sort()];
   const difficulties = ["all", "beginner", "intermediate", "advanced"];
 
@@ -106,7 +108,7 @@ export default function WorkoutsPage() {
       const msg = e instanceof Error ? e.message : "Failed to start session";
       if (msg.includes("already have a session")) {
         toast.error("You already have an active session. Finish it first.");
-        // Reopen existing session
+        
         if (token) {
           sessionsApi.getActive(token).then((r) => {
             if (r.data) {
@@ -184,7 +186,7 @@ export default function WorkoutsPage() {
         description="Browse and start workout sessions"
       />
 
-      {/* Search + Filters */}
+      {}
       <div className="space-y-3">
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -196,7 +198,7 @@ export default function WorkoutsPage() {
           />
         </div>
 
-        {/* Category filter chips */}
+        {}
         {!loading && categories.length > 1 && (
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
@@ -216,7 +218,7 @@ export default function WorkoutsPage() {
           </div>
         )}
 
-        {/* Difficulty filter chips */}
+        {}
         {!loading && (
           <div className="flex flex-wrap gap-2">
             {difficulties.map((d) => (
@@ -237,7 +239,7 @@ export default function WorkoutsPage() {
         )}
       </div>
 
-      {/* Active session banner */}
+      {}
       {activeSession && !timerOpen && (
         <div
           className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-primary/15 transition-colors"
@@ -307,7 +309,7 @@ export default function WorkoutsPage() {
         </div>
       )}
 
-      {/* Timer Modal */}
+      {}
       <Dialog open={timerOpen} onOpenChange={(open) => { if (!open) setTimerOpen(false); }}>
         <DialogContent className="sm:max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
@@ -325,7 +327,7 @@ export default function WorkoutsPage() {
           </DialogHeader>
 
           <div className="flex flex-col items-center gap-6 py-4">
-            {/* Timer display */}
+            {}
             <div className="relative flex items-center justify-center">
               <div className="h-40 w-40 rounded-full border-4 border-primary/20 flex items-center justify-center">
                 <div className={cn(
@@ -339,7 +341,7 @@ export default function WorkoutsPage() {
               </div>
             </div>
 
-            {/* Workout info */}
+            {}
             <div className="flex gap-6 text-sm text-gray-500">
               <div className="flex items-center gap-1.5">
                 <Clock className="h-4 w-4 text-primary" />
@@ -355,7 +357,7 @@ export default function WorkoutsPage() {
               <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">Paused</Badge>
             )}
 
-            {/* Controls */}
+            {}
             <div className="flex gap-3 w-full">
               <Button
                 variant="outline"

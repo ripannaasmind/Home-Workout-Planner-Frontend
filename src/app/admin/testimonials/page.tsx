@@ -24,6 +24,8 @@ const emptyForm = {
   size: "medium" as "small" | "medium" | "large",
 };
 
+
+// ------- Admin Testimonials Page Component -------
 export default function AdminTestimonialsPage() {
   const { token } = useAuth();
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
@@ -166,7 +168,7 @@ export default function AdminTestimonialsPage() {
         )}
       </div>
 
-      {/* Create/Edit Dialog */}
+      {}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
@@ -265,7 +267,7 @@ export default function AdminTestimonialsPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirm */}
+      {}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Delete Testimonial</DialogTitle></DialogHeader>

@@ -27,15 +27,17 @@ function loadPref<T>(key: string, defaults: T): T {
   }
 }
 
+
+// ------- Settings Page Component -------
 export default function SettingsPage() {
   const { user, token, updateUser, logout } = useAuth();
   const router = useRouter();
 
-  // --- Profile section ---
+  
   const [name, setName] = useState(user?.name ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
 
-  // --- Password section ---
+  
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -43,35 +45,35 @@ export default function SettingsPage() {
   const [showNew, setShowNew] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
-  // --- Notifications ---
+  
   const [notif, setNotif] = useState({
     orderUpdates: true,
     workoutReminders: true,
     promoEmails: false,
   });
 
-  // --- Privacy ---
+  
   const [privacy, setPrivacy] = useState({
     publicProfile: false,
     shareActivity: false,
   });
 
-  // --- Delete account ---
+  
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  // Sync name with user context changes
+  
   useEffect(() => {
     if (user?.name) setName(user.name);
   }, [user?.name]);
 
-  // Load preferences from localStorage
+  
   useEffect(() => {
     setNotif(loadPref(NOTIF_KEY, { orderUpdates: true, workoutReminders: true, promoEmails: false }));
     setPrivacy(loadPref(PRIVACY_KEY, { publicProfile: false, shareActivity: false }));
   }, []);
 
-  // Persist preferences
+  
   const saveNotif = (updated: typeof notif) => {
     setNotif(updated);
     localStorage.setItem(NOTIF_KEY, JSON.stringify(updated));
@@ -84,7 +86,7 @@ export default function SettingsPage() {
     toast.success("Privacy preferences saved");
   };
 
-  // Update profile (name)
+  
   const handleSaveProfile = async () => {
     const nameCheck = validateName(name);
     if (!nameCheck.valid) {
@@ -104,7 +106,7 @@ export default function SettingsPage() {
     }
   };
 
-  // Change password
+  
   const handleChangePassword = async () => {
     const passCheck = validatePassword(newPassword);
     if (!currentPassword) {
@@ -135,7 +137,7 @@ export default function SettingsPage() {
     }
   };
 
-  // Delete account
+  
   const handleDeleteAccount = async () => {
     if (!token) return;
     setDeleting(true);
@@ -158,7 +160,7 @@ export default function SettingsPage() {
         <p className="text-gray-400 text-sm mt-0.5">Manage your account preferences and security</p>
       </div>
 
-      {/* Profile Information */}
+      {}
       <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6 space-y-4">
         <h3 className="text-gray-800 font-semibold">Profile Information</h3>
         <Separator className="bg-gray-100" />
@@ -192,7 +194,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Change Password */}
+      {}
       <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6 space-y-4">
         <h3 className="text-gray-800 font-semibold">Change Password</h3>
         <Separator className="bg-gray-100" />
@@ -263,7 +265,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {/* Notifications */}
+      {}
       <section className="rounded-2xl bg-white border border-gray-100 shadow-sm p-6 space-y-4">
         <h3 className="text-gray-800 font-semibold">Notifications</h3>
         <Separator className="bg-gray-100" />
@@ -287,7 +289,7 @@ export default function SettingsPage() {
         ))}
       </section>
 
-      {/* Danger Zone */}
+      {}
       <section className="rounded-2xl bg-red-50 border border-red-200 p-6 space-y-4">
         <h3 className="text-red-600 font-semibold">Danger Zone</h3>
         <Separator className="bg-red-200" />
