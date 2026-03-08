@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
+import { useTheme } from "@/context/ThemeContext";
 import { adminApi, SiteConfig } from "@/services/api";
 import { toast } from "sonner";
 import Image from "next/image";
@@ -65,6 +66,7 @@ const sections = [
 // ------- Admin Settings Page -------
 export default function AdminSettingsPage() {
   const { token } = useAuth();
+  const { setCurrency } = useTheme();
   const [activeSection, setActiveSection] = useState("business");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -209,6 +211,10 @@ export default function AdminSettingsPage() {
       }
 
       await Promise.all(promises);
+      // Update currency in ThemeContext immediately so all prices update without page reload
+      if (activeSection === "currency" && siteConfig.currency) {
+        setCurrency(siteConfig.currency);
+      }
       toast.success("Settings saved successfully");
     } catch {
       toast.error("Failed to save settings");

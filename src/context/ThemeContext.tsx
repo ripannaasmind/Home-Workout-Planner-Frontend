@@ -86,6 +86,7 @@ interface ThemeContextType {
   isDark: boolean;
   direction: Direction;
   currency: string;
+  setCurrency: (currency: string) => void;
   currencySymbol: string;
   formatPrice: (amountInUSD: number) => string;
   convertPrice: (amountInUSD: number) => number;
@@ -215,7 +216,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     <ThemeContext.Provider
       value={{
         theme, setTheme, isDark, direction,
-        currency, currencySymbol,
+        currency, setCurrency: setCurrencyState, currencySymbol,
         formatPrice, convertPrice,
         language, setLanguage,
       }}
