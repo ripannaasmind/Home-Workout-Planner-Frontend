@@ -48,6 +48,38 @@ function formatDuration(minutes?: number): string {
   return `${m} min`;
 }
 
+function formatSeconds(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
+function getSessionDuration(session: WorkoutSession): string {
+  // If server already computed totalDuration (in minutes) use it
+  if (session.totalDuration && session.totalDuration > 0) {
+    return formatDuration(session.totalDuration);
+  }
+  // Otherwise calculate from startTime → endTime (or now for in_progress)
+  try {
+    const start = new Date(session.startTime).getTime();
+    const end = session.endTime
+      ? new Date(session.endTime).getTime()
+      : session.status === "in_progress" || session.status === "paused"
+      ? Date.now()
+      : null;
+    if (!end) return "—";
+    const totalPausedMs = session.totalPausedMs ?? 0;
+    const elapsedSec = Math.floor((end - start - totalPausedMs) / 1000);
+    if (elapsedSec <= 0) return "—";
+    return formatSeconds(elapsedSec);
+  } catch {
+    return "—";
+  }
+}
+
 const statusConfig: Record<string, { label: string; color: string; Icon: React.ElementType }> = {
   completed: { label: "Completed", color: "bg-green-100 text-green-700", Icon: CheckCircle },
   in_progress: { label: "In Progress", color: "bg-yellow-100 text-yellow-700", Icon: PlayCircle },
@@ -190,7 +222,7 @@ export default function SessionsPage() {
                           {formatDate(session.startTime)}
                         </td>
                         <td className="px-4 py-3.5 text-gray-700 dark:text-gray-300 font-medium">
-                          {session.totalDuration ? formatDuration(session.totalDuration) : "—"}
+                          {getSessionDuration(session)}
                         </td>
                         <td className="px-4 py-3.5 text-gray-700 dark:text-gray-300">
                           {session.caloriesBurned ? `${session.caloriesBurned} kcal` : "—"}
@@ -230,7 +262,7 @@ export default function SessionsPage() {
                       </div>
                       <p className="text-xs text-gray-400 mt-0.5">{formatDate(session.startTime)}</p>
                       <div className="flex gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                        {session.totalDuration && <span><Clock className="inline h-3 w-3 mr-0.5" />{formatDuration(session.totalDuration)}</span>}
+                        <span><Clock className="inline h-3 w-3 mr-0.5" />{getSessionDuration(session)}</span>
                         {session.caloriesBurned && <span><Flame className="inline h-3 w-3 mr-0.5" />{session.caloriesBurned} kcal</span>}
                       </div>
                     </div>
