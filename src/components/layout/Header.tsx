@@ -137,17 +137,17 @@ export function Header() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 hover:text-primary"
+                className="h-9 w-9 hover:text-white hover:bg-accent dark:hover:bg-accent text-bold border-primary/50"
                 onClick={() => setIsSearchOpen(false)}
               >
-                <X className="h-4 w-4" />
+                <X className="h-5 w-5" />
               </Button>
             </form>
           ) : (
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 hover:bg-primary border-primary/50 "
+              className="h-9 w-9 hover:bg-primary dark:hover:bg-primary text-bold border-primary/50 "
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-4 w-4" />

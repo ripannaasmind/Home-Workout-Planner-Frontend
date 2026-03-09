@@ -22,7 +22,7 @@ export default function ShopPage() {
   const { formatPrice } = useTheme();
 
   useEffect(() => {
-    productsApi.getAll({ limit: 12 })
+    productsApi.getAll({ limit: 50 })
       .then((res) => setProducts(res.data))
       .catch(() => {})
       .finally(() => setLoading(false));
