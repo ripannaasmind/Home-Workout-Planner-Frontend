@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -127,6 +127,22 @@ export function Workouts() {
     setCurrentIndex(index);
   }, []);
 
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+
+  const handleDragStart = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    dragStartX.current = e.pageX;
+  };
+
+  const handleDragEnd = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    const dx = e.pageX - dragStartX.current;
+    if (dx < -50) goToNext();
+    else if (dx > 50) goToPrevious();
+  };
+
   return (
     <section id="workouts" className="py-8 sm:py-12 md:py-16 lg:py-20 bg-muted/30">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -176,7 +192,12 @@ export function Workouts() {
           </Button>
 
           {}
-          <div className="overflow-hidden">
+          <div
+            className="overflow-hidden cursor-grab active:cursor-grabbing"
+            onMouseDown={handleDragStart}
+            onMouseUp={handleDragEnd}
+            onMouseLeave={() => { isDragging.current = false; }}
+          >
             <div
               className="flex transition-transform duration-300 ease-out gap-4"
               style={{

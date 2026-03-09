@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Star, Quote } from "lucide-react";
 import { testimonialsApi } from "@/services/api";
@@ -34,13 +34,8 @@ function StarRating({ rating }: { rating: number }) {
 function TestimonialCard({ t }: { t: Testimonial }) {
   return (
     <div className="relative flex-shrink-0 w-72 sm:w-80 bg-white dark:bg-card border border-border rounded-2xl p-5 mx-3 select-none group hover:border-primary/40 hover:shadow-xl transition-all duration-300">
-      {/* top accent line */}
       <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
-
-      {/* quote icon */}
       <Quote className="absolute top-4 right-4 w-7 h-7 text-primary/10 group-hover:text-primary/25 transition-colors" />
-
-      {/* author */}
       <div className="flex items-center gap-3 mb-3">
         <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/25 shrink-0">
           {t.avatar ? (
@@ -56,12 +51,82 @@ function TestimonialCard({ t }: { t: Testimonial }) {
           <p className="text-xs text-text-muted mt-0.5">{t.role}</p>
         </div>
       </div>
-
       <StarRating rating={t.rating} />
-
       <p className="mt-3 text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-4">
         &ldquo;{t.comment}&rdquo;
       </p>
+    </div>
+  );
+}
+
+function MarqueeRow({ items, direction }: { items: Testimonial[]; direction: "left" | "right" }) {
+  const outerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollStart = useRef(0);
+  const rafId = useRef<number | null>(null);
+  const initialized = useRef(false);
+
+  useEffect(() => {
+    const el = outerRef.current;
+    if (!el) return;
+    const speed = direction === "left" ? 0.8 : -0.8;
+
+    const tick = () => {
+      if (el) {
+        const copyWidth = el.scrollWidth / 3;
+        if (!initialized.current && copyWidth > 0) {
+          el.scrollLeft = copyWidth;
+          initialized.current = true;
+        }
+        if (!isDragging.current && initialized.current) {
+          el.scrollLeft += speed;
+          if (direction === "left" && el.scrollLeft >= copyWidth * 2) {
+            el.scrollLeft -= copyWidth;
+          } else if (direction === "right" && el.scrollLeft <= 0) {
+            el.scrollLeft += copyWidth;
+          }
+        }
+      }
+      rafId.current = requestAnimationFrame(tick);
+    };
+
+    rafId.current = requestAnimationFrame(tick);
+    return () => { if (rafId.current !== null) cancelAnimationFrame(rafId.current); };
+  }, [direction]);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    isDragging.current = true;
+    startX.current = e.pageX;
+    scrollStart.current = outerRef.current?.scrollLeft ?? 0;
+    if (outerRef.current) outerRef.current.style.cursor = "grabbing";
+  };
+
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current || !outerRef.current) return;
+    e.preventDefault();
+    outerRef.current.scrollLeft = scrollStart.current - (e.pageX - startX.current);
+  };
+
+  const onMouseUp = () => {
+    isDragging.current = false;
+    if (outerRef.current) outerRef.current.style.cursor = "grab";
+  };
+
+  return (
+    <div
+      ref={outerRef}
+      className="flex overflow-x-scroll py-1 cursor-grab [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseUp}
+    >
+      <div className="flex">
+        {[...items, ...items, ...items].map((t, i) => (
+          <TestimonialCard key={`${direction}-${i}`} t={t} />
+        ))}
+      </div>
     </div>
   );
 }
@@ -123,7 +188,7 @@ export function Testimonials() {
         </div>
       </div>
 
-      {/* Marquee rows */}
+      {/* Rows */}
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
@@ -134,27 +199,8 @@ export function Testimonials() {
           <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-background to-transparent" />
           <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-background to-transparent" />
 
-          {/* Row 1 — scroll left */}
-          {row1.length > 0 && (
-            <div className="flex overflow-hidden py-1">
-              <div className="flex animate-marquee-left">
-                {[...row1, ...row1, ...row1].map((t, i) => (
-                  <TestimonialCard key={`r1-${i}`} t={t} />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Row 2 — scroll right */}
-          {row2.length > 0 && (
-            <div className="flex overflow-hidden py-1">
-              <div className="flex animate-marquee-right">
-                {[...row2, ...row2, ...row2].map((t, i) => (
-                  <TestimonialCard key={`r2-${i}`} t={t} />
-                ))}
-              </div>
-            </div>
-          )}
+          {row1.length > 0 && <MarqueeRow items={row1} direction="left" />}
+          {row2.length > 0 && <MarqueeRow items={row2} direction="right" />}
         </div>
       )}
     </section>
