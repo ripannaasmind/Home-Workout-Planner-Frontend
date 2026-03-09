@@ -130,7 +130,7 @@ export function Header() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-40 lg:w-56 h-9 text-sm"
               />
-              <Button type="submit" size="sm" className="h-9 bg-primary hover:bg-primary/20 border-primary/50">
+              <Button type="submit" size="sm" className="h-9 bg-primary hover:bg-primary/90 border-primary/50">
                 Search
               </Button>
               <Button
@@ -147,7 +147,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 hover:bg-primary border-primary "
+              className="h-9 w-9 hover:bg-primary hover:text-white"
               onClick={() => setIsSearchOpen(true)}
             >
               <Search className="h-4 w-4" />
@@ -173,8 +173,8 @@ export function Header() {
 
           {}
           <Link href="/cart" className=" ">
-            <Button variant="ghost" size="icon" className="h-9 w-9 relative hover:bg-primary border-primary text-white">
-              <ShoppingCart className="h-4 w-4 text-white" />
+            <Button variant="ghost" size="icon" className="h-9 w-9 relative hover:bg-primary hover:text-white">
+              <ShoppingCart className="h-4 w-4 " />
               {totalItems > 0 && (
                 <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] bg-primary text-white">
                   {totalItems > 99 ? "99+" : totalItems}
