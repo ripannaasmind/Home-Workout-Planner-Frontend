@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -16,10 +16,13 @@ import {
   Tag,
   Package,
   Layers,
+  Menu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { Header } from "@/components/layout/Header";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 const adminNav = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
@@ -37,17 +40,19 @@ const adminNav = [
 function AdminSidebar() {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const isActive = (href: string, exact: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
 
-  return (
-    <aside className="hidden lg:flex flex-col w-52 shrink-0 bg-white dark:bg-card border-r border-gray-200 dark:border-gray-800 sticky top-16 h-[calc(100vh-80px)] overflow-y-auto py-4">
+  const navContent = (onNavigate?: () => void) => (
+    <>
       <nav className="flex-1 px-3 space-y-0.5">
         {adminNav.map(({ href, label, icon: Icon, exact }) => (
           <Link
             key={href}
             href={href}
+            onClick={onNavigate}
             className={cn(
               "relative flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group overflow-hidden",
               isActive(href, exact)
@@ -66,7 +71,7 @@ function AdminSidebar() {
       </nav>
       <div className="px-3 mt-2 border-t border-gray-100 dark:border-gray-800 pt-2 space-y-0.5">
         <button
-          onClick={logout}
+          onClick={() => { onNavigate?.(); logout(); }}
           className="relative flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 hover:translate-x-1 transition-all duration-200 group overflow-hidden"
         >
           <span className="absolute left-0 top-0 w-0.75 rounded-r-full h-0 group-hover:h-full bg-red-400 transition-all duration-300" />
@@ -74,7 +79,34 @@ function AdminSidebar() {
           Log Out
         </button>
       </div>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile hamburger trigger + Sheet drawer */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => setMobileOpen(true)}
+        aria-label="Open admin sidebar menu"
+        className="lg:hidden fixed top-14 sm:top-16 left-0 z-40 h-9 w-9 rounded-none rounded-br-md border-b border-r border-gray-200 dark:border-gray-800 bg-background/95 backdrop-blur shadow-sm"
+      >
+        <Menu className="h-4 w-4" />
+      </Button>
+
+      <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+        <SheetContent side="left" className="w-56 p-0 flex flex-col pt-6">
+          <SheetTitle className="sr-only">Admin Navigation</SheetTitle>
+          {navContent(() => setMobileOpen(false))}
+        </SheetContent>
+      </Sheet>
+
+      {/* Desktop sidebar */}
+      <aside className="hidden lg:flex flex-col w-52 shrink-0 bg-white dark:bg-card border-r border-gray-200 dark:border-gray-800 sticky top-16 h-[calc(100vh-80px)] overflow-y-auto py-4">
+        {navContent()}
+      </aside>
+    </>
   );
 }
 
