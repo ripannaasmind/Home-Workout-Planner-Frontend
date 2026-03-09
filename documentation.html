@@ -792,11 +792,26 @@
           <p class="section-desc">FitHome is a full-stack fitness web application that comes with everything you need to run a professional workout planning platform.</p>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=860&h=420&fit=crop" alt="FitHome Platform Overview" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
-            FitHome Homepage — beautiful hero section with featured workouts and testimonials
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="display:flex;align-items:center;gap:.5rem;margin-bottom:.85rem">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;color:var(--primary)"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Full-Stack Platform Architecture
+          </h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Layer</th><th>Technology</th><th>Purpose</th></tr></thead>
+              <tbody>
+                <tr><td>Frontend</td><td>Next.js 15 + TypeScript</td><td>Responsive SSR web application, file-based routing</td></tr>
+                <tr><td>UI System</td><td>Tailwind CSS v4 + shadcn/ui</td><td>Accessible component library, dark mode support</td></tr>
+                <tr><td>Backend</td><td>Node.js + Express.js</td><td>REST API, middleware, business logic</td></tr>
+                <tr><td>Database</td><td>MongoDB + Mongoose</td><td>Users, workouts, orders, progress, achievements</td></tr>
+                <tr><td>Auth</td><td>JWT + bcrypt</td><td>Secure tokens, password hashing (12 salt rounds)</td></tr>
+                <tr><td>Payments</td><td>Stripe API</td><td>Subscriptions, shop checkout, webhook events</td></tr>
+                <tr><td>Image CDN</td><td>ImgBB</td><td>User uploads, workout cover photos</td></tr>
+                <tr><td>Email</td><td>Nodemailer (SMTP)</td><td>Verification, password reset, order receipts</td></tr>
+                <tr><td>API Docs</td><td>Swagger / OpenAPI 3.0</td><td>Interactive API reference at <code>/api-docs</code></td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -994,20 +1009,39 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           <h2>Registration & Login</h2>
         </div>
 
-        <div class="img-row">
-          <div class="img-block" style="margin:0">
-            <img src="https://images.unsplash.com/photo-1607798748738-b15c40d33d57?w=460&h=300&fit=crop" alt="Login Page" loading="lazy" />
-            <div class="img-caption">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-              Clean login page with social auth options
+        <div class="card-grid mt-2">
+          <div class="card">
+            <h4>Registration Flow</h4>
+            <div class="steps mt-1">
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">1</div>
+                <div class="step-body" style="padding-bottom:1rem"><p>Go to <strong>/register</strong> — enter your full name, email, and a password (min 8 characters, strength indicator shown)</p></div>
+              </div>
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">2</div>
+                <div class="step-body" style="padding-bottom:1rem"><p>A <strong>verification email</strong> is sent instantly. Click the secure link within 24 hours to activate your account</p></div>
+              </div>
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">3</div>
+                <div class="step-body" style="padding-bottom:1rem"><p>Email verified — redirected to login. Server returns a signed <strong>JWT token</strong> valid for 7 days (auto-refreshing)</p></div>
+              </div>
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">4</div>
+                <div class="step-body"><p>First login shows optional <strong>fitness goal setup</strong> — body weight, target goals, preferred workout categories</p></div>
+              </div>
             </div>
           </div>
-          <div class="img-block" style="margin:0">
-            <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=460&h=300&fit=crop" alt="Sign Up" loading="lazy" />
-            <div class="img-caption">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-              Registration form with email verification
-            </div>
+          <div class="card">
+            <h4>Security Implementation</h4>
+            <ul class="list mt-1">
+              <li>Passwords hashed with <strong>bcrypt</strong> (12 salt rounds)</li>
+              <li>JWT stored in <strong>httpOnly cookies</strong> (safe from XSS)</li>
+              <li>Login rate limited: <strong>5 attempts per 15 minutes</strong></li>
+              <li>Email verification expires after <strong>24 hours</strong></li>
+              <li>Password reset tokens are <strong>single-use</strong>, expire in 1 hour</li>
+              <li>All protected API routes require valid <strong>auth middleware</strong></li>
+              <li>Admin routes have a separate <strong>role check</strong> middleware</li>
+            </ul>
           </div>
         </div>
 
@@ -1062,11 +1096,21 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           <p class="section-desc">The dashboard is your personal fitness command center. Instantly see your activity, streaks, and stats.</p>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=860&h=400&fit=crop" alt="Dashboard Overview" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            User dashboard with stats, recent sessions, and quick actions
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="margin-bottom:.85rem">Dashboard Widgets &amp; Data</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Widget</th><th>Data Displayed</th><th>When It Updates</th></tr></thead>
+              <tbody>
+                <tr><td>🔥 Workout Streak</td><td>Current consecutive days + all-time highest streak</td><td>After each session is saved</td></tr>
+                <tr><td>📊 Weekly Summary</td><td>Sessions count, total minutes, total calories this week</td><td>Rolling 7-day window</td></tr>
+                <tr><td>🏆 Recent Achievements</td><td>Last 3 badges earned with unlock date &amp; icon</td><td>On achievement unlock</td></tr>
+                <tr><td>📋 Recent Sessions</td><td>Last 5 sessions — workout name, duration, calories</td><td>After finishing a session</td></tr>
+                <tr><td>🛒 Recent Orders</td><td>Latest 3 shop orders with status badges</td><td>Real-time order status sync</td></tr>
+                <tr><td>⚖️ Progress Snapshot</td><td>Latest weight vs. 30-day-ago weight (delta shown)</td><td>After logging progress entry</td></tr>
+                <tr><td>🔔 Notifications Bell</td><td>Unread count badge; dropdown inbox on click</td><td>On new server notification</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1108,11 +1152,25 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           <p class="section-desc">Browse hundreds of workouts filtered by difficulty, duration, and category. Start a workout in one click.</p>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1571732154690-f6d1c3e5178a?w=860&h=380&fit=crop" alt="Workout Library" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Workout library — filter by difficulty, category, and duration
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="margin-bottom:.85rem">How to Browse &amp; Start a Workout</h4>
+          <div class="steps">
+            <div class="step" style="gap:.65rem">
+              <div class="step-num" style="width:28px;height:28px;font-size:.75rem">1</div>
+              <div class="step-body" style="padding-bottom:1rem"><p>Navigate to the <strong>Workouts</strong> page — all plans shown as cards with cover photo, duration badge, difficulty level, and calorie estimate.</p></div>
+            </div>
+            <div class="step" style="gap:.65rem">
+              <div class="step-num" style="width:28px;height:28px;font-size:.75rem">2</div>
+              <div class="step-body" style="padding-bottom:1rem"><p>Filter by <strong>Category</strong> (Strength, HIIT, Cardio…), <strong>Difficulty</strong> (Beginner / Intermediate / Advanced), or use the <strong>search bar</strong> to find by name.</p></div>
+            </div>
+            <div class="step" style="gap:.65rem">
+              <div class="step-num" style="width:28px;height:28px;font-size:.75rem">3</div>
+              <div class="step-body" style="padding-bottom:1rem"><p>Click a card to open the <strong>workout detail page</strong> — see all included exercises, full description, total duration, and estimated calories.</p></div>
+            </div>
+            <div class="step" style="gap:.65rem">
+              <div class="step-num" style="width:28px;height:28px;font-size:.75rem">4</div>
+              <div class="step-body"><p>Press <strong>"Start Workout"</strong> — a live session timer begins. Check off each exercise as you complete it, then press <strong>"Finish"</strong> to save the session.</p></div>
+            </div>
           </div>
         </div>
 
@@ -1196,11 +1254,41 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           <p class="section-desc">Detailed exercise database with instructions, muscle groups, equipment requirements, and tutorial video links.</p>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=860&h=360&fit=crop" alt="Exercise Library" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Exercise cards with muscle group tags and equipment info
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="margin-bottom:.85rem">Exercise Card Example &amp; All Data Fields</h4>
+          <div class="card-grid">
+            <div>
+              <p style="font-size:.82rem;font-weight:700;margin-bottom:.5rem">Sample — Push-Up</p>
+              <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.7rem">
+                <span class="badge badge-purple">Chest</span>
+                <span class="badge badge-blue">Shoulders</span>
+                <span class="badge badge-green">Triceps</span>
+                <span class="badge badge-gray">No Equipment</span>
+                <span class="badge badge-green">Beginner</span>
+              </div>
+              <ul class="list">
+                <li><strong>Instructions:</strong> Plank position, hands shoulder-width apart. Lower chest to floor keeping elbows at 45°. Push back up fully.</li>
+                <li><strong>Pro Tip:</strong> Keep core braced; don't let hips sag or rise. Look at floor, not forward.</li>
+                <li><strong>Calorie Burn:</strong> ~8 kcal / minute</li>
+                <li><strong>Sets &amp; Reps:</strong> 3 × 15 (beginner) · 5 × 25 (advanced)</li>
+                <li><strong>Video:</strong> YouTube tutorial link attached</li>
+              </ul>
+            </div>
+            <div>
+              <p style="font-size:.82rem;font-weight:700;margin-bottom:.5rem">Exercise Database Fields</p>
+              <ul class="list">
+                <li><strong>Name</strong> — display name on card</li>
+                <li><strong>Description</strong> — overview paragraph</li>
+                <li><strong>Step-by-step Instructions</strong> — full breakdown</li>
+                <li><strong>Pro Tips</strong> — form coaching cues</li>
+                <li><strong>Primary Muscle Groups</strong> — main targets</li>
+                <li><strong>Secondary Muscle Groups</strong> — supporting muscles</li>
+                <li><strong>Equipment Required</strong> — or "None"</li>
+                <li><strong>Difficulty Level</strong> — Beginner / Intermediate / Advanced</li>
+                <li><strong>Calorie Burn Rate</strong> — kcal per minute</li>
+                <li><strong>Tutorial Video URL</strong> — YouTube or external link</li>
+              </ul>
+            </div>
           </div>
         </div>
 
@@ -1246,11 +1334,22 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           <p class="section-desc">Track each workout in real-time. Log duration, calories burned, and notes. Review your full history.</p>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=860&h=360&fit=crop" alt="Workout Session" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Active session timer with exercise checklist and notes
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="margin-bottom:.85rem">Session Tracking — Everything That Gets Recorded</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Field</th><th>Description</th><th>Source</th></tr></thead>
+              <tbody>
+                <tr><td>Workout Name</td><td>Which workout plan was followed</td><td>Selected workout</td></tr>
+                <tr><td>Start Date &amp; Time</td><td>When the session was started</td><td>Auto (server timestamp)</td></tr>
+                <tr><td>Duration</td><td>Total active training time in minutes</td><td>Live countdown/up timer</td></tr>
+                <tr><td>Calories Burned</td><td>Estimated kcal = workout calorie rate × actual duration</td><td>Calculated automatically</td></tr>
+                <tr><td>Exercises Completed</td><td>Checklist — which exercises were done vs. skipped</td><td>User checkbox during session</td></tr>
+                <tr><td>Notes</td><td>Free-text notes — how you felt, personal records, etc.</td><td>Optional user input</td></tr>
+                <tr><td>Status</td><td>Completed / In Progress / Skipped</td><td>Session lifecycle state</td></tr>
+                <tr><td>Streak Contribution</td><td>Session counts toward daily streak if completed</td><td>Automatic achievement check</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1290,11 +1389,21 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           <p class="section-desc">Log your body measurements, weight, and progress photos. Charts show your improvement over weeks and months.</p>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=860&h=380&fit=crop" alt="Progress Charts" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Progress charts — weight, body fat, and measurements over time
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="margin-bottom:.85rem">Progress Charts — Metrics &amp; Time Ranges</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Chart</th><th>X-Axis</th><th>Y-Axis</th><th>Available Ranges</th></tr></thead>
+              <tbody>
+                <tr><td>📉 Body Weight</td><td>Date</td><td>kg or lbs (user setting)</td><td>7d · 30d · 90d · All Time</td></tr>
+                <tr><td>📊 Body Fat %</td><td>Date</td><td>Body fat percentage</td><td>30d · 90d · All Time</td></tr>
+                <tr><td>📏 Measurements</td><td>Date</td><td>cm / inches per area (chest, waist, hips, arms)</td><td>30d · 90d · All Time</td></tr>
+                <tr><td>📅 Sessions / Week</td><td>Week</td><td>Number of sessions completed</td><td>Last 12 weeks</td></tr>
+                <tr><td>🔥 Calories Burned</td><td>Day</td><td>kcal per session</td><td>7d · 30d</td></tr>
+                <tr><td>⏱️ Training Minutes</td><td>Month</td><td>Total minutes trained</td><td>Last 6 months</td></tr>
+                <tr><td>📸 Progress Photos</td><td>Date taken</td><td>Front · Side · Back view photos</td><td>Gallery timeline view</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1346,11 +1455,28 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           <p class="section-desc">Stay motivated by unlocking achievements as you reach fitness milestones. Badges are automatically awarded when criteria are met.</p>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1526506118085-60ce36b04b37?w=860&h=360&fit=crop" alt="Achievements" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Achievement gallery — earned badges highlighted, locked badges shown dimmed
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="margin-bottom:.85rem">Achievement Badge List — Full Progression</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Badge Name</th><th>Category</th><th>Unlock Requirement</th></tr></thead>
+              <tbody>
+                <tr><td>First Step</td><td><span class="badge badge-blue">Workout</span></td><td>Complete your very first workout session</td></tr>
+                <tr><td>Habit Builder</td><td><span class="badge badge-blue">Workout</span></td><td>Complete 10 total workout sessions</td></tr>
+                <tr><td>Dedicated Athlete</td><td><span class="badge badge-blue">Workout</span></td><td>Complete 50 total workout sessions</td></tr>
+                <tr><td>Century Club</td><td><span class="badge badge-blue">Workout</span></td><td>Complete 100 total workout sessions</td></tr>
+                <tr><td>3-Day Warrior</td><td><span class="badge badge-purple">Streak</span></td><td>Maintain a 3-day consecutive daily streak</td></tr>
+                <tr><td>Week Champion</td><td><span class="badge badge-purple">Streak</span></td><td>Maintain a 7-day consecutive daily streak</td></tr>
+                <tr><td>Monthly Master</td><td><span class="badge badge-purple">Streak</span></td><td>Maintain a 30-day consecutive daily streak</td></tr>
+                <tr><td>Iron Lifter</td><td><span class="badge badge-red">Strength</span></td><td>Complete 10 strength-category sessions</td></tr>
+                <tr><td>HIIT Hero</td><td><span class="badge badge-red">Strength</span></td><td>Complete 10 HIIT sessions</td></tr>
+                <tr><td>Early Bird</td><td><span class="badge badge-green">Consistency</span></td><td>Log 5 sessions before 7:00 AM</td></tr>
+                <tr><td>Night Owl</td><td><span class="badge badge-green">Consistency</span></td><td>Log 5 sessions after 9:00 PM</td></tr>
+                <tr><td>Calorie Crusher</td><td><span class="badge badge-amber">Milestone</span></td><td>Burn 1,000 total kcal across all sessions</td></tr>
+                <tr><td>Weight Logger</td><td><span class="badge badge-amber">Milestone</span></td><td>Log body weight 7 separate times</td></tr>
+                <tr><td>Custom Crusher</td><td><span class="badge badge-amber">Milestone</span></td><td>Create your first custom workout plan</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1433,11 +1559,22 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           <p class="section-desc">Browse and buy fitness equipment, supplements, and accessories without leaving the app.</p>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=860&h=380&fit=crop" alt="Fitness Shop" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Product catalog with ratings, stock status, and sale badges
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="margin-bottom:.85rem">Shop Features &amp; Product Card Details</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Feature</th><th>Description</th></tr></thead>
+              <tbody>
+                <tr><td>⭐ Product Ratings</td><td>1–5 star ratings from verified buyers. Average stars + review count shown on each card.</td></tr>
+                <tr><td>📦 Stock Status</td><td><span class="badge badge-green">In Stock</span> <span class="badge badge-amber">Low Stock</span> <span class="badge badge-red">Out of Stock</span> — live badge on every product</td></tr>
+                <tr><td>🏷️ Sale Badges</td><td>Admin marks products with % discount. Crossed-out original price shown next to sale price.</td></tr>
+                <tr><td>⭐ Featured Products</td><td>Admin-curated section pinned to the top of the shop homepage.</td></tr>
+                <tr><td>🔍 Search &amp; Filter</td><td>Full-text search by name/description. Category filter dropdown. Sort by price, rating, newest.</td></tr>
+                <tr><td>🛒 Persistent Cart</td><td>Cart saved to localStorage — survives page refresh and browser close.</td></tr>
+                <tr><td>🎟️ Promo Codes</td><td>Enter discount code at checkout. Codes have expiry dates and usage limits set by admin.</td></tr>
+                <tr><td>💳 Payment Methods</td><td>Credit/Debit via Stripe · PayPal · Cash on Delivery (where available)</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1653,11 +1790,22 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           </div>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=860&h=380&fit=crop" alt="Admin Dashboard" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Admin dashboard — stats overview, user activity, subscription metrics
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="margin-bottom:.85rem">Admin Dashboard — Live Stat Cards</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Stat Card</th><th>Metric Displayed</th><th>Trend Indicator</th></tr></thead>
+              <tbody>
+                <tr><td>👥 Total Users</td><td>All registered accounts (active + inactive)</td><td>+N new in last 7 days</td></tr>
+                <tr><td>🏋️ Total Workouts</td><td>Number of workout plans in the library</td><td>+N added this week</td></tr>
+                <tr><td>⏱️ All Sessions</td><td>Lifetime workout sessions logged by all users</td><td>+N sessions this week</td></tr>
+                <tr><td>💳 Active Subscriptions</td><td>Currently active paid plans (Monthly + Yearly + Lifetime)</td><td>+N this calendar month</td></tr>
+                <tr><td>🛒 Total Orders</td><td>All shop orders across all statuses</td><td>+N pending fulfilment</td></tr>
+                <tr><td>💰 Revenue</td><td>Total subscription + shop revenue (lifetime)</td><td>This month vs. last month %</td></tr>
+                <tr><td>🏆 Achievements Earned</td><td>Total badge unlocks across all users</td><td>Most-earned badge name</td></tr>
+                <tr><td>📩 Contact Messages</td><td>Unread support messages from users</td><td>Oldest unread message date</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -1694,11 +1842,23 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
           <h2>Manage Workouts & Exercises</h2>
         </div>
 
-        <div class="img-block">
-          <img src="https://images.unsplash.com/photo-1571732154690-f6d1c3e5178a?w=860&h=340&fit=crop" alt="Admin Workouts" loading="lazy" />
-          <div class="img-caption">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
-            Admin workouts table with edit, delete, image upload, and category filter
+        <div class="highlight-box" style="margin:1.25rem 0">
+          <h4 style="margin-bottom:.85rem">Admin Workout Form — All Fields</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
+              <tbody>
+                <tr><td>Title</td><td>Text</td><td><span class="check">✓</span></td><td>Shown on workout card and detail page</td></tr>
+                <tr><td>Description</td><td>Textarea</td><td><span class="check">✓</span></td><td>Markdown supported; shown on detail page</td></tr>
+                <tr><td>Category</td><td>Select</td><td><span class="check">✓</span></td><td>Strength · HIIT · Cardio · Flexibility · Core · Full Body</td></tr>
+                <tr><td>Difficulty</td><td>Select</td><td><span class="check">✓</span></td><td>Beginner · Intermediate · Advanced</td></tr>
+                <tr><td>Duration (min)</td><td>Number</td><td><span class="check">✓</span></td><td>Used for session timer and filter display</td></tr>
+                <tr><td>Estimated Calories</td><td>Number</td><td><span class="cross">—</span></td><td>kcal for the full session; shown on card</td></tr>
+                <tr><td>Cover Image</td><td>File / URL</td><td><span class="cross">—</span></td><td>Uploaded to ImgBB CDN; shown on workout card</td></tr>
+                <tr><td>Is Premium</td><td>Toggle</td><td><span class="cross">—</span></td><td>Locks access for Free-tier users</td></tr>
+                <tr><td>Exercises</td><td>Multi-select</td><td><span class="cross">—</span></td><td>Pick from exercise library; ordered list saved</td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
 
