@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { featuresApi, Feature } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
+import { uploadImage } from "@/services/imageUploadService";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -118,6 +119,11 @@ export default function AdminFeaturesPage() {
     }
     setSaving(true);
     try {
+      let imageUrl: string | undefined;
+      if (imageFile) {
+        imageUrl = await uploadImage(imageFile);
+      }
+
       const fd = new FormData();
       fd.append("title", form.title);
       fd.append("description", form.description);
@@ -126,7 +132,7 @@ export default function AdminFeaturesPage() {
       fd.append("order", String(form.order));
       fd.append("isActive", String(form.isActive));
       fd.append("reverse", String(form.reverse));
-      if (imageFile) fd.append("image", imageFile);
+      if (imageUrl) fd.append("image", imageUrl);
 
       if (editTarget) {
         await featuresApi.update(editTarget._id, fd, token);
