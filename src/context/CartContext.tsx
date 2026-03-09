@@ -31,8 +31,9 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [initialized, setInitialized] = useState(false);
 
-  
+  // Load from localStorage on mount
   useEffect(() => {
     const savedCart = localStorage.getItem("fithome-cart");
     if (savedCart) {
@@ -42,12 +43,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
         // ignore invalid stored data
       }
     }
+    setInitialized(true);
   }, []);
 
-  
+  // Save to localStorage only after initial load is done
   useEffect(() => {
+    if (!initialized) return;
     localStorage.setItem("fithome-cart", JSON.stringify(items));
-  }, [items]);
+  }, [items, initialized]);
 
   const addToCart = (product: Product) => {
     setItems((prev) => {

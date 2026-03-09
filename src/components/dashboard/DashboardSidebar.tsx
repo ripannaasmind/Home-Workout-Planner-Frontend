@@ -12,6 +12,7 @@ import {
   CreditCard,
   LogOut,
   Shield,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -19,8 +20,9 @@ import { useAuth } from "@/context/AuthContext";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell },
+  { href: "/dashboard/sessions", label: "My Sessions", icon: Activity },
   { href: "/dashboard/shop", label: "Shop", icon: ShoppingBag },
-  { href: "/dashboard/orders", label: "Sessions", icon: ShoppingCart },
+  { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
   { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
   { href: "/dashboard/profile", label: "Profile", icon: User },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },

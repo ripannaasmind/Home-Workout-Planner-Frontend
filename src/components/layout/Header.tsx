@@ -137,7 +137,7 @@ export function Header() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 hover:text-white hover:bg-accent dark:hover:bg-accent text-bold border-primary/50"
+                className="h-9 w-9 hover:text-white hover:bg-primary dark:hover:bg-primary text-bold border-primary/50"
                 onClick={() => setIsSearchOpen(false)}
               >
                 <X className="h-5 w-5" />
@@ -172,8 +172,8 @@ export function Header() {
           </button>
 
           {}
-          <Link href="/cart">
-            <Button variant="ghost" size="icon" className="h-9 w-9 relative">
+          <Link href="/cart" className=" ">
+            <Button variant="ghost" size="icon" className="h-9 w-9 relative hover:bg-primary border-primary">
               <ShoppingCart className="h-4 w-4" />
               {totalItems > 0 && (
                 <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] bg-primary text-white">
