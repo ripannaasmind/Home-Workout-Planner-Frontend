@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -52,7 +52,7 @@ const FALLBACK_FEATURES: Omit<Feature, "_id" | "createdAt">[] = [
   {
     title: "Achieve Milestones & Stay Motivated",
     description: "Set milestones and celebrate your achievements! Earn badges, beat personal records, and stay motivated with progress reminders and celebrations.",
-    image: "https://images.unsplash.com/photo-1526506118085-60ce36b04b37?w=800&h=600&fit=crop",
+    image: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?w=800&h=600&fit=crop",
     imageAlt: "People celebrating fitness achievements", icon: "Trophy", order: 2, isActive: true, reverse: false,
   },
   {
@@ -121,12 +121,13 @@ function FeatureCard({ feature, index }: { feature: AnyFeature; index: number })
 
           <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-gray-100 dark:border-gray-800 aspect-4/3">
             {feature.image ? (
-              <Image
+              <SafeImage
                 src={feature.image}
                 alt={feature.imageAlt || feature.title}
                 fill
                 className="object-cover"
                 sizes="(max-width: 768px) 100vw, 50vw"
+                priority={index === 0}
               />
             ) : (
               <div className="w-full h-full bg-linear-to-br from-primary/10 via-primary/5 to-background flex flex-col items-center justify-center gap-4">

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CTA } from "@/components/home/CTA";
@@ -208,11 +208,13 @@ function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
       <div className="flex items-center gap-3 mb-3 sm:mb-4">
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center overflow-hidden relative">
           {testimonial.avatar ? (
-            <Image
+            <SafeImage
               src={testimonial.avatar}
               alt={testimonial.name}
               fill
+              sizes="48px"
               className="object-cover"
+              variant="avatar"
             />
           ) : (
             <User className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />

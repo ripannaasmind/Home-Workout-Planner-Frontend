@@ -320,7 +320,7 @@ export default function AdminFeaturesPage() {
 
       {/* Create/Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent aria-describedby={undefined} className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editTarget ? "Edit Feature" : "Add Feature"}</DialogTitle>
           </DialogHeader>
@@ -339,6 +339,8 @@ export default function AdminFeaturesPage() {
                       src={imagePreview}
                       alt="Preview"
                       fill
+                      sizes="100vw"
+                      unoptimized
                       className="object-cover"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -454,7 +456,7 @@ export default function AdminFeaturesPage() {
 
       {/* Delete Confirm Dialog */}
       <Dialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
-        <DialogContent className="max-w-sm">
+        <DialogContent aria-describedby={undefined} className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Delete Feature?</DialogTitle>
           </DialogHeader>

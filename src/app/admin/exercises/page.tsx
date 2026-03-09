@@ -162,8 +162,8 @@ export default function AdminExercisesPage() {
                   <tr key={e._id} className="border-b border-gray-50 dark:border-gray-800 hover:bg-gray-50 dark:bg-gray-800/50 transition-colors">
                     <td className="px-4 py-3">
                       {(e as Exercise & { image?: string }).image ? (
-                        <div className="relative h-12 w-12 flex-shrink-0 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-                          <Image src={(e as Exercise & { image?: string }).image!} alt={e.name} fill className="object-cover" unoptimized />
+                        <div className="relative h-12 w-12 shrink-0 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
+                          <Image src={(e as Exercise & { image?: string }).image!} alt={e.name} fill sizes="48px" className="object-cover" unoptimized />
                         </div>
                       ) : (
                         <div className="h-12 w-12 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center border border-gray-200 dark:border-gray-800">
@@ -199,7 +199,7 @@ export default function AdminExercisesPage() {
 
       {}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editTarget ? "Edit Exercise" : "Create Exercise"}</DialogTitle>
           </DialogHeader>
@@ -243,7 +243,7 @@ export default function AdminExercisesPage() {
                   onClick={() => imageFileRef.current?.click()}
                 >
                   {form.image ? (
-                    <Image src={form.image} alt="Exercise" fill className="object-cover" unoptimized />
+                    <Image src={form.image} alt="Exercise" fill sizes="100vw" className="object-cover" unoptimized />
                   ) : (
                     <div className="flex flex-col items-center gap-2 text-gray-400">
                       <Upload className="h-8 w-8" />
@@ -304,7 +304,7 @@ export default function AdminExercisesPage() {
 
       {}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Delete Exercise</DialogTitle></DialogHeader>
           <p className="text-gray-600 dark:text-gray-300 text-sm">Are you sure you want to delete <strong>{deleteTarget?.name}</strong>?</p>
           <DialogFooter>

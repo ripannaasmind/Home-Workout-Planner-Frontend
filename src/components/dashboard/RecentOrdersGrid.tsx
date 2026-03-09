@@ -41,21 +41,18 @@ function formatDate(dateStr: string): string {
 
 export function RecentOrdersGrid() {
   const { token } = useAuth();
-  const [sessions, setSessions] = useState<WorkoutSession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [sessions, setSessions] = useState<WorkoutSession[] | null>(null);
+  const loading = !!token && sessions === null;
+  const sessionsList = sessions ?? [];
 
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    if (!token) return;
     sessionsApi
       .getAll(token)
       .then((res) => {
-        if (res.success && res.data) setSessions(res.data.slice(0, 3));
+        setSessions(res.success && res.data ? res.data.slice(0, 3) : []);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => { setSessions([]); });
   }, [token]);
 
   return (
@@ -65,14 +62,14 @@ export function RecentOrdersGrid() {
         <div className="flex justify-center py-6">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
-      ) : sessions.length === 0 ? (
+      ) : sessionsList.length === 0 ? (
         <div className="flex flex-col items-center py-6 text-center">
           <Dumbbell className="w-8 h-8 text-gray-200 mb-2" />
           <p className="text-sm text-gray-400">No sessions yet</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {sessions.map((session) => (
+          {sessionsList.map((session) => (
             <div
               key={session._id}
               className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

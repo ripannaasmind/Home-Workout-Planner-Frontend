@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Plus, Trash2, Edit2, Loader2, Search, Upload, Dumbbell } from "lucide-react";
 import { adminApi, Workout } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -232,7 +232,7 @@ export default function AdminWorkoutsPage() {
                       <td className="px-4 py-3">
                         {img ? (
                           <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                            <Image src={img} alt={w.name} fill className="object-cover" unoptimized />
+                            <SafeImage src={img} alt={w.name} fill sizes="48px" className="object-cover" unoptimized />
                           </div>
                         ) : (
                           <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -292,7 +292,7 @@ export default function AdminWorkoutsPage() {
 
       {/* Create / Edit Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editTarget ? "Edit Workout" : "Add Workout"}</DialogTitle>
           </DialogHeader>
@@ -307,7 +307,7 @@ export default function AdminWorkoutsPage() {
               >
                 {form.image ? (
                   <>
-                    <Image src={form.image} alt="Cover" fill className="object-cover" unoptimized />
+                    <SafeImage src={form.image} alt="Cover" fill sizes="100vw" className="object-cover" unoptimized />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                       <Upload className="h-6 w-6 text-white" />
                       <span className="text-white text-sm ml-2">Change Image</span>
@@ -436,7 +436,7 @@ export default function AdminWorkoutsPage() {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Delete Workout</DialogTitle>
           </DialogHeader>

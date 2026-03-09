@@ -41,19 +41,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   
   useEffect(() => {
-    const savedToken = localStorage.getItem("fithome-token");
-    const savedUser = localStorage.getItem("fithome-user");
-    
-    if (savedToken && savedUser) {
-      try {
-        setToken(savedToken);
-        setUser(JSON.parse(savedUser));
-      } catch {
-        localStorage.removeItem("fithome-token");
-        localStorage.removeItem("fithome-user");
+    const id = requestAnimationFrame(() => {
+      const savedToken = localStorage.getItem("fithome-token");
+      const savedUser = localStorage.getItem("fithome-user");
+      if (savedToken && savedUser) {
+        try {
+          setToken(savedToken);
+          setUser(JSON.parse(savedUser));
+        } catch {
+          localStorage.removeItem("fithome-token");
+          localStorage.removeItem("fithome-user");
+        }
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
 
   

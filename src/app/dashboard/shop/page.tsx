@@ -10,7 +10,7 @@ import { productsApi, Product } from "@/services/api";
 import { useCart } from "@/context/CartContext";
 import { useTheme } from "@/context/ThemeContext";
 import { toast } from "sonner";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 
 
 // ------- Shop Page Component -------
@@ -75,16 +75,13 @@ export default function ShopPage() {
           {filtered.map((product) => (
             <div key={product._id || product.id} className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
               <div className="h-32 rounded-xl bg-gray-50 dark:bg-gray-800/50 overflow-hidden relative">
-                {product.image && product.image.startsWith("http") ? (
-                  <Image src={product.image} alt={product.name} fill className="object-cover" />
-                ) : (
-                  <Image
-                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=200&fit=crop&auto=format"
-                    alt={product.name}
-                    fill
-                    className="object-cover opacity-60"
-                  />
-                )}
+                <SafeImage
+                  src={product.image?.startsWith("http") ? product.image : "/Images/placeholder.svg"}
+                  alt={product.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+                  className="object-cover"
+                />
               </div>
               <div>
                 <Badge className="bg-primary/10 text-primary border-0 text-xs mb-1">{product.category}</Badge>

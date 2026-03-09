@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -356,21 +356,13 @@ export default function ShopPage() {
                         <div className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col hover:shadow-md transition-shadow overflow-hidden">
                           {}
                           <div className="relative aspect-4/3 bg-gray-50 dark:bg-gray-900 overflow-hidden">
-                            {product.image && product.image.startsWith("http") ? (
-                              <Image
-                                src={product.image}
-                                alt={product.name}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                              />
-                            ) : (
-                              <Image
-                                src={`https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=300&fit=crop&auto=format`}
-                                alt={product.name}
-                                fill
-                                className="object-cover opacity-60"
-                              />
-                            )}
+                            <SafeImage
+                              src={product.image?.startsWith("http") ? product.image : "/Images/placeholder.svg"}
+                              alt={product.name}
+                              fill
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
                             {}
                             {isInCart(product.id) && (
                               <Badge className="absolute top-2 right-2 bg-accent text-white text-xs shadow">
@@ -420,21 +412,13 @@ export default function ShopPage() {
                         <Card className="overflow-hidden">
                           <div className="flex gap-4 p-4">
                             <div className="w-24 h-24 sm:w-32 sm:h-32 bg-muted rounded-lg overflow-hidden relative shrink-0">
-                              {product.image && product.image.startsWith("http") ? (
-                                <Image
-                                  src={product.image}
-                                  alt={product.name}
-                                  fill
-                                  className="object-cover"
-                                />
-                              ) : (
-                                <Image
-                                  src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&h=200&fit=crop&auto=format"
-                                  alt={product.name}
-                                  fill
-                                  className="object-cover opacity-70"
-                                />
-                              )}
+                              <SafeImage
+                                src={product.image?.startsWith("http") ? product.image : "/Images/placeholder.svg"}
+                                alt={product.name}
+                                fill
+                                sizes="(max-width: 640px) 96px, 128px"
+                                className="object-cover"
+                              />
                             </div>
                             <div className="flex-1 min-w-0">
                               <Badge variant="outline" className="mb-1 text-xs">

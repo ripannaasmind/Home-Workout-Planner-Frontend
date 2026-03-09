@@ -10,14 +10,12 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useAuth } from "@/context/AuthContext";
-import { useTheme } from "@/context/ThemeContext";
 import { userApi } from "@/services/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { sanitize, validateName, validatePassword, validateConfirmPassword } from "@/lib/validation";
 
 const NOTIF_KEY = "fithome-notifications";
-const PRIVACY_KEY = "fithome-privacy";
 
 function loadPref<T>(key: string, defaults: T): T {
   if (typeof window === "undefined") return defaults;
@@ -33,7 +31,6 @@ function loadPref<T>(key: string, defaults: T): T {
 // ------- Settings Page Component -------
 export default function SettingsPage() {
   const { user, token, updateUser, logout } = useAuth();
-  const { language } = useTheme();
   const router = useRouter();
 
   
@@ -56,12 +53,6 @@ export default function SettingsPage() {
   });
 
   
-  const [privacy, setPrivacy] = useState({
-    publicProfile: false,
-    shareActivity: false,
-  });
-
-  
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -73,7 +64,6 @@ export default function SettingsPage() {
   
   useEffect(() => {
     setNotif(loadPref(NOTIF_KEY, { orderUpdates: true, workoutReminders: true, promoEmails: false }));
-    setPrivacy(loadPref(PRIVACY_KEY, { publicProfile: false, shareActivity: false }));
   }, []);
 
   
@@ -81,12 +71,6 @@ export default function SettingsPage() {
     setNotif(updated);
     localStorage.setItem(NOTIF_KEY, JSON.stringify(updated));
     toast.success("Notification preferences saved");
-  };
-
-  const savePrivacy = (updated: typeof privacy) => {
-    setPrivacy(updated);
-    localStorage.setItem(PRIVACY_KEY, JSON.stringify(updated));
-    toast.success("Privacy preferences saved");
   };
 
   

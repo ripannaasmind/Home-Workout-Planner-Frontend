@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Dumbbell, Activity, ShoppingBag, CheckCircle, TrendingUp } from "lucide-react";
+import { Users, Dumbbell, Activity, ShoppingBag, TrendingUp } from "lucide-react";
 import { adminApi } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 

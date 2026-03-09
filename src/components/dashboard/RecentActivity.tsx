@@ -35,21 +35,18 @@ const statusSubtitle: Record<string, string> = {
 
 export function RecentActivity() {
   const { token } = useAuth();
-  const [sessions, setSessions] = useState<WorkoutSession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [sessions, setSessions] = useState<WorkoutSession[] | null>(null);
+  const loading = !!token && sessions === null;
+  const sessionsList = sessions ?? [];
 
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    if (!token) return;
     sessionsApi
       .getAll(token)
       .then((res) => {
-        if (res.success && res.data) setSessions(res.data.slice(0, 3));
+        setSessions(res.success && res.data ? res.data.slice(0, 3) : []);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => { setSessions([]); });
   }, [token]);
 
   return (
@@ -59,14 +56,14 @@ export function RecentActivity() {
         <div className="flex justify-center py-4">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
-      ) : sessions.length === 0 ? (
+      ) : sessionsList.length === 0 ? (
         <div className="flex flex-col items-center py-4 text-center">
           <Dumbbell className="w-8 h-8 text-gray-200 mb-1" />
           <p className="text-xs text-gray-400">No recent activity</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {sessions.map((session) => (
+          {sessionsList.map((session) => (
             <div key={session._id} className="flex items-start gap-3">
               <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center shrink-0", "bg-green-100")}>
                 <Dumbbell className={cn("h-5 w-5", "text-green-700")} />

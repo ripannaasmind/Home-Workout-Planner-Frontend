@@ -41,21 +41,18 @@ function formatDate(dateStr: string): string {
 
 export function RecentOrdersTable() {
   const { token } = useAuth();
-  const [sessions, setSessions] = useState<WorkoutSession[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [sessions, setSessions] = useState<WorkoutSession[] | null>(null);
+  const loading = !!token && sessions === null;
+  const sessionsList = sessions ?? [];
 
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
+    if (!token) return;
     sessionsApi
       .getAll(token)
       .then((res) => {
-        if (res.success && res.data) setSessions(res.data.slice(0, 5));
+        setSessions(res.success && res.data ? res.data.slice(0, 5) : []);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => { setSessions([]); });
   }, [token]);
 
   return (
@@ -65,7 +62,7 @@ export function RecentOrdersTable() {
         <div className="flex justify-center py-6">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
         </div>
-      ) : sessions.length === 0 ? (
+      ) : sessionsList.length === 0 ? (
         <div className="flex flex-col items-center py-8 text-center">
           <Dumbbell className="w-10 h-10 text-gray-200 mb-2" />
           <p className="text-sm text-gray-400">No workout sessions yet</p>
@@ -85,7 +82,7 @@ export function RecentOrdersTable() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-              {sessions.map((session) => (
+              {sessionsList.map((session) => (
                 <tr key={session._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                   <td className="py-3 pr-4 font-semibold text-gray-800 dark:text-gray-100">
                     {getWorkoutName(session.workout as string | Workout)}

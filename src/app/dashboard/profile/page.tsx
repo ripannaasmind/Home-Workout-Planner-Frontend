@@ -26,12 +26,10 @@ export default function ProfilePage() {
 
   
   useEffect(() => {
-    if (user) {
-      if (!name) setName(user.name);
-      if (avatarPreview === undefined) setAvatarPreview(user.avatar);
-    }
-    
-  }, [user?._id]);
+    if (!user) return;
+    setName((prev) => prev || user.name);
+    setAvatarPreview((prev) => (prev === undefined ? user.avatar : prev));
+  }, [user]);
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

@@ -33,18 +33,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [initialized, setInitialized] = useState(false);
 
-  // Load from localStorage on mount
+  // Load from localStorage on mount (deferred to avoid sync setState in effect)
   useEffect(() => {
-    const savedCart = localStorage.getItem("fithome-cart");
-    if (savedCart) {
-      try {
-        const parsed = JSON.parse(savedCart);
-        if (Array.isArray(parsed)) setItems(parsed as CartItem[]);
-      } catch {
-        // ignore invalid stored data
+    const id = requestAnimationFrame(() => {
+      const savedCart = localStorage.getItem("fithome-cart");
+      if (savedCart) {
+        try {
+          const parsed = JSON.parse(savedCart);
+          if (Array.isArray(parsed)) setItems(parsed as CartItem[]);
+        } catch {
+          // ignore invalid stored data
+        }
       }
-    }
-    setInitialized(true);
+      setInitialized(true);
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
 
   // Save to localStorage only after initial load is done

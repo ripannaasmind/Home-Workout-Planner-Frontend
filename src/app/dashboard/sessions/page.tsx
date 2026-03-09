@@ -89,31 +89,33 @@ const statusConfig: Record<string, { label: string; color: string; Icon: React.E
 
 export default function SessionsPage() {
   const { token } = useAuth();
-  const [sessions, setSessions] = useState<WorkoutSession[]>([]);
+  const [sessions, setSessions] = useState<WorkoutSession[] | null>(null);
   const [stats, setStats] = useState<SessionStats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("all");
 
+  // Derive loading from sessions being null (not yet fetched) when token exists
+  const loading = !!token && sessions === null;
+
   useEffect(() => {
-    if (!token) { setLoading(false); return; }
+    if (!token) return;
 
     Promise.all([
       sessionsApi.getAll(token),
       sessionsApi.getStats(token),
     ])
       .then(([sessRes, statsRes]) => {
-        if (sessRes.success && sessRes.data) setSessions(sessRes.data);
+        setSessions(sessRes.success && sessRes.data ? sessRes.data : []);
         if (statsRes.success && statsRes.data) setStats(statsRes.data);
       })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+      .catch(() => { setSessions([]); });
   }, [token]);
 
   const statuses = ["all", "completed", "in_progress", "paused", "cancelled"];
 
+  const sessionsList = sessions ?? [];
   const filtered = filter === "all"
-    ? sessions
-    : sessions.filter((s) => s.status === filter);
+    ? sessionsList
+    : sessionsList.filter((s) => s.status === filter);
 
   const statCards = [
     { label: "Total Sessions", value: stats?.totalSessions ?? 0, icon: Activity, color: "bg-primary/10 text-primary" },

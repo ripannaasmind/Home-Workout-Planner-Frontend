@@ -33,8 +33,8 @@ function StarRating({ rating }: { rating: number }) {
 
 function TestimonialCard({ t }: { t: Testimonial }) {
   return (
-    <div className="relative flex-shrink-0 w-72 sm:w-80 bg-white dark:bg-card border border-border rounded-2xl p-5 mx-3 select-none group hover:border-primary/40 hover:shadow-xl transition-all duration-300">
-      <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+    <div className="relative shrink-0 w-72 sm:w-80 bg-white dark:bg-card border border-border rounded-2xl p-5 mx-3 select-none group hover:border-primary/40 hover:shadow-xl transition-all duration-300">
+      <div className="absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent" />
       <Quote className="absolute top-4 right-4 w-7 h-7 text-primary/10 group-hover:text-primary/25 transition-colors" />
       <div className="flex items-center gap-3 mb-3">
         <div className="relative w-10 h-10 rounded-full overflow-x-hidden ring-2 ring-primary/25 shrink-0">
@@ -197,8 +197,8 @@ export function Testimonials() {
       ) : (
         <div className="space-y-4 relative">
           {/* Fade edges */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-gradient-to-r from-background to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-gradient-to-l from-background to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-linear-to-r from-background to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-linear-to-l from-background to-transparent" />
 
           {row1.length > 0 && <MarqueeRow items={row1} direction="left" />}
           {row2.length > 0 && <MarqueeRow items={row2} direction="right" />}

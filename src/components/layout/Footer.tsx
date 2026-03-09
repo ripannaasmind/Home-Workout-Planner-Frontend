@@ -87,7 +87,7 @@ export function Footer() {
   const [subscribed, setSubscribed] = useState(false);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}/api/site-config`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api"}/site-config`)
       .then((r) => r.json())
       .then((res) => {
         if (res.success) setConfig({ ...defaultConfig, ...res.data });

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { signInWithPopup } from "firebase/auth";
@@ -275,10 +275,11 @@ export default function LoginPage() {
       {}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative bg-primary/5">
         <div className="absolute inset-0">
-          <Image
+          <SafeImage
             src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200"
             alt="Fitness"
             fill
+            sizes="50vw"
             className="object-cover"
             priority
           />
@@ -308,12 +309,13 @@ export default function LoginPage() {
                     key={i}
                     className="w-10 h-10 rounded-full border-2 border-background bg-muted overflow-hidden"
                   >
-                    <Image
+                    <SafeImage
                       src={src}
                       alt=""
                       width={40}
                       height={40}
                       className="object-cover"
+                      variant="avatar"
                     />
                   </div>
                 ))}

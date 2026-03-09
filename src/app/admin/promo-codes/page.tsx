@@ -245,7 +245,7 @@ export default function AdminPromoCodesPage() {
 
       {}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editTarget ? "Edit Promo Code" : "Create Promo Code"}</DialogTitle>
           </DialogHeader>
@@ -345,7 +345,7 @@ export default function AdminPromoCodesPage() {
 
       {}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-sm">
           <DialogHeader>
             <DialogTitle>Delete Promo Code</DialogTitle>
           </DialogHeader>

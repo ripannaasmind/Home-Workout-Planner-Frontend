@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { signInWithPopup } from "firebase/auth";
@@ -122,10 +122,11 @@ export default function SignupPage() {
       {}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[45%] relative bg-primary/5">
         <div className="absolute inset-0">
-          <Image
+          <SafeImage
             src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1200"
             alt="Fitness"
             fill
+            sizes="45vw"
             className="object-cover"
             priority
           />

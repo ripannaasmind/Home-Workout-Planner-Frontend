@@ -74,7 +74,7 @@ declare global {
   }
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
 // ------- Types -------
 type Theme = "light" | "dark" | "system";
@@ -160,7 +160,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Fetch admin-set currency from backend
   useEffect(() => {
     // Fetch admin-set currency from backend (currency is admin-controlled only)
-    fetch(`${API_URL}/api/site-config`)
+    fetch(`${API_URL}/site-config`)
       .then((r) => r.json())
       .then((res) => {
         if (res.success && res.data?.currency) {

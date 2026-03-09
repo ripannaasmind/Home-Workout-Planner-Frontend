@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Apple, Play, Flame, Dumbbell, User, Zap } from "lucide-react";
+import { Play, Flame, Dumbbell, User } from "lucide-react";
 import Image from "next/image";
 
 export function Hero() {

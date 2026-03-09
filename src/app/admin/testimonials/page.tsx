@@ -142,7 +142,7 @@ export default function AdminTestimonialsPage() {
                     <td className="px-4 py-3">
                       {t.avatar ? (
                         <div className="relative h-11 w-11 shrink-0 rounded-full border-2 border-gray-200 dark:border-gray-800 shadow-sm overflow-hidden">
-                          <Image src={t.avatar} alt={t.name} fill className="object-cover" unoptimized />
+                          <Image src={t.avatar} alt={t.name} fill sizes="44px" className="object-cover" unoptimized />
                         </div>
                       ) : (
                         <div className="h-11 w-11 rounded-full bg-primary/10 flex items-center justify-center border-2 border-gray-200 dark:border-gray-800">
@@ -182,7 +182,7 @@ export default function AdminTestimonialsPage() {
 
       {}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editTarget ? "Edit Testimonial" : "Add Testimonial"}</DialogTitle>
           </DialogHeader>
@@ -205,7 +205,7 @@ export default function AdminTestimonialsPage() {
                   onClick={() => avatarFileRef.current?.click()}
                 >
                   {form.avatar ? (
-                    <Image src={form.avatar} alt="Avatar" fill className="object-cover" unoptimized />
+                    <Image src={form.avatar} alt="Avatar" fill sizes="112px" className="object-cover" unoptimized />
                   ) : (
                     <div className="flex flex-col items-center gap-1 text-gray-400">
                       <Upload className="h-6 w-6" />
@@ -289,7 +289,7 @@ export default function AdminTestimonialsPage() {
 
       {}
       <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
-        <DialogContent className="sm:max-w-sm">
+        <DialogContent aria-describedby={undefined} className="sm:max-w-sm">
           <DialogHeader><DialogTitle>Delete Testimonial</DialogTitle></DialogHeader>
           <p className="text-gray-600 dark:text-gray-300 text-sm">Are you sure you want to delete the testimonial from <strong>{deleteTarget?.name}</strong>?</p>
           <DialogFooter>

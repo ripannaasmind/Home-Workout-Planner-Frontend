@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -22,14 +22,14 @@ const getFallbackImage = (title: string): string => {
   if (lower.includes("hiit") || lower.includes("cardio") || lower.includes("burn")) 
     return "https://images.unsplash.com/photo-1538805060514-97d9cc17730c?w=800&h=600&fit=crop";
   if (lower.includes("strength") || lower.includes("upper") || lower.includes("arm")) 
-    return "https://images.unsplash.com/photo-1581009146145-b5ef050c149a?w=800&h=600&fit=crop";
+    return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop";
   if (lower.includes("leg") || lower.includes("lower") || lower.includes("glute")) 
     return "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=800&h=600&fit=crop";
   if (lower.includes("core") || lower.includes("abs")) 
     return "https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&h=600&fit=crop";
   if (lower.includes("full body") || lower.includes("total")) 
-    return "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=600&fit=crop";
-  return "https://images.unsplash.com/photo-1549576490-b0b4831ef60a?w=800&h=600&fit=crop";
+    return "https://images.unsplash.com/photo-1549576490-b0b4831ef60a?w=800&h=600&fit=crop";
+  return "/Images/placeholder.svg";
 };
 
 const levels = ["All", "Beginner", "Intermediate", "Advanced"];
@@ -281,10 +281,11 @@ export default function WorkoutsPage() {
                 >
                   {}
                   <div className={`aspect-4/3 bg-linear-to-br ${workout.color} flex items-center justify-center relative overflow-hidden`}>
-                    <Image
+                    <SafeImage
                       src={workout.image && workout.image.startsWith("http") ? workout.image : getFallbackImage(workout.title || workout.name || "")}
                       alt={workout.title || workout.name || "Workout"}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>
@@ -363,10 +364,11 @@ export default function WorkoutsPage() {
                 >
                   {}
                   <div className={`aspect-4/3 bg-linear-to-br ${program.color} flex items-center justify-center relative overflow-hidden`}>
-                    <Image
+                    <SafeImage
                       src={program.image && program.image.startsWith("http") ? program.image : getFallbackImage(program.title || program.name || "")}
                       alt={program.title || program.name || "Program"}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover group-hover:scale-110 transition-transform duration-300"
                     />
                   </div>

@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitHome – User Documentation</title>
+  <style>
+    /* ===================== RESET & BASE ===================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      /* ── Green / Gold / Gray Gym Palette ── */
+      --primary:       #4caf50;
+      --primary-dark:  #367c39;
+      --primary-light: #edf7ee;
+      --secondary:     #ffc107;
+      --accent:        #e53935;
+      --green:         #4caf50;
+      --red:           #ef4444;
+      --bg:            #fafafa;
+      --card:          #ffffff;
+      --border:        #e0e0e0;
+      --text:          #1a1a1a;
+      --muted:         #676767;
+      --sidebar-w:     280px;
+      --radius:        12px;
+      --shadow:        0 4px 24px rgba(76,175,80,.08);
+      --badge-r:       6px;
+      --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --primary:       #66bb6a;
+        --primary-dark:  #81c784;
+        --primary-light: #1b2e1c;
+        --secondary:     #ffca28;
+        --accent:        #ef5350;
+        --green:         #66bb6a;
+        --red:           #ef5350;
+        --bg:            #0f0f1a;
+        --card:          #172018;
+        --border:        #333333;
+        --text:          #e8e8e8;
+        --muted:         #a0a0a0;
+        --shadow:        0 4px 24px rgba(102,187,106,.08);
+      }
+    }
+    .dark {
+      --primary:       #66bb6a;
+      --primary-dark:  #81c784;
+      --primary-light: #1b2e1c;
+      --secondary:     #ffca28;
+      --accent:        #ef5350;
+      --green:         #66bb6a;
+      --red:           #ef5350;
+      --bg:            #0f0f1a;
+      --card:          #172018;
+      --border:        #333333;
+      --text:          #e8e8e8;
+      --muted:         #a0a0a0;
+      --shadow:        0 4px 24px rgba(102,187,106,.08);
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* ===================== SCROLL ===================== */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+
+    /* ===================== LAYOUT ===================== */
+    .layout { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: var(--sidebar-w);
+      background: #fff;
+      border-right: 1px solid var(--border);
+      position: fixed;
+      top: 0; left: 0; bottom: 0;
+      overflow-y: auto;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      transition: transform .3s ease;
+    }
+    .content {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* ===================== TOP BAR ===================== */
+    .topbar {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+      padding: 0 1.5rem;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+      box-shadow: 0 2px 12px rgba(76,175,80,.25);
+    }
+    .topbar-logo { display: flex; align-items: center; gap: .6rem; font-weight: 700; font-size: 1.1rem; }
+    .topbar-logo svg { width: 28px; height: 28px; }
+    .hamburger {
+      display: none;
+      background: none; border: none; cursor: pointer;
+      color: #fff; padding: .4rem;
+    }
+    .hamburger svg { width: 24px; height: 24px; }
+    .version-badge {
+      background: rgba(255,255,255,.18);
+      border-radius: 9999px;
+      padding: .2rem .7rem;
+      font-size: .75rem;
+      font-weight: 600;
+      letter-spacing: .04em;
+    }
+
+    /* ===================== SIDEBAR INNER ===================== */
+    .sidebar-logo {
+      display: flex; align-items: center; gap: .7rem;
+      padding: 1.4rem 1.25rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo-icon {
+      width: 40px; height: 40px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .sidebar-logo-icon svg { width: 22px; height: 22px; color: #fff; }
+    .sidebar-logo-text { font-weight: 700; font-size: 1rem; color: var(--text); }
+    .sidebar-logo-sub { font-size: .72rem; color: var(--muted); }
+
+    .sidebar-section { padding: .75rem 1rem .25rem; }
+    .sidebar-section-label {
+      font-size: .68rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--muted);
+      padding: 0 .4rem;
+      margin-bottom: .25rem;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: .6rem;
+      padding: .5rem .7rem;
+      border-radius: 8px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: .875rem;
+      font-weight: 500;
+      transition: all .15s;
+      margin-bottom: .1rem;
+    }
+    .nav-item:hover { background: var(--primary-light); color: var(--primary); }
+    .nav-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto;
+      background: var(--primary);
+      color: #fff;
+      font-size: .65rem;
+      font-weight: 700;
+      padding: .1rem .45rem;
+      border-radius: 9999px;
+    }
+
+    /* ===================== MAIN CONTENT ===================== */
+    main { max-width: 860px; margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+
+    /* ===================== SECTIONS ===================== */
+    section { margin-bottom: 3.5rem; scroll-margin-top: 80px; }
+    .section-anchor { scroll-margin-top: 80px; }
+
+    /* ===================== HERO ===================== */
+    .hero {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 60%, var(--secondary) 100%);
+      border-radius: 20px;
+      padding: 3rem 2.5rem;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 280px; height: 280px;
+      background: rgba(255,255,255,.07);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: 80px;
+      width: 180px; height: 180px;
+      background: rgba(255,255,255,.05);
+      border-radius: 50%;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: rgba(255,255,255,.18);
+      border-radius: 9999px;
+      padding: .3rem .9rem;
+      font-size: .8rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .hero h1 { font-size: 2.2rem; font-weight: 800; line-height: 1.2; margin-bottom: .75rem; }
+    .hero p { font-size: 1.05rem; opacity: .88; max-width: 560px; margin-bottom: 1.5rem; }
+    .hero-meta {
+      display: flex; flex-wrap: wrap; gap: 1rem;
+    }
+    .hero-meta-item {
+      display: flex; align-items: center; gap: .4rem;
+      background: rgba(255,255,255,.15);
+      border-radius: 8px;
+      padding: .4rem .9rem;
+      font-size: .82rem;
+      font-weight: 500;
+    }
+    .hero-meta-item svg { width: 15px; height: 15px; }
+
+    /* ===================== SECTION HEADINGS ===================== */
+    .section-header { margin-bottom: 1.5rem; }
+    .section-tag {
+      display: inline-flex; align-items: center; gap: .4rem;
+      background: var(--primary-light);
+      color: var(--primary);
+      border-radius: 9999px;
+      padding: .25rem .8rem;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: .6rem;
+    }
+    .section-tag svg { width: 13px; height: 13px; }
+    h2 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.25;
+      margin-bottom: .4rem;
+    }
+    h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 1.5rem 0 .6rem;
+    }
+    h4 { font-size: 1rem; font-weight: 700; margin: 1.2rem 0 .4rem; color: var(--text); }
+    .section-desc { color: var(--muted); font-size: .95rem; max-width: 600px; }
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2.5rem 0;
+    }
+
+    /* ===================== CARDS ===================== */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+    .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .card-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+    /* Feature card */
+    .feature-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      transition: transform .2s, box-shadow .2s;
+    }
+    .feature-card:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(76,175,80,.12); }
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: .3rem;
+      flex-shrink: 0;
+    }
+    .feature-icon svg { width: 22px; height: 22px; }
+    .feature-card h4 { margin: 0; font-size: .95rem; }
+    .feature-card p { color: var(--muted); font-size: .84rem; line-height: 1.5; }
+    .fi-purple { background: #ede9fe; color: #7c3aed; }
+    .fi-blue   { background: #dbeafe; color: #2563eb; }
+    .fi-green  { background: #dcfce7; color: #16a34a; }
+    .fi-amber  { background: #fef3c7; color: #d97706; }
+    .fi-red    { background: #fee2e2; color: #dc2626; }
+    .fi-pink   { background: #fce7f3; color: #db2777; }
+    .fi-cyan   { background: #cffafe; color: #0891b2; }
+    .fi-indigo { background: #e0e7ff; color: #4f46e5; }
+
+    /* ===================== IMAGE BLOCKS ===================== */
+    .img-block {
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin: 1.25rem 0;
+    }
+    .img-block img {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+    .img-caption {
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      padding: .6rem 1rem;
+      font-size: .8rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+    }
+    .img-caption svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+    .img-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.25rem 0; }
+
+    /* ===================== STEPS ===================== */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex;
+      gap: 1rem;
+      position: relative;
+    }
+    .step:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 42px;
+      bottom: -12px;
+      width: 2px;
+      background: var(--border);
+    }
+    .step-num {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      font-weight: 800;
+      font-size: .9rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 4px var(--primary-light);
+      z-index: 1;
+    }
+    .step-body { padding-bottom: 2rem; }
+    .step-body h4 { margin: .5rem 0 .3rem; }
+    .step-body p { color: var(--muted); font-size: .875rem; }
+
+    /* ===================== TABLE ===================== */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
+    table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+    thead tr { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+    thead th {
+      text-align: left;
+      padding: .85rem 1.1rem;
+      font-weight: 700;
+      font-size: .8rem;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #fff;
+    }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f1f8f1; }
+    td { padding: .75rem 1.1rem; color: var(--text); vertical-align: top; }
+    td:first-child { font-weight: 600; }
+    .check { color: var(--green); font-size: 1.1rem; }
+    .cross { color: #94a3b8; }
+
+    /* ===================== BADGES ===================== */
+    .badge {
+      display: inline-flex; align-items: center; gap: .3rem;
+      padding: .2rem .65rem;
+      border-radius: var(--badge-r);
+      font-size: .75rem;
+      font-weight: 700;
+    }
+    .badge svg { width: 11px; height: 11px; }
+    .badge-green  { background: #dcfce7; color: #16a34a; }
+    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+    .badge-purple { background: #ede9fe; color: #7c3aed; }
+    .badge-amber  { background: #fef3c7; color: #b45309; }
+    .badge-red    { background: #fee2e2; color: #b91c1c; }
+    .badge-gray   { background: #f1f5f9; color: #64748b; }
+
+    /* ===================== TIPS / ALERTS ===================== */
+    .tip {
+      display: flex;
+      gap: .75rem;
+      padding: 1rem 1.1rem;
+      border-radius: var(--radius);
+      margin: 1rem 0;
+      font-size: .875rem;
+    }
+    .tip svg { width: 18px; height: 18px; flex-shrink: 0; margin-top: .1rem; }
+    .tip-info    { background: #eff6ff; border-left: 4px solid #3b82f6; color: #1e40af; }
+    .tip-warn    { background: #fffbeb; border-left: 4px solid var(--accent); color: #92400e; }
+    .tip-success { background: #f0fdf4; border-left: 4px solid var(--green); color: #14532d; }
+    .tip-danger  { background: #fef2f2; border-left: 4px solid var(--red); color: #991b1b; }
+    .tip-body { display: flex; flex-direction: column; gap: .15rem; }
+    .tip-title { font-weight: 700; }
+
+    /* ===================== CODE ===================== */
+    code {
+      font-family: 'Consolas', 'Courier New', monospace;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: .1rem .4rem;
+      border-radius: 4px;
+      font-size: .82rem;
+      color: var(--primary-dark);
+    }
+    pre {
+      background: #1e293b;
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+      font-size: .83rem;
+    }
+    pre code {
+      background: none;
+      border: none;
+      color: #94d0ff;
+      padding: 0;
+      line-height: 1.8;
+    }
+
+    /* ===================== PLAN CARDS ===================== */
+    .plan-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1rem; }
+    .plan-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1.25rem;
+      background: var(--card);
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      position: relative;
+      transition: all .2s;
+    }
+    .plan-card:hover { border-color: var(--primary); box-shadow: 0 8px 32px rgba(76,175,80,.15); }
+    .plan-popular {
+      border-color: var(--primary);
+      background: linear-gradient(160deg, #f0fdf4 0%, #e8f5e9 100%);
+    }
+    .popular-tag {
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: .2rem .7rem;
+      border-radius: 9999px;
+      white-space: nowrap;
+    }
+    .plan-name { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+    .plan-price { font-size: 1.7rem; font-weight: 800; color: var(--text); }
+    .plan-price span { font-size: .85rem; font-weight: 500; color: var(--muted); }
+    .plan-desc { font-size: .8rem; color: var(--muted); }
+    .plan-features { list-style: none; margin-top: .5rem; display: flex; flex-direction: column; gap: .35rem; }
+    .plan-features li { font-size: .83rem; display: flex; align-items: flex-start; gap: .45rem; }
+    .plan-features li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+
+    /* ===================== FAQ ===================== */
+    details {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: .75rem;
+      background: var(--card);
+      overflow: hidden;
+    }
+    summary {
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+      font-size: .9rem;
+      transition: background .15s;
+    }
+    summary:hover { background: #f8fafc; }
+    summary::after {
+      content: '▾';
+      font-size: 1rem;
+      color: var(--muted);
+      transition: transform .2s;
+      flex-shrink: 0;
+    }
+    details[open] summary::after { transform: rotate(180deg); }
+    details[open] summary { background: #f8fafc; border-bottom: 1px solid var(--border); }
+    .faq-body {
+      padding: 1rem 1.25rem;
+      font-size: .875rem;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    /* ===================== HIGHLIGHT BOX ===================== */
+    .highlight-box {
+      background: linear-gradient(135deg, var(--primary-light) 0%, #f0fdf4 100%);
+      border: 1px solid #a5d6a7;
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin: 1.25rem 0;
+    }
+    .highlight-box h4 { color: var(--primary-dark); margin-top: 0; }
+
+    /* ===================== ROUTE CHIP ===================== */
+    .route { display: inline-flex; align-items: center; gap: .3rem; }
+    .method {
+      display: inline-block;
+      padding: .1rem .45rem;
+      border-radius: 4px;
+      font-size: .7rem;
+      font-weight: 800;
+      font-family: monospace;
+      letter-spacing: .04em;
+    }
+    .m-get    { background: #dcfce7; color: #15803d; }
+    .m-post   { background: #eff6ff; color: #1d4ed8; }
+    .m-put    { background: #fef3c7; color: #b45309; }
+    .m-delete { background: #fee2e2; color: #b91c1c; }
+    .m-patch  { background: #f5f3ff; color: #7c3aed; }
+    .path { font-family: monospace; font-size: .83rem; color: var(--text); }
+
+    /* ===================== STAT ROW ===================== */
+    .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .stat-num { font-size: 1.8rem; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: .25rem; }
+    .stat-label { font-size: .78rem; color: var(--muted); font-weight: 500; }
+
+    /* ===================== FOOTER ===================== */
+    .doc-footer {
+      margin-top: 4rem;
+      padding: 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: .82rem;
+      color: var(--muted);
+    }
+    .doc-footer strong { color: var(--text); }
+    .footer-links { display: flex; gap: 1rem; }
+    .footer-links a { color: var(--primary); text-decoration: none; font-weight: 500; }
+
+    /* ===================== OVERLAY (MOBILE) ===================== */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.4);
+      z-index: 99;
+    }
+
+    /* ===================== RESPONSIVE ===================== */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .overlay.open { display: block; }
+      .content { margin-left: 0; }
+      .hamburger { display: flex; }
+      .topbar .version-badge { display: none; }
+      main { padding: 2rem 1.1rem 3rem; }
+      .card-grid { grid-template-columns: 1fr; }
+      .card-grid-3 { grid-template-columns: 1fr 1fr; }
+      .img-row { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 1.7rem; }
+      .hero { padding: 2rem 1.5rem; }
+    }
+    @media (max-width: 560px) {
+      .card-grid-3 { grid-template-columns: 1fr; }
+      .plan-grid { grid-template-columns: 1fr 1fr; }
+      h2 { font-size: 1.35rem; }
+    }
+    @media (max-width: 400px) {
+      .plan-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ===================== UTILITIES ===================== */
+    ul.list { padding-left: 1.3rem; display: flex; flex-direction: column; gap: .35rem; }
+    ul.list li { font-size: .9rem; color: var(--muted); }
+    ul.list li strong { color: var(--text); }
+    .mt-1 { margin-top: .5rem; }
+    .mt-2 { margin-top: 1rem; }
+    p { margin-bottom: .6rem; }
+    p:last-child { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+
+<!-- ====================== OVERLAY ====================== -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- ====================== SIDEBAR ====================== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18M8 8.5V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2.5M8 15.5V18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.5"/></svg>
+    </div>
+    <div>
+      <div class="sidebar-logo-text">FitHome</div>
+      <div class="sidebar-logo-sub">User Documentation v1.0</div>
+    </div>
+  </div>
+
+  <nav style="padding:.5rem .5rem 2rem">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Getting Started</div>
+      <a class="nav-item active" href="#introduction">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg> Introduction
+      </a>
+      <a class="nav-item" href="#requirements">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Requirements
+      </a>
+      <a class="nav-item" href="#installation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Installation
+      </a>
+      <a class="nav-item" href="#registration">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg> Registration & Login
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">User Features</div>
+      <a class="nav-item" href="#dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Dashboard
+      </a>
+      <a class="nav-item" href="#workouts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18"/></svg> Workouts
+      </a>
+      <a class="nav-item" href="#exercises">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/></svg> Exercise Library
+      </a>
+      <a class="nav-item" href="#sessions">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Workout Sessions
+      </a>
+      <a class="nav-item" href="#progress">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> Progress Tracking
+      </a>
+      <a class="nav-item" href="#achievements">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg> Achievements
+        <span class="nav-badge">New</span>
+      </a>
+      <a class="nav-item" href="#notifications">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notifications
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Shopping</div>
+      <a class="nav-item" href="#shop">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg> Shop & Products
+      </a>
+      <a class="nav-item" href="#orders">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg> Orders & Checkout
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Account</div>
+      <a class="nav-item" href="#subscription">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> Subscription Plans
+      </a>
+      <a class="nav-item" href="#profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile & Settings
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Admin Panel</div>
+      <a class="nav-item" href="#admin-overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin Overview
+      </a>
+      <a class="nav-item" href="#admin-workouts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18"/></svg> Manage Workouts
+      </a>
+      <a class="nav-item" href="#admin-users">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Users & Orders
+      </a>
+      <a class="nav-item" href="#admin-content">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Content Management
+      </a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Support</div>
+      <a class="nav-item" href="#faq">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> FAQ
+      </a>
+      <a class="nav-item" href="#changelog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Changelog
+      </a>
+    </div>
+  </nav>
+</aside>
+
+<!-- ====================== TOP BAR ====================== -->
+<div class="layout">
+  <div class="content">
+    <div class="topbar">
+      <div class="topbar-logo">
+        <button class="hamburger" onclick="toggleSidebar()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#fff"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18M8 8.5V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2.5M8 15.5V18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.5"/></svg>
+        FitHome — Home Workout Planner
+      </div>
+      <span class="version-badge">v1.0 Documentation</span>
+    </div>
+
+    <!-- ====================== MAIN ====================== -->
+    <main>
+
+      <!-- === HERO === -->
+      <div class="hero" id="introduction">
+        <div class="hero-tag">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          Full Documentation
+        </div>
+        <h1>FitHome — Home Workout Planner</h1>
+        <p>A complete fitness SaaS platform for creating personalized workout plans, tracking progress, purchasing fitness gear, and achieving your health goals — all from home.</p>
+        <div class="hero-meta">
+          <div class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Full Progress Tracking
+          </div>
+          <div class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/></svg>
+            Built-in E-Commerce
+          </div>
+          <div class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Admin Panel Included
+          </div>
+          <div class="hero-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Achievement System
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stat-row">
+        <div class="stat-box"><div class="stat-num">10+</div><div class="stat-label">Workout Categories</div></div>
+        <div class="stat-box"><div class="stat-num">4</div><div class="stat-label">Subscription Plans</div></div>
+        <div class="stat-box"><div class="stat-num">30+</div><div class="stat-label">Achievement Badges</div></div>
+        <div class="stat-box"><div class="stat-num">6</div><div class="stat-label">Product Categories</div></div>
+      </div>
+
+      <!-- === ABOUT === -->
+      <section>
+        <div class="section-header">
+          <div class="section-tag">About</div>
+          <h2>What is FitHome?</h2>
+          <p class="section-desc">FitHome is a full-stack fitness web application that comes with everything you need to run a professional workout planning platform.</p>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=860&h=420&fit=crop" alt="FitHome Platform Overview" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>
+            FitHome Homepage — beautiful hero section with featured workouts and testimonials
+          </div>
+        </div>
+
+        <div class="card-grid">
+          <div class="feature-card">
+            <div class="feature-icon fi-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18"/></svg>
+            </div>
+            <h4>Workout Management</h4>
+            <p>Create, browse, and follow personalized workout plans with difficulty filters, categories, and cover images.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon fi-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h4>Progress Analytics</h4>
+            <p>Track weight, body measurements, photos, and workout history with beautiful charts over time.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon fi-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <h4>Achievements & Streaks</h4>
+            <p>Earn badges for completing workouts, maintaining streaks, losing weight, and reaching milestones.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon fi-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/></svg>
+            </div>
+            <h4>Fitness E-Commerce</h4>
+            <p>Built-in shop with dumbbells, yoga mats, resistance bands, supplements, and accessories.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon fi-red">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <h4>Subscription System</h4>
+            <p>Free, Monthly, Yearly, and Lifetime plans with Stripe payment integration and promo codes.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon fi-cyan">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <h4>Full Admin Panel</h4>
+            <p>Manage workouts, exercises, users, orders, content, and site settings from a powerful admin dashboard.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === REQUIREMENTS === -->
+      <section id="requirements">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg>
+            Requirements
+          </div>
+          <h2>System Requirements</h2>
+        </div>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4>Frontend Requirements</h4>
+            <ul class="list mt-1">
+              <li>Node.js <strong>18.x or higher</strong></li>
+              <li>npm 9+ or yarn / pnpm</li>
+              <li>Next.js 15+ (included)</li>
+              <li>Modern browser (Chrome, Firefox, Safari, Edge)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Backend Requirements</h4>
+            <ul class="list mt-1">
+              <li>Node.js <strong>18.x or higher</strong></li>
+              <li>MongoDB 6.x+ (local or Atlas)</li>
+              <li>npm 9+</li>
+              <li>Stripe account (for payments)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tip tip-info">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div class="tip-body">
+            <span class="tip-title">Recommended</span>
+            Use MongoDB Atlas (free tier) for easy cloud database setup. No local MongoDB installation required.
+          </div>
+        </div>
+      </section>
+
+      <!-- === INSTALLATION === -->
+      <section id="installation">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>
+            Installation
+          </div>
+          <h2>Installation Guide</h2>
+          <p class="section-desc">Follow these steps to get FitHome running on your server in minutes.</p>
+        </div>
+
+        <h3>1 — Backend Setup</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h4>Install backend dependencies</h4>
+              <pre><code>cd backend
+npm install</code></pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h4>Create your <code>.env</code> file</h4>
+              <p>Copy <code>.env.example</code> to <code>.env</code> and fill in your values:</p>
+              <pre><code>PORT=5000
+MONGO_URI=mongodb+srv://youruser:yourpass@cluster.mongodb.net/fithome
+JWT_SECRET=your_super_secret_key
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+CLIENT_URL=http://localhost:3000
+EMAIL_USER=your@email.com
+EMAIL_PASS=your_email_password</code></pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h4>Seed initial data (optional but recommended)</h4>
+              <pre><code>npm run seed            # Seeds all data
+npm run seed:features   # Seeds features section
+npm run seed:exercises  # Seeds exercise library
+npm run seed:products   # Seeds shop products</code></pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <h4>Start the backend server</h4>
+              <pre><code>npm run dev    # Development mode (hot reload)
+npm start      # Production mode</code></pre>
+              <p>Backend runs on <code>http://localhost:5000</code></p>
+            </div>
+          </div>
+        </div>
+
+        <h3>2 — Frontend Setup</h3>
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h4>Install frontend dependencies</h4>
+              <pre><code>cd frontend
+npm install</code></pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h4>Create <code>.env.local</code></h4>
+              <pre><code>NEXT_PUBLIC_API_URL=http://localhost:5000/api
+NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h4>Start the frontend</h4>
+              <pre><code>npm run dev    # http://localhost:3000</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <div class="tip tip-success">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/></svg>
+          <div class="tip-body">
+            <span class="tip-title">You're live!</span>
+            Visit <code>http://localhost:3000</code> for the frontend and <code>http://localhost:5000/api-docs</code> for the Swagger API reference.
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === REGISTRATION & LOGIN === -->
+      <section id="registration">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Authentication
+          </div>
+          <h2>Registration & Login</h2>
+        </div>
+
+        <div class="img-row">
+          <div class="img-block" style="margin:0">
+            <img src="https://images.unsplash.com/photo-1607798748738-b15c40d33d57?w=460&h=300&fit=crop" alt="Login Page" loading="lazy" />
+            <div class="img-caption">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              Clean login page with social auth options
+            </div>
+          </div>
+          <div class="img-block" style="margin:0">
+            <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=460&h=300&fit=crop" alt="Sign Up" loading="lazy" />
+            <div class="img-caption">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+              Registration form with email verification
+            </div>
+          </div>
+        </div>
+
+        <div class="card-grid mt-2">
+          <div class="card">
+            <h4>How to Register</h4>
+            <div class="steps mt-1">
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">1</div>
+                <div class="step-body" style="padding-bottom:1rem"><p>Click <strong>Sign Up</strong> on the homepage navbar</p></div>
+              </div>
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">2</div>
+                <div class="step-body" style="padding-bottom:1rem"><p>Fill in name, email, and password</p></div>
+              </div>
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">3</div>
+                <div class="step-body" style="padding-bottom:1rem"><p>Verify your email via the link sent to your inbox</p></div>
+              </div>
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">4</div>
+                <div class="step-body"><p>You're in! Explore your dashboard</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h4>Social Login Options</h4>
+            <ul class="list mt-1">
+              <li><strong>Google</strong> — one-click with your Google account</li>
+              <li><strong>Facebook</strong> — log in via Facebook OAuth</li>
+              <li><strong>Apple</strong> — log in with Apple ID</li>
+              <li><strong>Email / Password</strong> — traditional login</li>
+            </ul>
+            <div class="tip tip-info" style="margin-top:.75rem">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+              <div class="tip-body">Forgot password? Use the "Forgot Password" link to receive a secure reset link by email.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === DASHBOARD === -->
+      <section id="dashboard">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/></svg>
+            Dashboard
+          </div>
+          <h2>Your Dashboard</h2>
+          <p class="section-desc">The dashboard is your personal fitness command center. Instantly see your activity, streaks, and stats.</p>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=860&h=400&fit=crop" alt="Dashboard Overview" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            User dashboard with stats, recent sessions, and quick actions
+          </div>
+        </div>
+
+        <div class="card-grid-3 mt-2">
+          <div class="feature-card">
+            <div class="feature-icon fi-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h4>Workout Streak</h4>
+            <p>See your current consecutive day streak to stay motivated.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon fi-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            </div>
+            <h4>Weekly Summary</h4>
+            <p>Total sessions, calories burned, and minutes trained at a glance.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon fi-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg>
+            </div>
+            <h4>Recent Achievements</h4>
+            <p>Latest badges earned shown front and center.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === WORKOUTS === -->
+      <section id="workouts">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18"/></svg>
+            Workouts
+          </div>
+          <h2>Workout Library</h2>
+          <p class="section-desc">Browse hundreds of workouts filtered by difficulty, duration, and category. Start a workout in one click.</p>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1571732154690-f6d1c3e5178a?w=860&h=380&fit=crop" alt="Workout Library" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Workout library — filter by difficulty, category, and duration
+          </div>
+        </div>
+
+        <h3>Workout Categories</h3>
+        <div class="card-grid-3">
+          <div class="card" style="padding:1rem">
+            <span class="badge badge-purple" style="margin-bottom:.4rem">Strength</span>
+            <p style="font-size:.82rem;color:var(--muted);margin:0">Build muscle with weight-based resistance training.</p>
+          </div>
+          <div class="card" style="padding:1rem">
+            <span class="badge badge-red" style="margin-bottom:.4rem">HIIT</span>
+            <p style="font-size:.82rem;color:var(--muted);margin:0">High-intensity intervals for maximum calorie burn.</p>
+          </div>
+          <div class="card" style="padding:1rem">
+            <span class="badge badge-blue" style="margin-bottom:.4rem">Cardio</span>
+            <p style="font-size:.82rem;color:var(--muted);margin:0">Improve endurance and heart health.</p>
+          </div>
+          <div class="card" style="padding:1rem">
+            <span class="badge badge-green" style="margin-bottom:.4rem">Flexibility</span>
+            <p style="font-size:.82rem;color:var(--muted);margin:0">Yoga and stretching for mobility and recovery.</p>
+          </div>
+          <div class="card" style="padding:1rem">
+            <span class="badge badge-amber" style="margin-bottom:.4rem">Full Body</span>
+            <p style="font-size:.82rem;color:var(--muted);margin:0">Complete workouts targeting every muscle group.</p>
+          </div>
+          <div class="card" style="padding:1rem">
+            <span class="badge badge-gray" style="margin-bottom:.4rem">Core</span>
+            <p style="font-size:.82rem;color:var(--muted);margin:0">Strengthen your abs, obliques, and lower back.</p>
+          </div>
+        </div>
+
+        <h3>Difficulty Levels</h3>
+        <div class="table-wrap mt-1">
+          <table>
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Who it's for</th>
+                <th>Typical Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-green">Beginner</span></td>
+                <td>First-timers, returning after a break</td>
+                <td>15–30 minutes</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-amber">Intermediate</span></td>
+                <td>3–6 months of training experience</td>
+                <td>30–45 minutes</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-red">Advanced</span></td>
+                <td>1+ year of consistent training</td>
+                <td>45–75 minutes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tip tip-warn" style="margin-top:1.25rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <div class="tip-body">
+            <span class="tip-title">Premium Workouts</span>
+            Some advanced workouts are exclusively available to Premium subscribers. Upgrade your plan to unlock all content.
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === EXERCISES === -->
+      <section id="exercises">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+            Exercise Library
+          </div>
+          <h2>Exercise Library</h2>
+          <p class="section-desc">Detailed exercise database with instructions, muscle groups, equipment requirements, and tutorial video links.</p>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=860&h=360&fit=crop" alt="Exercise Library" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Exercise cards with muscle group tags and equipment info
+          </div>
+        </div>
+
+        <div class="card-grid mt-2">
+          <div class="card">
+            <h4>What each exercise includes</h4>
+            <ul class="list mt-1">
+              <li><strong>Step-by-step instructions</strong></li>
+              <li><strong>Pro tips</strong> for proper form</li>
+              <li><strong>Target muscles</strong> — primary &amp; secondary</li>
+              <li><strong>Equipment needed</strong> (or none!)</li>
+              <li><strong>Calorie burn rate</strong> per minute</li>
+              <li><strong>Tutorial video link</strong> (YouTube / external)</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Muscle Group Categories</h4>
+            <div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem">
+              <span class="badge badge-purple">Chest</span>
+              <span class="badge badge-blue">Back</span>
+              <span class="badge badge-green">Shoulders</span>
+              <span class="badge badge-amber">Arms</span>
+              <span class="badge badge-red">Legs</span>
+              <span class="badge badge-gray">Core</span>
+              <span class="badge badge-purple">Full Body</span>
+              <span class="badge badge-blue">Cardio</span>
+              <span class="badge badge-green">Stretching</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === SESSIONS === -->
+      <section id="sessions">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Sessions
+          </div>
+          <h2>Workout Sessions</h2>
+          <p class="section-desc">Track each workout in real-time. Log duration, calories burned, and notes. Review your full history.</p>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1549060279-7e168fcee0c2?w=860&h=360&fit=crop" alt="Workout Session" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Active session timer with exercise checklist and notes
+          </div>
+        </div>
+
+        <div class="card-grid mt-2">
+          <div class="card">
+            <h4>Starting a Session</h4>
+            <ol class="list" style="list-style:decimal;padding-left:1.3rem">
+              <li>Go to <strong>Dashboard → My Workouts</strong></li>
+              <li>Click <strong>"Start Workout"</strong> on any workout card</li>
+              <li>A live timer starts tracking your session</li>
+              <li>Check off each exercise as you complete it</li>
+              <li>Click <strong>"Finish"</strong> to save your session</li>
+            </ol>
+          </div>
+          <div class="card">
+            <h4>Session History</h4>
+            <ul class="list mt-1">
+              <li>View all past sessions in <strong>Dashboard → Sessions</strong></li>
+              <li>See <strong>date, duration, calories</strong> per session</li>
+              <li>Filter by workout type or date range</li>
+              <li>Sessions contribute to your <strong>achievement progress</strong></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === PROGRESS === -->
+      <section id="progress">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Progress
+          </div>
+          <h2>Progress Tracking</h2>
+          <p class="section-desc">Log your body measurements, weight, and progress photos. Charts show your improvement over weeks and months.</p>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=860&h=380&fit=crop" alt="Progress Charts" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Progress charts — weight, body fat, and measurements over time
+          </div>
+        </div>
+
+        <h3>What You Can Track</h3>
+        <div class="card-grid-3">
+          <div class="card" style="padding:1rem;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:.3rem">⚖️</div>
+            <div style="font-weight:700;font-size:.9rem">Body Weight</div>
+            <div style="font-size:.8rem;color:var(--muted)">Log in kg or lbs</div>
+          </div>
+          <div class="card" style="padding:1rem;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:.3rem">📏</div>
+            <div style="font-weight:700;font-size:.9rem">Measurements</div>
+            <div style="font-size:.8rem;color:var(--muted)">Chest, Waist, Hips, Arms</div>
+          </div>
+          <div class="card" style="padding:1rem;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:.3rem">📸</div>
+            <div style="font-weight:700;font-size:.9rem">Progress Photos</div>
+            <div style="font-size:.8rem;color:var(--muted)">Front, Side, Back views</div>
+          </div>
+          <div class="card" style="padding:1rem;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:.3rem">🔥</div>
+            <div style="font-weight:700;font-size:.9rem">Calories Burned</div>
+            <div style="font-size:.8rem;color:var(--muted)">Per session &amp; total</div>
+          </div>
+          <div class="card" style="padding:1rem;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:.3rem">💪</div>
+            <div style="font-weight:700;font-size:.9rem">Body Fat %</div>
+            <div style="font-size:.8rem;color:var(--muted)">Optional metric</div>
+          </div>
+          <div class="card" style="padding:1rem;text-align:center">
+            <div style="font-size:1.5rem;margin-bottom:.3rem">⏱️</div>
+            <div style="font-weight:700;font-size:.9rem">Total Minutes</div>
+            <div style="font-size:.8rem;color:var(--muted)">Lifetime training time</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === ACHIEVEMENTS === -->
+      <section id="achievements">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="6"/></svg>
+            Achievements
+          </div>
+          <h2>Achievements & Badges</h2>
+          <p class="section-desc">Stay motivated by unlocking achievements as you reach fitness milestones. Badges are automatically awarded when criteria are met.</p>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1526506118085-60ce36b04b37?w=860&h=360&fit=crop" alt="Achievements" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Achievement gallery — earned badges highlighted, locked badges shown dimmed
+          </div>
+        </div>
+
+        <h3>Achievement Categories</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>How to Unlock</th>
+                <th>Examples</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="badge badge-blue">Workout</span></td>
+                <td>Complete a certain number of workouts</td>
+                <td>First Workout, 10 Workouts, 50 Workouts</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-purple">Streak</span></td>
+                <td>Maintain consecutive daily training</td>
+                <td>3-Day Streak, 7-Day Streak, 30-Day Streak</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-red">Strength</span></td>
+                <td>Complete strength-specific workouts</td>
+                <td>Complete 10 Strength sessions</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-green">Consistency</span></td>
+                <td>Log morning or evening workouts regularly</td>
+                <td>Early Bird (5 AM sessions), Night Owl</td>
+              </tr>
+              <tr>
+                <td><span class="badge badge-amber">Milestone</span></td>
+                <td>Burn calories, log weight, create custom workouts</td>
+                <td>1000 Calories, Weight Logger, Custom Crusher</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === NOTIFICATIONS === -->
+      <section id="notifications">
+        <div class="section-header">
+          <div class="section-tag">Notifications</div>
+          <h2>Notifications & Reminders</h2>
+        </div>
+        <div class="card-grid">
+          <div class="card">
+            <h4>Workout Reminders</h4>
+            <p>Set up daily or weekly reminders to keep yourself on schedule. Go to <strong>Dashboard → Profile → Reminders</strong> to configure time and frequency.</p>
+          </div>
+          <div class="card">
+            <h4>In-App Notifications</h4>
+            <ul class="list mt-1">
+              <li>Achievement unlocked alerts</li>
+              <li>Order status updates</li>
+              <li>Subscription renewal notices</li>
+              <li>New workout added alerts</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === SHOP === -->
+      <section id="shop">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/></svg>
+            Shop
+          </div>
+          <h2>Fitness Shop</h2>
+          <p class="section-desc">Browse and buy fitness equipment, supplements, and accessories without leaving the app.</p>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=860&h=380&fit=crop" alt="Fitness Shop" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Product catalog with ratings, stock status, and sale badges
+          </div>
+        </div>
+
+        <h3>Product Categories</h3>
+        <div class="card-grid-3">
+          <div class="card" style="padding:1rem">
+            <div style="font-size:1.4rem;margin-bottom:.3rem">🏋️</div>
+            <div style="font-weight:700">Dumbbells</div>
+            <div style="font-size:.82rem;color:var(--muted)">Adjustable & fixed-weight sets</div>
+          </div>
+          <div class="card" style="padding:1rem">
+            <div style="font-size:1.4rem;margin-bottom:.3rem">🧘</div>
+            <div style="font-weight:700">Yoga Mats</div>
+            <div style="font-size:.82rem;color:var(--muted)">Non-slip, eco-friendly mats</div>
+          </div>
+          <div class="card" style="padding:1rem">
+            <div style="font-size:1.4rem;margin-bottom:.3rem">💪</div>
+            <div style="font-weight:700">Resistance Bands</div>
+            <div style="font-size:.82rem;color:var(--muted)">Light to heavy resistance levels</div>
+          </div>
+          <div class="card" style="padding:1rem">
+            <div style="font-size:1.4rem;margin-bottom:.3rem">🥤</div>
+            <div style="font-weight:700">Supplements</div>
+            <div style="font-size:.82rem;color:var(--muted)">Protein, pre-workout, vitamins</div>
+          </div>
+          <div class="card" style="padding:1rem">
+            <div style="font-size:1.4rem;margin-bottom:.3rem">⚙️</div>
+            <div style="font-weight:700">Equipment</div>
+            <div style="font-size:.82rem;color:var(--muted)">Pull-up bars, kettlebells, more</div>
+          </div>
+          <div class="card" style="padding:1rem">
+            <div style="font-size:1.4rem;margin-bottom:.3rem">🎒</div>
+            <div style="font-weight:700">Accessories</div>
+            <div style="font-size:.82rem;color:var(--muted)">Gloves, straps, water bottles</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === ORDERS === -->
+      <section id="orders">
+        <div class="section-header">
+          <div class="section-tag">Orders</div>
+          <h2>Orders & Checkout</h2>
+        </div>
+
+        <div class="card-grid">
+          <div class="card">
+            <h4>How to Place an Order</h4>
+            <div class="steps mt-1">
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">1</div>
+                <div class="step-body" style="padding-bottom:1rem"><p>Browse <strong>Shop</strong> and add items to cart</p></div>
+              </div>
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">2</div>
+                <div class="step-body" style="padding-bottom:1rem"><p>Review cart, apply a <strong>Promo Code</strong> if you have one</p></div>
+              </div>
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">3</div>
+                <div class="step-body" style="padding-bottom:1rem"><p>Enter shipping address and choose payment method</p></div>
+              </div>
+              <div class="step" style="gap:.65rem">
+                <div class="step-num" style="width:28px;height:28px;font-size:.75rem">4</div>
+                <div class="step-body"><p>Receive order confirmation email</p></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <h4>Payment Methods</h4>
+            <ul class="list mt-1">
+              <li><strong>Credit / Debit Card</strong> via Stripe</li>
+              <li><strong>PayPal</strong></li>
+              <li><strong>Cash on Delivery</strong> (where available)</li>
+            </ul>
+            <h4 style="margin-top:1rem">Order Statuses</h4>
+            <div style="display:flex;flex-direction:column;gap:.35rem;margin-top:.4rem">
+              <div><span class="badge badge-amber">Pending</span> — order received, not yet processed</div>
+              <div><span class="badge badge-blue">Processing</span> — being picked and packed</div>
+              <div><span class="badge badge-purple">Shipped</span> — on its way</div>
+              <div><span class="badge badge-green">Delivered</span> — received</div>
+              <div><span class="badge badge-red">Cancelled</span> — order cancelled</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === SUBSCRIPTION === -->
+      <section id="subscription">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            Subscription
+          </div>
+          <h2>Subscription Plans</h2>
+          <p class="section-desc">Choose the plan that fits your goals. Upgrade or cancel at any time.</p>
+        </div>
+
+        <div class="plan-grid">
+          <div class="plan-card">
+            <div class="plan-name">Free</div>
+            <div class="plan-price">$0 <span>/ forever</span></div>
+            <div class="plan-desc">Get started with the basics</div>
+            <ul class="plan-features">
+              <li>Access to beginner workouts</li>
+              <li>Exercise library browsing</li>
+              <li>Basic progress tracking</li>
+              <li>5 achievements</li>
+            </ul>
+          </div>
+          <div class="plan-card plan-popular">
+            <div class="popular-tag">⭐ Most Popular</div>
+            <div class="plan-name">Monthly</div>
+            <div class="plan-price">$9.99 <span>/ month</span></div>
+            <div class="plan-desc">Full access, cancel anytime</div>
+            <ul class="plan-features">
+              <li>All workout categories</li>
+              <li>Unlimited sessions</li>
+              <li>Full progress analytics</li>
+              <li>All 30+ achievements</li>
+              <li>Priority support</li>
+            </ul>
+          </div>
+          <div class="plan-card">
+            <div class="plan-name">Yearly</div>
+            <div class="plan-price">$79 <span>/ year</span></div>
+            <div class="plan-desc">Save 34% vs monthly</div>
+            <ul class="plan-features">
+              <li>Everything in Monthly</li>
+              <li>2 months free</li>
+              <li>Early access to features</li>
+              <li>Exclusive badges</li>
+            </ul>
+          </div>
+          <div class="plan-card">
+            <div class="plan-name">Lifetime</div>
+            <div class="plan-price">$199 <span>once</span></div>
+            <div class="plan-desc">Pay once, own it forever</div>
+            <ul class="plan-features">
+              <li>Everything in Yearly</li>
+              <li>All future updates free</li>
+              <li>Lifetime badge</li>
+              <li>VIP support</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="tip tip-info" style="margin-top:1.25rem">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <div class="tip-body">
+            <span class="tip-title">Promo Codes</span>
+            Have a discount code? Enter it at checkout in <strong>Dashboard → Coupons</strong> before subscribing.
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === PROFILE === -->
+      <section id="profile">
+        <div class="section-header">
+          <div class="section-tag">Profile</div>
+          <h2>Profile & Settings</h2>
+        </div>
+        <div class="card-grid">
+          <div class="card">
+            <h4>Profile Settings</h4>
+            <ul class="list mt-1">
+              <li>Update <strong>display name</strong> and <strong>avatar</strong></li>
+              <li>Change <strong>email</strong> or <strong>password</strong></li>
+              <li>Set fitness <strong>goals and preferences</strong></li>
+              <li>Manage <strong>connected devices</strong></li>
+              <li>Configure <strong>workout reminders</strong></li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Account Settings</h4>
+            <ul class="list mt-1">
+              <li>View and manage your <strong>subscription</strong></li>
+              <li>Download <strong>billing history</strong></li>
+              <li>Export your <strong>progress data</strong></li>
+              <li><strong>Delete account</strong> (irreversible)</li>
+            </ul>
+            <div class="tip tip-danger" style="margin-top:.75rem">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
+              <div class="tip-body">Account deletion is permanent and removes all your data.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === ADMIN OVERVIEW === -->
+      <section id="admin-overview">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Admin Panel
+          </div>
+          <h2>Admin Dashboard</h2>
+          <p class="section-desc">The admin panel gives full control over workouts, users, orders, content, and analytics.</p>
+        </div>
+
+        <div class="tip tip-warn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+          <div class="tip-body">
+            <span class="tip-title">Admin Access Only</span>
+            The admin panel is accessible at <code>/admin</code> and requires an account with the <strong>admin</strong> role. Regular users cannot access admin routes.
+          </div>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=860&h=380&fit=crop" alt="Admin Dashboard" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Admin dashboard — stats overview, user activity, subscription metrics
+          </div>
+        </div>
+
+        <h3>Admin Dashboard Stats</h3>
+        <div class="card-grid-3">
+          <div class="feature-card">
+            <div class="feature-icon fi-blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <h4>Total Users</h4>
+            <p>All registered users with 7-day new user trend indicator.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon fi-purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18"/></svg>
+            </div>
+            <h4>Workouts & Sessions</h4>
+            <p>Total workouts in library and active sessions started by users.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon fi-amber">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            </div>
+            <h4>Active Subscriptions</h4>
+            <p>Count of currently active paid subscribers across all plans.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- === ADMIN WORKOUTS === -->
+      <section id="admin-workouts">
+        <div class="section-header">
+          <div class="section-tag">Admin → Workouts</div>
+          <h2>Manage Workouts & Exercises</h2>
+        </div>
+
+        <div class="img-block">
+          <img src="https://images.unsplash.com/photo-1571732154690-f6d1c3e5178a?w=860&h=340&fit=crop" alt="Admin Workouts" loading="lazy" />
+          <div class="img-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+            Admin workouts table with edit, delete, image upload, and category filter
+          </div>
+        </div>
+
+        <div class="card-grid mt-2">
+          <div class="card">
+            <h4>Workout Management</h4>
+            <ul class="list mt-1">
+              <li>Create workouts with <strong>name, description, category, difficulty</strong></li>
+              <li>Set <strong>duration (minutes)</strong> and <strong>estimated calories burned</strong></li>
+              <li>Upload a <strong>cover image</strong> via drag &amp; drop</li>
+              <li>Filter table by <strong>difficulty</strong> or <strong>category</strong></li>
+              <li>Edit or delete any workout instantly</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Exercise Management</h4>
+            <ul class="list mt-1">
+              <li>Add exercises with <strong>full instructions</strong> and <strong>pro tips</strong></li>
+              <li>Tag <strong>muscle groups</strong> and required <strong>equipment</strong></li>
+              <li>Link <strong>tutorial videos</strong> (YouTube or other)</li>
+              <li>Set <strong>calorie burn rate</strong> per minute</li>
+              <li>Attach exercises to workout plans</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- === ADMIN USERS & ORDERS === -->
+      <section id="admin-users">
+        <div class="section-header">
+          <div class="section-tag">Admin → Users</div>
+          <h2>Users & Orders Management</h2>
+        </div>
+        <div class="card-grid">
+          <div class="card">
+            <h4>User Management</h4>
+            <ul class="list mt-1">
+              <li>View all registered users with email &amp; join date</li>
+              <li>Promote a user to <strong>admin role</strong></li>
+              <li>View user subscription status</li>
+              <li>Search &amp; filter users</li>
+              <li>Suspend or delete accounts</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>Orders Management</h4>
+            <ul class="list mt-1">
+              <li>View all orders with status badges</li>
+              <li>Update order status (Processing → Shipped → Delivered)</li>
+              <li>Filter orders by status or date</li>
+              <li>View order items, shipping address, &amp; payment method</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- === ADMIN CONTENT === -->
+      <section id="admin-content">
+        <div class="section-header">
+          <div class="section-tag">Admin → Content</div>
+          <h2>Content Management</h2>
+        </div>
+        <div class="card-grid">
+          <div class="card">
+            <h4>Homepage Features</h4>
+            <p>Edit the features shown on the public homepage at <code>/admin/features</code>. Use the <strong>seed:features</strong> script to populate with defaults.</p>
+          </div>
+          <div class="card">
+            <h4>Testimonials</h4>
+            <p>Approve, edit, and manage user testimonials shown on the public testimonials page at <code>/admin/testimonials</code>.</p>
+          </div>
+          <div class="card">
+            <h4>Promo Codes</h4>
+            <p>Create discount codes at <code>/admin/promo-codes</code>. Set percentage off, expiry date, and usage limits.</p>
+          </div>
+          <div class="card">
+            <h4>Products</h4>
+            <p>Add and manage fitness products at <code>/admin/products</code>. Set images, pricing, stock levels, and featured status.</p>
+          </div>
+        </div>
+
+        <div class="highlight-box mt-2">
+          <h4>Admin Navigation Overview</h4>
+          <div class="table-wrap" style="margin-top:.75rem">
+            <table>
+              <thead>
+                <tr><th>Page</th><th>URL</th><th>Purpose</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Dashboard</td><td><code>/admin</code></td><td>Stats overview</td></tr>
+                <tr><td>Workouts</td><td><code>/admin/workouts</code></td><td>Workout CRUD</td></tr>
+                <tr><td>Exercises</td><td><code>/admin/exercises</code></td><td>Exercise library</td></tr>
+                <tr><td>Products</td><td><code>/admin/products</code></td><td>Shop inventory</td></tr>
+                <tr><td>Orders</td><td><code>/admin/orders</code></td><td>Order fulfillment</td></tr>
+                <tr><td>Users</td><td><code>/admin/users</code></td><td>User management</td></tr>
+                <tr><td>Testimonials</td><td><code>/admin/testimonials</code></td><td>Review management</td></tr>
+                <tr><td>Features</td><td><code>/admin/features</code></td><td>Homepage CMS</td></tr>
+                <tr><td>Promo Codes</td><td><code>/admin/promo-codes</code></td><td>Discount codes</td></tr>
+                <tr><td>Settings</td><td><code>/admin/settings</code></td><td>Site config</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === FAQ === -->
+      <section id="faq">
+        <div class="section-header">
+          <div class="section-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+            FAQ
+          </div>
+          <h2>Frequently Asked Questions</h2>
+        </div>
+
+        <details>
+          <summary>How do I create my first workout plan?</summary>
+          <div class="faq-body">
+            Go to <strong>Dashboard → My Workouts</strong> and click <strong>"Add Workout"</strong>. Fill in the name, choose a category and difficulty, set the duration, and optionally upload a cover image. Then add exercises from the exercise library.
+          </div>
+        </details>
+
+        <details>
+          <summary>Can I use FitHome without an internet connection?</summary>
+          <div class="faq-body">
+            FitHome is a web application and requires an internet connection to sync your data, load workouts, and access the shop. However, your progress data is always saved to the cloud so you never lose it.
+          </div>
+        </details>
+
+        <details>
+          <summary>How do I cancel my subscription?</summary>
+          <div class="faq-body">
+            Go to <strong>Dashboard → Billing</strong> and click <strong>"Cancel Subscription"</strong>. Your premium access continues until the end of the current billing period. You will not be charged again.
+          </div>
+        </details>
+
+        <details>
+          <summary>My achievement didn't unlock — what do I do?</summary>
+          <div class="faq-body">
+            Achievements are checked automatically when you complete sessions and log progress. Try refreshing the Achievements page. If it still doesn't unlock, contact support with your username and the achievement name.
+          </div>
+        </details>
+
+        <details>
+          <summary>Can I upgrade from Monthly to Yearly mid-cycle?</summary>
+          <div class="faq-body">
+            Yes! Go to <strong>Dashboard → Billing → Upgrade Plan</strong>. You will be charged the prorated difference. Your new billing cycle starts from the upgrade date.
+          </div>
+        </details>
+
+        <details>
+          <summary>What image formats are supported for uploads?</summary>
+          <div class="faq-body">
+            Supported formats: <strong>JPEG, PNG, WebP, GIF</strong>. Maximum file size is <strong>5 MB</strong> per image. Images are automatically compressed and hosted on our CDN.
+          </div>
+        </details>
+
+        <details>
+          <summary>How do I access the Swagger API documentation?</summary>
+          <div class="faq-body">
+            With the backend running, navigate to <code>http://localhost:5000/api-docs</code>. This gives you the full interactive API reference powered by Swagger UI.
+          </div>
+        </details>
+
+        <details>
+          <summary>How do I seed the database with sample data?</summary>
+          <div class="faq-body">
+            Run <code>npm run seed</code> from the <code>backend/</code> directory. This will populate all collections (exercises, products, features, achievements, etc.) with realistic sample data. Individual seed scripts are also available (e.g., <code>npm run seed:features</code>).
+          </div>
+        </details>
+
+        <details>
+          <summary>Is payment information stored securely?</summary>
+          <div class="faq-body">
+            Yes. FitHome uses <strong>Stripe</strong> for all payment processing. Card numbers are never stored on our servers — Stripe handles all sensitive payment data in a PCI-compliant environment.
+          </div>
+        </details>
+      </section>
+
+      <div class="divider"></div>
+
+      <!-- === CHANGELOG === -->
+      <section id="changelog">
+        <div class="section-header">
+          <div class="section-tag">Changelog</div>
+          <h2>Version History</h2>
+        </div>
+
+        <div class="card" style="padding:1rem 1.5rem">
+          <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.5rem">
+            <span class="badge badge-green">v1.0.0</span>
+            <span style="font-size:.8rem;color:var(--muted)">March 2026 — Initial Release</span>
+          </div>
+          <ul class="list">
+            <li>Full workout library with CRUD and image uploads</li>
+            <li>Exercise database with video links, muscle groups, equipment</li>
+            <li>Real-time workout session tracking</li>
+            <li>Progress tracking with charts (weight, measurements, photos)</li>
+            <li>Achievement system with 30+ badges across 5 categories</li>
+            <li>E-commerce shop with 6 product categories</li>
+            <li>Stripe subscription system (Free, Monthly, Yearly, Lifetime)</li>
+            <li>Promo code / coupon system</li>
+            <li>Full admin panel (10 admin pages)</li>
+            <li>Email verification and password reset</li>
+            <li>Social login (Google, Facebook, Apple)</li>
+            <li>In-app notifications and workout reminders</li>
+            <li>Responsive design — mobile, tablet, desktop</li>
+            <li>Swagger API documentation</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- === FOOTER === -->
+      <div class="doc-footer">
+        <div>
+          <strong>FitHome — Home Workout Planner</strong><br>
+          <span>Documentation v1.0 &nbsp;|&nbsp; © 2026 Naasmind Projects. All rights reserved.</span>
+        </div>
+        <div class="footer-links">
+          <a href="#introduction">Top ↑</a>
+          <a href="#faq">FAQ</a>
+          <a href="#installation">Install</a>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- ====================== SCRIPT ====================== -->
+<script>
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('overlay').classList.toggle('open');
+  }
+
+  // Highlight active nav item on scroll
+  const sections = document.querySelectorAll('section[id], .hero[id]');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const active = document.querySelector(`.nav-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.2, rootMargin: '-60px 0px -60% 0px' });
+
+  sections.forEach(s => observer.observe(s));
+
+  // Close sidebar on nav item click (mobile)
+  navItems.forEach(item => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth < 900) toggleSidebar();
+    });
+  });
+</script>
+</body>
+</html>

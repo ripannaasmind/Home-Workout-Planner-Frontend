@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -149,16 +149,7 @@ export default function CartPage() {
                           <div className="sm:hidden bg-muted/50 rounded-lg p-4">
                             <div className="flex gap-3 mb-3">
                               <div className="w-20 h-20 bg-muted rounded-lg overflow-hidden relative shrink-0">
-                                {item.image && item.image.startsWith("http") ? (
-                                  <Image src={item.image} alt={item.name} fill className="object-cover" />
-                                ) : (
-                                  <Image
-                                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&h=200&fit=crop&auto=format"
-                                    alt={item.name}
-                                    fill
-                                    className="object-cover opacity-70"
-                                  />
-                                )}
+                                <SafeImage src={item.image?.startsWith("http") ? item.image : "/Images/placeholder.svg"} alt={item.name} fill sizes="80px" className="object-cover" />
                               </div>
                               <div className="flex-1 min-w-0">
                                 <h3 className="font-semibold text-foreground text-sm line-clamp-2">
@@ -214,16 +205,7 @@ export default function CartPage() {
                             {}
                             <div className="col-span-6 flex items-center gap-4">
                               <div className="w-16 h-16 lg:w-20 lg:h-20 bg-muted rounded-lg overflow-hidden relative shrink-0">
-                                {item.image && item.image.startsWith("http") ? (
-                                  <Image src={item.image} alt={item.name} fill className="object-cover" />
-                                ) : (
-                                  <Image
-                                    src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=200&h=200&fit=crop&auto=format"
-                                    alt={item.name}
-                                    fill
-                                    className="object-cover opacity-70"
-                                  />
-                                )}
+                                <SafeImage src={item.image?.startsWith("http") ? item.image : "/Images/placeholder.svg"} alt={item.name} fill sizes="(max-width: 1024px) 64px, 80px" className="object-cover" />
                               </div>
                               <div className="min-w-0">
                                 <h3 className="font-semibold text-foreground text-sm lg:text-base line-clamp-1">
@@ -312,16 +294,7 @@ export default function CartPage() {
                     {relatedProducts.map((product) => (
                       <Card key={product.id} className="overflow-hidden group p-0 gap-0 cursor-pointer">
                         <div className="aspect-square bg-muted relative overflow-hidden rounded-t-xl">
-                          {product.image && product.image.startsWith("http") ? (
-                            <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />
-                          ) : (
-                            <Image
-                              src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=400&fit=crop&auto=format"
-                              alt={product.name}
-                              fill
-                              className="object-cover opacity-60"
-                            />
-                          )}
+                          <SafeImage src={product.image?.startsWith("http") ? product.image : "/Images/placeholder.svg"} alt={product.name} fill sizes="(max-width: 640px) 50vw, 25vw" className="object-cover group-hover:scale-105 transition-transform duration-300" />
                         </div>
                         <CardContent className="p-3 pt-2.5">
                           {product.category && (

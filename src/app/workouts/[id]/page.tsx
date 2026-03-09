@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import SafeImage from "@/components/ui/SafeImage";
 import Link from "next/link";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -349,10 +349,11 @@ export default function WorkoutDetailsPage() {
                             {}
                             <div className="relative w-full sm:w-32 h-32 sm:h-auto bg-muted shrink-0">
                               {exercise.image && exercise.image.startsWith("http") ? (
-                                <Image
+                                <SafeImage
                                   src={exercise.image}
                                   alt={exercise.name}
                                   fill
+                                  sizes="(max-width: 640px) 100vw, 128px"
                                   className="object-cover"
                                 />
                               ) : (
