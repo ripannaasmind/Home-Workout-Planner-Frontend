@@ -38,7 +38,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const savedCart = localStorage.getItem("fithome-cart");
     if (savedCart) {
       try {
-        setItems(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart);
+        if (Array.isArray(parsed)) setItems(parsed as CartItem[]);
       } catch {
         // ignore invalid stored data
       }

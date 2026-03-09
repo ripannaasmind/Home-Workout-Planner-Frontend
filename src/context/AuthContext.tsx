@@ -127,6 +127,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem("fithome-token");
     localStorage.removeItem("fithome-user");
     localStorage.removeItem("fithome-refresh-token");
+    localStorage.removeItem("fithome-active-session");
   };
 
   const updateUser = (updatedUser: User) => {

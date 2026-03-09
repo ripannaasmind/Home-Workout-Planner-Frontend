@@ -45,6 +45,27 @@ export default function WorkoutsPage() {
   const [starting, setStarting] = useState<string | null>(null); 
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  // Persist active session id to localStorage so that on window close/logout
+  // the session stays in_progress on the server (it's calculated from startTime).
+  useEffect(() => {
+    if (activeSession) {
+      localStorage.setItem("fithome-active-session", activeSession._id);
+    } else {
+      localStorage.removeItem("fithome-active-session");
+    }
+  }, [activeSession]);
+
+  // Warn user if they try to close the tab with an active session
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (activeSession && !paused) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [activeSession, paused]);
+
   useEffect(() => {
     workoutsApi.getLibrary()
       .then((res) => setWorkouts(res.data))

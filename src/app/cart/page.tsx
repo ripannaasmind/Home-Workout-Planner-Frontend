@@ -174,7 +174,7 @@ export default function CartPage() {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-8 w-8 text-destructive hover:text-destructive shrink-0"
+                                className="h-8 w-8 text-destructive hover:bg-destructive hover:text-white shrink-0"
                                 onClick={() => removeFromCart(item.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -235,7 +235,7 @@ export default function CartPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  className="h-7 px-0 text-destructive hover:text-white text-xs"
+                                  className="h-7 px-0 text-destructive hover:bg-destructive hover:text-white text-xs"
                                   onClick={() => removeFromCart(item.id)}
                                 >
                                   <Trash2 className="h-3 w-3 mr-1" />
@@ -293,7 +293,7 @@ export default function CartPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-destructive hover:text-white"
+                        className="text-destructive hover:bg-destructive hover:text-white"
                         onClick={clearCart}
                       >
                         <Trash2 className="h-4 w-4 mr-2" />
