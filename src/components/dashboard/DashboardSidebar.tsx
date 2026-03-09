@@ -16,11 +16,11 @@ import {
   Activity,
   Ticket,
   Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -46,7 +46,23 @@ export function DashboardSidebar() {
 
   const navContent = (onNavigate?: () => void) => (
     <>
-      <nav className="flex-1 px-3 space-y-0.5">
+      {onNavigate && (
+        <div className="flex items-center justify-between px-4 h-14 border-b border-gray-100 dark:border-gray-800 shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 bg-primary rounded-lg flex items-center justify-center">
+              <Dumbbell className="h-4 w-4 text-white" />
+            </div>
+            <span className="font-bold text-sm text-foreground">FitHome</span>
+          </div>
+          <button
+            onClick={onNavigate}
+            className="h-7 w-7 flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          >
+            <X className="h-4 w-4 text-gray-500" />
+          </button>
+        </div>
+      )}
+      <nav className="flex-1 px-3 space-y-0.5 py-2">
         {navItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
@@ -96,18 +112,16 @@ export function DashboardSidebar() {
   return (
     <>
       {/* Mobile hamburger trigger + Sheet drawer */}
-      <Button
-        variant="ghost"
-        size="icon"
+      <button
         onClick={() => setMobileOpen(true)}
         aria-label="Open sidebar menu"
-        className="lg:hidden fixed top-14 sm:top-16 left-0 z-40 h-9 w-9 rounded-none rounded-br-md border-b border-r border-gray-200 dark:border-gray-800 bg-background/95 backdrop-blur shadow-sm"
+        className="lg:hidden fixed top-14 sm:top-16 left-0 z-40 h-9 w-9 rounded-none rounded-br-md bg-primary hover:bg-primary/90 text-white shadow-md flex items-center justify-center"
       >
         <Menu className="h-4 w-4" />
-      </Button>
+      </button>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-        <SheetContent side="left" className="w-56 p-0 flex flex-col pt-6">
+        <SheetContent side="left" className="w-64 p-0 flex flex-col" showCloseButton={false}>
           <SheetTitle className="sr-only">Dashboard Navigation</SheetTitle>
           {navContent(() => setMobileOpen(false))}
         </SheetContent>

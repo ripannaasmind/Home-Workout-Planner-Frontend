@@ -1,17 +1,21 @@
 "use client";
 
-import { useState, useEffect, useMemo, useRef } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import SafeImage from "@/components/ui/SafeImage";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CTA } from "@/components/home/CTA";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronRight, Dumbbell, Activity, Loader2 } from "lucide-react";
-import { workoutsApi } from "@/services/api";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ChevronRight, Dumbbell, Activity, Loader2, Play, Square, Pause, Clock, Flame } from "lucide-react";
+import { workoutsApi, sessionsApi, WorkoutSession, Workout } from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 
 
@@ -63,6 +67,14 @@ function getLevelColor(level: string) {
   }
 }
 
+function formatTime(seconds: number) {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
 
 // ------- Workouts Page Component -------
 export default function WorkoutsPage() {
@@ -77,6 +89,17 @@ export default function WorkoutsPage() {
   const isDragging = useRef(false);
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Session tracking
+  const { token } = useAuth();
+  const router = useRouter();
+  const [activeSession, setActiveSession] = useState<WorkoutSession | null>(null);
+  const [activeWorkout, setActiveWorkout] = useState<{ id: string; name: string; duration: string | number } | null>(null);
+  const [timerOpen, setTimerOpen] = useState(false);
+  const [elapsed, setElapsed] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const [starting, setStarting] = useState<string | null>(null);
 
   
   useEffect(() => {
@@ -152,6 +175,103 @@ export default function WorkoutsPage() {
 
     return filtered;
   }, [workouts, activeLevel, activeCategory, sortBy]);
+
+  // Timer interval
+  useEffect(() => {
+    if (timerOpen && !paused) {
+      intervalRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
+    } else {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    }
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [timerOpen, paused]);
+
+  const handleStart = useCallback(async (workout: WorkoutData) => {
+    if (!workout._id) return;
+    if (!token) {
+      toast.error("Please log in to start a workout");
+      router.push("/login");
+      return;
+    }
+    setStarting(workout._id);
+    try {
+      const res = await sessionsApi.start(workout._id, token);
+      setActiveSession(res.data);
+      setActiveWorkout({ id: workout._id, name: workout.title || workout.name || "Workout", duration: workout.duration });
+      setElapsed(0);
+      setPaused(false);
+      setTimerOpen(true);
+      toast.success(`Started: ${workout.title || workout.name}`);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Failed to start session";
+      if (msg.includes("already have a session")) {
+        toast.error("You already have an active session. Finish it first.");
+        if (token) {
+          sessionsApi.getActive(token).then((r) => {
+            if (r.data) {
+              setActiveSession(r.data);
+              const w = typeof r.data.workout === "object" ? r.data.workout as Workout : null;
+              setActiveWorkout(w ? { id: w._id, name: w.name, duration: w.duration } : null);
+              const start = new Date(r.data.startTime).getTime();
+              const totalPausedMs = r.data.totalPausedMs ?? 0;
+              setElapsed(Math.floor((Date.now() - start - totalPausedMs) / 1000));
+              setPaused(r.data.status === "paused");
+              setTimerOpen(true);
+            }
+          }).catch(() => {});
+        }
+      } else {
+        toast.error(msg);
+      }
+    } finally {
+      setStarting(null);
+    }
+  }, [token, router]);
+
+  const handlePause = async () => {
+    if (!activeSession || !token) return;
+    try {
+      if (paused) {
+        await sessionsApi.resume(activeSession._id, token);
+        setPaused(false);
+        toast.success("Session resumed");
+      } else {
+        await sessionsApi.pause(activeSession._id, token);
+        setPaused(true);
+        toast.success("Session paused");
+      }
+    } catch {
+      toast.error("Failed to update session");
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!activeSession || !token) return;
+    try {
+      await sessionsApi.complete(activeSession._id, { caloriesBurned: 0 }, token);
+      toast.success(`Workout complete! ${formatTime(elapsed)}`);
+      setTimerOpen(false);
+      setActiveSession(null);
+      setActiveWorkout(null);
+      setElapsed(0);
+    } catch {
+      toast.error("Failed to complete session");
+    }
+  };
+
+  const handleCancel = async () => {
+    if (!activeSession || !token) return;
+    try {
+      await sessionsApi.cancel(activeSession._id, token);
+      toast.info("Session cancelled");
+      setTimerOpen(false);
+      setActiveSession(null);
+      setActiveWorkout(null);
+      setElapsed(0);
+    } catch {
+      toast.error("Failed to cancel session");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -304,11 +424,16 @@ export default function WorkoutsPage() {
                         {workout.level || workout.difficulty}
                       </Badge>
                     </div>
-                    <Link href={`/workouts/${workout._id}`}>
-                      <Button className="w-full bg-primary hover:bg-primary-dark text-white text-xs h-8 sm:h-9">
-                        View Details
-                      </Button>
-                    </Link>
+                    <Button
+                      className="w-full bg-primary hover:bg-primary-dark text-white text-xs h-8 sm:h-9 gap-1.5"
+                      onClick={() => handleStart(workout)}
+                      disabled={starting === workout._id}
+                    >
+                      {starting === workout._id
+                        ? <Loader2 className="h-3 w-3 animate-spin" />
+                        : <Play className="h-3 w-3 fill-white" />}
+                      Start Workout
+                    </Button>
                   </div>
                 </motion.div>
               );
@@ -387,11 +512,16 @@ export default function WorkoutsPage() {
                         {program.level || program.difficulty}
                       </Badge>
                     </div>
-                    <Link href={`/workouts/${program._id}`}>
-                      <Button className="w-full bg-primary hover:bg-primary-dark text-white text-xs h-8">
-                        View Plan
-                      </Button>
-                    </Link>
+                    <Button
+                      className="w-full bg-primary hover:bg-primary-dark text-white text-xs h-8 gap-1.5"
+                      onClick={() => handleStart(program)}
+                      disabled={starting === program._id}
+                    >
+                      {starting === program._id
+                        ? <Loader2 className="h-3 w-3 animate-spin" />
+                        : <Play className="h-3 w-3 fill-white" />}
+                      Start
+                    </Button>
                   </div>
                 </motion.div>
               );
@@ -407,6 +537,67 @@ export default function WorkoutsPage() {
         />
       </main>
       <Footer />
+
+      {/* Active session timer dialog */}
+      <Dialog open={timerOpen} onOpenChange={(open) => { if (!open) setTimerOpen(false); }}>
+        <DialogContent className="sm:max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <DialogTitle>{activeWorkout?.name ?? "Workout"}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-6 py-4">
+            <div className="relative flex items-center justify-center">
+              <div className="h-40 w-40 rounded-full border-4 border-primary/20 flex items-center justify-center">
+                <div className={cn(
+                  "h-32 w-32 rounded-full border-4 flex items-center justify-center",
+                  paused ? "border-yellow-400" : "border-primary animate-pulse"
+                )}>
+                  <span className="text-3xl font-bold text-gray-800 dark:text-gray-100 tabular-nums">
+                    {formatTime(elapsed)}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-6 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-1.5">
+                <Clock className="h-4 w-4 text-primary" />
+                <span>{activeWorkout?.duration ?? 0} target</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Flame className="h-4 w-4 text-orange-500" />
+                <span>Active</span>
+              </div>
+            </div>
+            {paused && (
+              <Badge className="bg-yellow-100 text-yellow-700 border-0 text-xs">Paused</Badge>
+            )}
+            <div className="flex gap-3 w-full">
+              <Button
+                variant="outline"
+                className="flex-1 gap-2 border-gray-200 dark:border-gray-800"
+                onClick={handlePause}
+              >
+                {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                {paused ? "Resume" : "Pause"}
+              </Button>
+              <Button
+                className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
+                onClick={handleComplete}
+              >
+                <Square className="h-4 w-4 fill-white" />
+                Complete
+              </Button>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 w-full"
+              onClick={handleCancel}
+            >
+              Cancel Session
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

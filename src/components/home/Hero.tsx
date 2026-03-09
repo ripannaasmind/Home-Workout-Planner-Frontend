@@ -37,7 +37,7 @@ export function Hero() {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="font-medium px-5 sm:px-6 h-11 sm:h-12 rounded-full border-2 text-sm sm:text-base w-full sm:w-auto"
+                className="font-medium px-5 sm:px-6 h-11 sm:h-12 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white text-sm sm:text-base w-full sm:w-auto"
               >
                 Learn More
               </Button>
@@ -96,7 +96,7 @@ export function Hero() {
                         <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                           <span className="text-white text-xs font-bold">FH</span>
                         </div>
-                        <span className="font-semibold text-sm">FitHome</span>
+                        <span className="font-semibold text-sm text-gray-900">FitHome</span>
                       </div>
                       <div className="w-8 h-8 rounded-full bg-gray-200" />
                     </div>
@@ -106,14 +106,14 @@ export function Hero() {
                       <p className="text-xs text-primary font-medium flex items-center gap-1">
                         <User className="w-3 h-3" /> Hi Talha
                       </p>
-                      <p className="text-sm font-semibold text-foreground mt-1">Ready for today&apos;s workout?</p>
+                      <p className="text-sm font-semibold text-gray-900 mt-1">Ready for today&apos;s workout?</p>
                       <div className="flex items-center gap-4 mt-2">
                         <div className="text-xs flex items-center gap-1">
                           <Flame className="w-3 h-3 text-orange-500" />
-                          <span className="text-text-muted">45 min</span>
+                          <span className="text-gray-500">45 min</span>
                         </div>
                         <div className="text-xs">
-                          <span className="text-text-muted">Progress</span>
+                          <span className="text-gray-500">Progress</span>
                           <span className="ml-1 font-semibold text-primary">65%</span>
                         </div>
                       </div>
@@ -126,14 +126,14 @@ export function Hero() {
                     
                     {}
                     <div className="bg-gray-100 rounded-xl p-3">
-                      <p className="text-xs text-text-muted mb-2">Upcoming Session</p>
+                      <p className="text-xs text-gray-500 mb-2">Upcoming Session</p>
                       <div className="flex items-center gap-3">
                         <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
                           <Dumbbell className="text-primary w-6 h-6" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-semibold text-sm">Upper Body Strength</p>
-                          <p className="text-xs text-text-muted">60 min • Beginner</p>
+                          <p className="font-semibold text-sm text-gray-900">Upper Body Strength</p>
+                          <p className="text-xs text-gray-500">60 min • Beginner</p>
                         </div>
                         <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                           <Play className="w-4 h-4 text-white fill-white" />
