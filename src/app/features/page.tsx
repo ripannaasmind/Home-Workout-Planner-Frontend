@@ -40,22 +40,26 @@ const FALLBACK_FEATURES: Omit<Feature, "_id" | "createdAt">[] = [
   {
     title: "Custom Tailored Workouts",
     description: "FitHome creates personalized workout plans based on your goals, fitness level, and schedule. Whether you want to lose weight, build muscle, or increase endurance, we've got the perfect plan for you.",
-    image: "", imageAlt: "Custom workout", icon: "Dumbbell", order: 0, isActive: true, reverse: false,
+    image: "https://images.unsplash.com/photo-1571732154690-f6d1c3e5178a?w=800&h=600&fit=crop",
+    imageAlt: "Woman doing kettlebell workout", icon: "Dumbbell", order: 0, isActive: true, reverse: false,
   },
   {
     title: "Detailed Progress Tracking",
     description: "Track your workout performance with detailed analytics. Monitor calories burned, workout history, strength progress, and more with easy-to-read charts.",
-    image: "", imageAlt: "Progress tracking", icon: "TrendingUp", order: 1, isActive: true, reverse: true,
+    image: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&h=600&fit=crop",
+    imageAlt: "Athlete tracking progress on phone while running", icon: "TrendingUp", order: 1, isActive: true, reverse: true,
   },
   {
     title: "Achieve Milestones & Stay Motivated",
     description: "Set milestones and celebrate your achievements! Earn badges, beat personal records, and stay motivated with progress reminders and celebrations.",
-    image: "", imageAlt: "Achievements", icon: "Trophy", order: 2, isActive: true, reverse: false,
+    image: "https://images.unsplash.com/photo-1526506118085-60ce36b04b37?w=800&h=600&fit=crop",
+    imageAlt: "People celebrating fitness achievements", icon: "Trophy", order: 2, isActive: true, reverse: false,
   },
   {
     title: "Sync Workout Data Everywhere",
     description: "Access your workouts and progress on any device—smartphone, tablet or computer. Sync seamlessly across all your devices for convenience and continuity.",
-    image: "", imageAlt: "Multi-device sync", icon: "RefreshCw", order: 3, isActive: true, reverse: true,
+    image: "https://images.unsplash.com/photo-1434494878577-86c23bcb06b9?w=800&h=600&fit=crop",
+    imageAlt: "Person using smartwatch for fitness tracking", icon: "RefreshCw", order: 3, isActive: true, reverse: true,
   },
 ];
 
