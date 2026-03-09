@@ -37,7 +37,7 @@ function TestimonialCard({ t }: { t: Testimonial }) {
       <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
       <Quote className="absolute top-4 right-4 w-7 h-7 text-primary/10 group-hover:text-primary/25 transition-colors" />
       <div className="flex items-center gap-3 mb-3">
-        <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/25 shrink-0">
+        <div className="relative w-10 h-10 rounded-full overflow-x-hidden ring-2 ring-primary/25 shrink-0">
           {t.avatar ? (
             <Image src={t.avatar} alt={t.name} fill className="object-cover" sizes="40px" />
           ) : (
@@ -116,7 +116,8 @@ function MarqueeRow({ items, direction }: { items: Testimonial[]; direction: "le
   return (
     <div
       ref={outerRef}
-      className="flex overflow-x-scroll py-1 cursor-grab [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      className="flex overflow-x-scroll py-1 cursor-grab scrollbar-none [&::-webkit-scrollbar]:hidden [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar]:h-0"
+      style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
       onMouseDown={onMouseDown}
       onMouseMove={onMouseMove}
       onMouseUp={onMouseUp}
