@@ -15,6 +15,7 @@ import {
   Settings,
   Tag,
   Package,
+  Layers,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -28,6 +29,7 @@ const adminNav = [
   { href: "/admin/products", label: "Products", icon: ShoppingBag, exact: false },
   { href: "/admin/orders", label: "Orders", icon: Package, exact: false },
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare, exact: false },
+  { href: "/admin/features", label: "Features Page", icon: Layers, exact: false },
   { href: "/admin/promo-codes", label: "Promo Codes", icon: Tag, exact: false },
   { href: "/admin/settings", label: "Settings", icon: Settings, exact: false },
 ];

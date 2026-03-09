@@ -694,4 +694,53 @@ export interface CreateOrderPayload {
   shippingAddress: { firstName: string; lastName: string; address: string; city: string; state: string; zip: string };
 }
 
+export interface Feature {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+  icon: string;
+  order: number;
+  isActive: boolean;
+  reverse: boolean;
+  createdAt: string;
+}
+
+export const featuresApi = {
+  getPublic: () =>
+    apiRequest<{ success: boolean; data: Feature[] }>("/features"),
+
+  getAll: (token: string) =>
+    apiRequest<{ success: boolean; data: Feature[] }>("/admin/features", { token }),
+
+  create: (formData: FormData, token: string) =>
+    fetch(`${API_URL}/admin/features`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    }).then(async (r) => {
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.message || "Failed");
+      return d as { success: boolean; data: Feature };
+    }),
+
+  update: (id: string, formData: FormData, token: string) =>
+    fetch(`${API_URL}/admin/features/${id}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: formData,
+    }).then(async (r) => {
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.message || "Failed");
+      return d as { success: boolean; data: Feature };
+    }),
+
+  delete: (id: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/admin/features/${id}`, {
+      method: "DELETE",
+      token,
+    }),
+};
+
 export default apiRequest;
