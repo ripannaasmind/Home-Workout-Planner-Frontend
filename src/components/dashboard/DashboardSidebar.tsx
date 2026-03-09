@@ -13,6 +13,7 @@ import {
   LogOut,
   Shield,
   Activity,
+  Ticket,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -23,6 +24,7 @@ const navItems = [
   { href: "/dashboard/sessions", label: "My Sessions", icon: Activity },
   { href: "/dashboard/shop", label: "Shop", icon: ShoppingBag },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
+  { href: "/dashboard/coupons", label: "Coupons", icon: Ticket },
   { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
   { href: "/dashboard/profile", label: "Profile", icon: User },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },

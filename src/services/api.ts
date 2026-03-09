@@ -511,6 +511,9 @@ export const promoApi = {
       body: { code, orderAmount },
     }),
 
+  getActive: () =>
+    apiRequest<{ success: boolean; data: PromoCode[] }>("/promo-codes/active"),
+
   getAll: (token: string) =>
     apiRequest<{ success: boolean; data: PromoCode[] }>("/admin/promo-codes", { token }),
 
