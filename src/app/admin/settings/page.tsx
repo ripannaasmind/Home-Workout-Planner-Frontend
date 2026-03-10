@@ -31,8 +31,37 @@ import {
   Link as LinkIcon,
   ImageIcon,
   Loader2,
+  Search,
+  Check,
 } from "lucide-react";
 import { ALL_CURRENCIES, CURRENCY_SYMBOLS } from "@/context/ThemeContext";
+
+// Google Translate cookie helpers (same as user dashboard language page)
+const GTRANS_COOKIE = "googtrans";
+const LANG_TO_COUNTRY: Record<string, string> = {
+  en: "gb", bn: "bd", ar: "sa", hi: "in", es: "es", fr: "fr",
+  de: "de", it: "it", pt: "br", ru: "ru", ja: "jp", "zh-CN": "cn",
+  ko: "kr", tr: "tr", pl: "pl", nl: "nl", sv: "se", da: "dk",
+  no: "no", fi: "fi", el: "gr", cs: "cz", ro: "ro", hu: "hu",
+  sr: "rs", hr: "hr", bg: "bg", sk: "sk", sl: "si", lt: "lt",
+  lv: "lv", et: "ee", uk: "ua", he: "il", ur: "pk", fa: "ir",
+  ta: "in", te: "in", mr: "in", gu: "in", pa: "in", kn: "in",
+  ml: "in", si: "lk", ne: "np", th: "th", vi: "vn", id: "id",
+  ms: "my", tl: "ph",
+};
+function getGtransCookie(): string {
+  if (typeof document === "undefined") return "en";
+  const m = document.cookie.match(/(^| )googtrans=([^;]+)/);
+  if (!m) return "en";
+  const parts = decodeURIComponent(m[2]).split("/");
+  return parts.length > 2 ? parts[2] : "en";
+}
+function setGtransCookie(lang: string) {
+  document.cookie = `${GTRANS_COOKIE}=${encodeURIComponent("/auto/" + lang)};path=/;max-age=${365 * 86400}`;
+}
+
+interface LangDescriptor { name: string; title: string; }
+declare global { interface Window { __GOOGLE_TRANSLATION_CONFIG__?: { languages: LangDescriptor[]; defaultLanguage: string; }; } }
 
 
 // ------- PayPal SVG Icon -------
@@ -66,10 +95,32 @@ const sections = [
 // ------- Admin Settings Page -------
 export default function AdminSettingsPage() {
   const { token } = useAuth();
-  const { setCurrency } = useTheme();
+  const { setCurrency, language: themeLanguage } = useTheme();
   const [activeSection, setActiveSection] = useState("business");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  // Language picker state
+  const [langSearch, setLangSearch] = useState("");
+  const [currentLang, setCurrentLang] = useState("en");
+  const [languageConfig, setLanguageConfig] = useState<LangDescriptor[]>([]);
+
+  // Load current language from cookie on mount
+  useEffect(() => {
+    setCurrentLang(getGtransCookie());
+    const t = setTimeout(() => {
+      if (typeof window !== "undefined" && window.__GOOGLE_TRANSLATION_CONFIG__) {
+        setLanguageConfig(window.__GOOGLE_TRANSLATION_CONFIG__.languages);
+      }
+    }, 100);
+    return () => clearTimeout(t);
+  }, [themeLanguage]);
+
+  const handleLangChange = (langCode: string) => {
+    setGtransCookie(langCode);
+    setCurrentLang(langCode);
+    setTimeout(() => window.location.reload(), 300);
+  };
 
   // Payment state
   const [stripeEnabled, setStripeEnabled] = useState(false);
@@ -665,53 +716,108 @@ export default function AdminSettingsPage() {
 
           {/* ==================== LANGUAGE SECTION ==================== */}
           {activeSection === "language" && (
-            <>
-              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-9 w-9 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
-                      <Globe className="h-4 w-4 text-blue-600" />
+            <div className="space-y-6 max-w-3xl">
+              {/* Current Language Banner */}
+              <div className="bg-primary/5 border-2 border-primary/20 rounded-xl p-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-6 rounded overflow-hidden shadow-sm shrink-0">
+                    <Image
+                      src={`https://flagcdn.com/w40/${LANG_TO_COUNTRY[currentLang] || "gb"}.png`}
+                      alt="Current language"
+                      width={40}
+                      height={30}
+                      className="w-full h-full object-cover"
+                      unoptimized
+                    />
+                  </div>
+                  <div>
+                    <div className="text-xs text-primary font-medium">Current Language</div>
+                    <div className="text-lg font-semibold text-gray-900 dark:text-gray-100 notranslate">
+                      {languageConfig.find((l) => l.name === currentLang)?.title || "English"}
                     </div>
-                    <div>
-                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Language Settings</CardTitle>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Configure the default language for the site</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Search */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  type="text"
+                  value={langSearch}
+                  onChange={(e) => setLangSearch(e.target.value)}
+                  placeholder="Search languages..."
+                  className="ps-10 h-11 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                />
+              </div>
+
+              {/* Language Grid */}
+              {languageConfig.length === 0 ? (
+                <div className="text-center py-12">
+                  <Globe className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">Language configuration is loading...</p>
+                  <p className="text-gray-400 text-xs mt-1">Please refresh the page if languages don&apos;t appear.</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-125 overflow-y-auto pe-1 notranslate">
+                  {languageConfig
+                    .filter((l) =>
+                      l.title.toLowerCase().includes(langSearch.toLowerCase()) ||
+                      l.name.toLowerCase().includes(langSearch.toLowerCase())
+                    )
+                    .map((lang) => {
+                      const isSelected = currentLang === lang.name;
+                      const cc = LANG_TO_COUNTRY[lang.name] || "gb";
+                      return (
+                        <button
+                          key={lang.name}
+                          type="button"
+                          onClick={() => handleLangChange(lang.name)}
+                          className={`p-4 rounded-xl border-2 transition-all duration-200 text-start ${
+                            isSelected
+                              ? "border-primary bg-primary/5 shadow-sm"
+                              : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-sm"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-6 rounded overflow-hidden shadow-sm shrink-0">
+                                <Image
+                                  src={`https://flagcdn.com/w40/${cc}.png`}
+                                  alt={lang.title}
+                                  width={40}
+                                  height={30}
+                                  className="w-full h-full object-cover"
+                                  unoptimized
+                                />
+                              </div>
+                              <div>
+                                <div className="font-medium text-gray-900 dark:text-gray-100 text-sm">{lang.title}</div>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">{lang.name}</div>
+                              </div>
+                            </div>
+                            {isSelected && <Check className="h-5 w-5 text-primary shrink-0" />}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  {languageConfig.filter((l) =>
+                    l.title.toLowerCase().includes(langSearch.toLowerCase()) ||
+                    l.name.toLowerCase().includes(langSearch.toLowerCase())
+                  ).length === 0 && (
+                    <div className="col-span-full text-center py-8">
+                      <p className="text-gray-500 text-sm">No languages found matching &quot;{langSearch}&quot;</p>
                     </div>
-                  </div>
-                </CardHeader>
-                <Separator />
-                <CardContent className="pt-4 space-y-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Default Language</Label>
-                    <select
-                      value={siteConfig.language || "en"}
-                      onChange={(e) => updateField("language", e.target.value)}
-                      className="w-full h-10 px-3 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                    >
-                      <option value="en">English</option>
-                      <option value="bn">Bengali</option>
-                      <option value="ar">Arabic</option>
-                      <option value="hi">Hindi</option>
-                      <option value="es">Spanish</option>
-                      <option value="fr">French</option>
-                      <option value="de">German</option>
-                      <option value="it">Italian</option>
-                      <option value="pt">Portuguese</option>
-                      <option value="ru">Russian</option>
-                      <option value="ja">Japanese</option>
-                      <option value="zh-CN">Chinese</option>
-                      <option value="ko">Korean</option>
-                      <option value="tr">Turkish</option>
-                      <option value="ur">Urdu</option>
-                    </select>
-                  </div>
-                  <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-blue-500/20">
-                    <p className="text-xs text-blue-700 dark:text-blue-400">
-                      <span className="font-semibold">Note:</span> Users can also change language from their dashboard settings. This sets the site default language. Google Translate handles translations automatically.
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </>
+                  )}
+                </div>
+              )}
+
+              <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-blue-500/20">
+                <p className="text-xs text-blue-700 dark:text-blue-400">
+                  <span className="font-semibold">Note:</span> Selecting a language applies it site-wide via Google Translate. Users can also change from their dashboard settings.
+                </p>
+              </div>
+            </div>
           )}
 
 
