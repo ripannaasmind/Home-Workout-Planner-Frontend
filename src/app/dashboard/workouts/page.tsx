@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Dumbbell, Search, Loader2, Play, Square, Pause, Clock, Flame, X } from "lucide-react";
+import { Dumbbell, Search, Loader2, Play, Square, Pause, Clock, Flame } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -334,17 +334,7 @@ export default function WorkoutsPage() {
       <Dialog open={timerOpen} onOpenChange={(open) => { if (!open) setTimerOpen(false); }}>
         <DialogContent className="sm:max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-between">
-              <span>{activeWorkout?.name ?? "Workout"}</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 text-gray-400 hover:text-gray-600 dark:text-gray-300"
-                onClick={() => setTimerOpen(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </DialogTitle>
+            <DialogTitle>{activeWorkout?.name ?? "Workout"}</DialogTitle>
           </DialogHeader>
 
           <div className="flex flex-col items-center gap-6 py-4">

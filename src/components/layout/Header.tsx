@@ -89,6 +89,8 @@ export function Header() {
     return pathname.startsWith(href);
   };
 
+  const isAdminPage = pathname.startsWith("/admin");
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -100,9 +102,9 @@ export function Header() {
           <span className="text-lg sm:text-xl font-bold text-foreground">FitHome</span>
         </Link>
 
-        {}
+        {/* Desktop nav links — hidden on admin pages */}
         <nav className="hidden md:flex items-center gap-6 lg:gap-8">
-          {navLinks.map((link) => (
+          {!isAdminPage && navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -117,10 +119,10 @@ export function Header() {
           ))}
         </nav>
 
-        {}
+        {/* Desktop right actions */}
         <div className="hidden md:flex items-center gap-2 lg:gap-3">
-          {}
-          {isSearchOpen ? (
+          {/* Search — hidden on admin pages */}
+          {!isAdminPage && (isSearchOpen ? (
             <form onSubmit={handleSearch} className="flex items-center gap-2" ref={searchContainerRef}>
               <Input
                 ref={searchInputRef}
@@ -152,7 +154,7 @@ export function Header() {
             >
               <Search className="h-4 w-4" />
             </Button>
-          )}
+          ))}
 
           {/* Dark mode toggle - pill switch */}
           <button
@@ -171,19 +173,21 @@ export function Header() {
             </span>
           </button>
 
-          {}
-          <Link href="/cart" className=" ">
-            <Button variant="ghost" size="icon" className="h-9 w-9 relative hover:bg-primary hover:text-white">
-              <ShoppingCart className="h-4 w-4 " />
-              {totalItems > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] bg-primary text-white">
-                  {totalItems > 99 ? "99+" : totalItems}
-                </Badge>
-              )}
-            </Button>
-          </Link>
+          {/* Cart — hidden on admin pages */}
+          {!isAdminPage && (
+            <Link href="/cart" className=" ">
+              <Button variant="ghost" size="icon" className="h-9 w-9 relative hover:bg-primary hover:text-white">
+                <ShoppingCart className="h-4 w-4 " />
+                {totalItems > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] bg-primary text-white">
+                    {totalItems > 99 ? "99+" : totalItems}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
+          )}
 
-          {!isAuthenticated && (
+          {!isAuthenticated && !isAdminPage && (
             <Link href="/login">
               <Button className="bg-primary hover:bg-primary-dark text-white font-medium px-4 lg:px-5 text-sm">
                 Get Started
@@ -232,7 +236,8 @@ export function Header() {
 
         {}
         <div className="flex md:hidden items-center gap-1 sm:gap-2">
-          {}
+          {/* Mobile: search — hidden on admin */}
+          {!isAdminPage && (
           <Button
             variant="ghost"
             size="icon"
@@ -241,6 +246,7 @@ export function Header() {
           >
             <Search className="h-4 w-4" />
           </Button>
+          )}
 
           {/* Dark mode toggle - mobile pill switch */}
           <button
@@ -258,7 +264,8 @@ export function Header() {
             </span>
           </button>
 
-          {}
+          {/* Mobile: cart — hidden on admin */}
+          {!isAdminPage && (
           <Link href="/cart">
             <Button variant="ghost" size="icon" className="h-9 w-9 relative">
               <ShoppingCart className="h-4 w-4" />
@@ -269,8 +276,10 @@ export function Header() {
               )}
             </Button>
           </Link>
+          )}
 
-          {}
+          {/* Mobile hamburger — hidden on admin (admin has its own) */}
+          {!isAdminPage && (
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9">
@@ -359,6 +368,7 @@ export function Header() {
               </div>
             </SheetContent>
           </Sheet>
+          )}
         </div>
       </div>
 

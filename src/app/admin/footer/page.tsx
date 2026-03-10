@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { Save, Globe, Smartphone, Mail, MapPin, Phone, Link as LinkIcon, LayoutTemplate, Loader2, CheckCircle } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Save, Globe, Smartphone, Mail, MapPin, Phone, Link as LinkIcon, LayoutTemplate, Loader2, CheckCircle, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
+import { uploadImage, validateImageFile } from "@/services/imageUploadService";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
@@ -19,6 +20,8 @@ const defaultConfig = {
   address: "",
   appStoreUrl: "#",
   googlePlayUrl: "#",
+  appStoreBadge: "",
+  googlePlayBadge: "",
   social: { facebook: "#", instagram: "#", twitter: "#" },
   newsletter: {
     enabled: true,
@@ -36,6 +39,23 @@ export default function FooterSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [uploadingBadge, setUploadingBadge] = useState<"appStore" | "googlePlay" | null>(null);
+  const appStoreBadgeRef = useRef<HTMLInputElement>(null);
+  const googlePlayBadgeRef = useRef<HTMLInputElement>(null);
+
+  const handleBadgeUpload = async (file: File, field: "appStoreBadge" | "googlePlayBadge") => {
+    const validation = validateImageFile(file, 2);
+    if (!validation.isValid) { alert(validation.error ?? "Invalid file"); return; }
+    setUploadingBadge(field === "appStoreBadge" ? "appStore" : "googlePlay");
+    try {
+      const url = await uploadImage(file);
+      set(field, url);
+    } catch {
+      alert("Failed to upload image");
+    } finally {
+      setUploadingBadge(null);
+    }
+  };
 
   const fetchConfig = useCallback(async () => {
     try {
@@ -233,6 +253,24 @@ export default function FooterSettingsPage() {
             />
           </div>
         </Field>
+        <Field label="App Store Badge Logo" id="appStoreBadge">
+          <div className="flex items-center gap-3">
+            {config.appStoreBadge && (
+              <img src={config.appStoreBadge} alt="App Store badge" className="h-10 rounded border border-gray-200 dark:border-gray-700 object-contain bg-black px-2" />
+            )}
+            <button
+              type="button"
+              onClick={() => appStoreBadgeRef.current?.click()}
+              disabled={uploadingBadge === "appStore"}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
+            >
+              {uploadingBadge === "appStore" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {config.appStoreBadge ? "Change Logo" : "Upload Logo"}
+            </button>
+            <input ref={appStoreBadgeRef} type="file" accept="image/*" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleBadgeUpload(f, "appStoreBadge"); e.target.value = ""; }} />
+          </div>
+        </Field>
         <Field label="Google Play URL" id="googlePlayUrl">
           <div className="relative">
             <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -243,6 +281,24 @@ export default function FooterSettingsPage() {
               placeholder="https://play.google.com/store/..."
               className="pl-9"
             />
+          </div>
+        </Field>
+        <Field label="Google Play Badge Logo" id="googlePlayBadge">
+          <div className="flex items-center gap-3">
+            {config.googlePlayBadge && (
+              <img src={config.googlePlayBadge} alt="Google Play badge" className="h-10 rounded border border-gray-200 dark:border-gray-700 object-contain bg-white px-2" />
+            )}
+            <button
+              type="button"
+              onClick={() => googlePlayBadgeRef.current?.click()}
+              disabled={uploadingBadge === "googlePlay"}
+              className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-60"
+            >
+              {uploadingBadge === "googlePlay" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {config.googlePlayBadge ? "Change Logo" : "Upload Logo"}
+            </button>
+            <input ref={googlePlayBadgeRef} type="file" accept="image/*" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleBadgeUpload(f, "googlePlayBadge"); e.target.value = ""; }} />
           </div>
         </Field>
       </SectionCard>
