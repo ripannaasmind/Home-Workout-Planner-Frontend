@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Package, Loader2, ShoppingBag } from "lucide-react";
+import SafeImage from "@/components/ui/SafeImage";
 import toast from "react-hot-toast";
 
 
@@ -120,9 +121,31 @@ export default function AdminOrdersPage() {
 
                   <div className="divide-y divide-gray-50 dark:divide-gray-800 mb-3">
                     {order.items.map((item, i) => (
-                      <div key={i} className="flex justify-between items-center py-1.5 text-sm gap-2">
-                        <span className="text-gray-700 dark:text-gray-200 truncate flex-1 min-w-0">{item.name} <span className="text-gray-400">×{item.quantity}</span></span>
-                        <span className="font-medium shrink-0">{formatPrice(item.price * item.quantity)}</span>
+                      <div key={i} className="flex items-center gap-3 py-2">
+                        {/* Product image */}
+                        <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-gray-100 dark:border-gray-700 shrink-0 bg-gray-50 dark:bg-gray-800">
+                          {item.image ? (
+                            <SafeImage
+                              src={item.image}
+                              alt={item.name}
+                              fill
+                              sizes="48px"
+                              className="object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Package className="h-5 w-5 text-gray-300" />
+                            </div>
+                          )}
+                        </div>
+                        {/* Name + qty */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-800 dark:text-gray-100 truncate">{item.name}</p>
+                          <p className="text-xs text-gray-400">Qty: {item.quantity} &times; {formatPrice(item.price)}</p>
+                        </div>
+                        {/* Line total */}
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 shrink-0">{formatPrice(item.price * item.quantity)}</span>
                       </div>
                     ))}
                   </div>
