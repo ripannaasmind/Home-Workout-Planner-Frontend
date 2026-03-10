@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { ALL_CURRENCIES, CURRENCY_SYMBOLS } from "@/context/ThemeContext";
 
-// Google Translate cookie helpers (same as user dashboard language page)
+
 const GTRANS_COOKIE = "googtrans";
 const LANG_TO_COUNTRY: Record<string, string> = {
   en: "gb", bn: "bd", ar: "sa", hi: "in", es: "es", fr: "fr",
