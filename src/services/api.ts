@@ -177,6 +177,7 @@ export interface Workout {
   image?: string;
   targetMuscleGroups?: string[];
   estimatedCalories?: number;
+  videoUrl?: string;
   isDefault?: boolean;
   exercises: WorkoutExercise[];
 }

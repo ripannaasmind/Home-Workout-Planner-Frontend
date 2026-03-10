@@ -65,6 +65,17 @@ const getWorkoutVideo = (category: string, name: string): string => {
   
   return videos.default;
 };
+function getEmbedUrl(url: string): string {
+  // YouTube watch URL
+  const ytMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  // Vimeo
+  const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
+  if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  // Already an embed URL or direct link — return as-is
+  return url;
+}
+
 function formatTime(seconds: number) {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -546,6 +557,30 @@ export default function WorkoutDetailsPage() {
             </div>
           </div>
         </section>
+
+        {/* Video section */}
+        {(() => {
+          const rawUrl = (workout as Workout & { videoUrl?: string }).videoUrl;
+          const embedSrc = rawUrl
+            ? getEmbedUrl(rawUrl)
+            : `https://www.youtube.com/embed/${getWorkoutVideo(workout.category, workout.name)}`;
+          return (
+            <section className="py-10 sm:py-12 bg-background">
+              <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground mb-6">Workout Video</h2>
+                <div className="rounded-xl overflow-hidden aspect-video bg-black shadow-lg max-w-3xl">
+                  <iframe
+                    src={embedSrc}
+                    className="w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    title="Workout video"
+                  />
+                </div>
+              </div>
+            </section>
+          );
+        })()}
 
         {}
         <section className="py-10 sm:py-12 bg-muted/30">

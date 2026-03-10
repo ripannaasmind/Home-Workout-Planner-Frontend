@@ -48,6 +48,7 @@ const emptyForm = {
   category: "strength",
   estimatedCalories: 200,
   image: "",
+  videoUrl: "",
 };
 
 
@@ -106,6 +107,7 @@ export default function AdminWorkoutsPage() {
       category: w.category || "strength",
       estimatedCalories: w.estimatedCalories ?? 200,
       image: (w as Workout & { image?: string }).image ?? "",
+      videoUrl: (w as Workout & { videoUrl?: string }).videoUrl ?? "",
     });
     setDialogOpen(true);
   };
@@ -421,6 +423,18 @@ export default function AdminWorkoutsPage() {
                   onChange={(e) => setForm({ ...form, estimatedCalories: Number(e.target.value) })}
                 />
               </div>
+            </div>
+
+            {/* Video URL */}
+            <div className="space-y-1.5">
+              <Label>Video URL (optional)</Label>
+              <Input
+                type="url"
+                placeholder="https://youtube.com/watch?v=..."
+                value={form.videoUrl}
+                onChange={(e) => setForm({ ...form, videoUrl: e.target.value })}
+              />
+              <p className="text-xs text-gray-400">YouTube, Vimeo, or any direct video link</p>
             </div>
           </div>
 

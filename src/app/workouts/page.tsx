@@ -424,16 +424,26 @@ export default function WorkoutsPage() {
                         {workout.level || workout.difficulty}
                       </Badge>
                     </div>
-                    <Button
-                      className="w-full bg-primary hover:bg-primary-dark text-white text-xs h-8 sm:h-9 gap-1.5"
-                      onClick={() => handleStart(workout)}
-                      disabled={starting === workout._id}
-                    >
-                      {starting === workout._id
-                        ? <Loader2 className="h-3 w-3 animate-spin" />
-                        : <Play className="h-3 w-3 fill-white" />}
-                      Start Workout
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1 text-xs h-8 sm:h-9 gap-1 border-primary/40 text-primary hover:bg-primary hover:text-white hover:border-primary"
+                        onClick={() => router.push(`/workouts/${workout._id}`)}
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                        Details
+                      </Button>
+                      <Button
+                        className="flex-1 bg-primary hover:bg-primary-dark text-white text-xs h-8 sm:h-9 gap-1"
+                        onClick={() => handleStart(workout)}
+                        disabled={starting === workout._id}
+                      >
+                        {starting === workout._id
+                          ? <Loader2 className="h-3 w-3 animate-spin" />
+                          : <Play className="h-3 w-3 fill-white" />}
+                        Start
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -512,16 +522,26 @@ export default function WorkoutsPage() {
                         {program.level || program.difficulty}
                       </Badge>
                     </div>
-                    <Button
-                      className="w-full bg-primary hover:bg-primary-dark text-white text-xs h-8 gap-1.5"
-                      onClick={() => handleStart(program)}
-                      disabled={starting === program._id}
-                    >
-                      {starting === program._id
-                        ? <Loader2 className="h-3 w-3 animate-spin" />
-                        : <Play className="h-3 w-3 fill-white" />}
-                      Start
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        className="flex-1 text-xs h-8 gap-1 border-primary/40 text-primary hover:bg-primary hover:text-white hover:border-primary"
+                        onClick={() => router.push(`/workouts/${program._id}`)}
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                        Details
+                      </Button>
+                      <Button
+                        className="flex-1 bg-primary hover:bg-primary-dark text-white text-xs h-8 gap-1"
+                        onClick={() => handleStart(program)}
+                        disabled={starting === program._id}
+                      >
+                        {starting === program._id
+                          ? <Loader2 className="h-3 w-3 animate-spin" />
+                          : <Play className="h-3 w-3 fill-white" />}
+                        Start
+                      </Button>
+                    </div>
                   </div>
                 </motion.div>
               );
