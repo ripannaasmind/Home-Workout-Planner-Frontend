@@ -205,7 +205,7 @@ export interface Exercise {
 export const userApi = {
   updateProfile: (data: { name: string; avatar?: string }, token: string) =>
     apiRequest<{ success: boolean; data: { _id: string; name: string; email: string; avatar?: string; role: "user" | "admin"; isVerified: boolean } }>(
-      "/auth/profile",
+      "/users/profile",
       { method: "PUT", body: data, token }
     ),
 
@@ -217,7 +217,7 @@ export const userApi = {
 
   deleteAccount: (token: string) =>
     apiRequest<{ success: boolean; message: string }>(
-      "/auth/account",
+      "/users/account",
       { method: "DELETE", token }
     ),
 };

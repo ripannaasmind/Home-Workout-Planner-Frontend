@@ -109,7 +109,7 @@ export function RecentOrdersTable() {
       )}
       <div className="mt-3 flex justify-end">
         <Link
-          href="/dashboard/orders"
+          href="/dashboard/sessions"
           className="text-xs text-gray-500 dark:text-gray-400 hover:text-primary flex items-center gap-0.5 transition-colors"
         >
           View All Sessions <ChevronRight className="h-3.5 w-3.5" />

@@ -102,11 +102,13 @@ function AdminSidebar() {
     <>
       {/* Mobile hamburger trigger + Sheet drawer */}
       <button
+        type="button"
         onClick={() => setMobileOpen(true)}
         aria-label="Open admin sidebar menu"
-        className="lg:hidden fixed top-14 sm:top-16 left-0 z-40 h-9 w-9 rounded-none rounded-br-md bg-primary hover:bg-primary/90 text-white shadow-md flex items-center justify-center"
+        className="lg:hidden fixed top-14 sm:top-16 left-0 z-50 flex items-center gap-1.5 h-9 px-3 bg-primary hover:bg-primary/90 text-white text-xs font-semibold shadow-md rounded-br-lg"
       >
-        <Menu className="h-4 w-4" />
+        <Menu className="h-4 w-4 shrink-0" />
+        <span>Menu</span>
       </button>
 
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
