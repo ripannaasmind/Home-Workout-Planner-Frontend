@@ -6,6 +6,30 @@ interface ApiOptions {
   token?: string;
 }
 
+export interface AuthUser {
+  id: string;
+  name: string;
+  email: string;
+  role: "user" | "admin";
+  avatar?: string;
+  isEmailVerified: boolean;
+  isProfileComplete?: boolean;
+}
+
+export interface AuthTokens {
+  token: string;
+  refreshToken: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  data: {
+    user: AuthUser;
+    token: string;
+    refreshToken: string;
+  };
+}
+
 async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
   const { method = "GET", body, token } = options;
 
@@ -500,9 +524,87 @@ export const adminApi = {
   },
 };
 
+// ─── Auth API ────────────────────────────────────────────────────────────────
+export const authApi = {
+  register: (data: { name: string; email: string; password: string }) =>
+    apiRequest<AuthResponse>("/auth/register", { method: "POST", body: data }),
+
+  login: (data: { email: string; password: string }) =>
+    apiRequest<AuthResponse>("/auth/login", { method: "POST", body: data }),
+
+  googleAuth: (idToken: string) =>
+    apiRequest<AuthResponse>("/auth/google", { method: "POST", body: { idToken } }),
+
+  /**
+   * Exchange a saved refreshToken for a new access token + new refreshToken.
+   * Both tokens come from the backend – never stored in env or hardcoded.
+   */
+  refreshToken: (refreshToken: string) =>
+    apiRequest<{ success: boolean; data: AuthTokens }>("/auth/refresh-token", {
+      method: "POST",
+      body: { refreshToken },
+    }),
+
+  getMe: (token: string) =>
+    apiRequest<{ success: boolean; data: AuthUser }>("/auth/me", { token }),
+
+  logout: (token: string) =>
+    apiRequest<{ success: boolean; message: string }>("/auth/logout", {
+      method: "POST",
+      token,
+    }),
+
+  forgotPassword: (email: string) =>
+    apiRequest<{ success: boolean; message: string }>("/auth/forgot-password", {
+      method: "POST",
+      body: { email },
+    }),
+
+  resetPassword: (resetToken: string, password: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/auth/reset-password/${resetToken}`, {
+      method: "PUT",
+      body: { password },
+    }),
+
+  verifyEmail: (verifyToken: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/auth/verify-email/${verifyToken}`),
+
+  resendVerification: (token: string) =>
+    apiRequest<{ success: boolean; message: string }>("/auth/resend-verification", {
+      method: "POST",
+      token,
+    }),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }, token: string) =>
+    apiRequest<{ success: boolean; message: string }>("/auth/change-password", {
+      method: "PUT",
+      body: data,
+      token,
+    }),
+};
+
+// ─── Payment API (public – keys come from backend, no env vars needed) ───────
 export const paymentApi = {
+  /**
+   * Returns only the payment methods the admin has enabled, along with
+   * the publishable/client keys configured in the admin panel.
+   * Secret keys are NEVER sent to the client.
+   */
   getPublicMethods: () =>
     apiRequest<{ success: boolean; data: PublicPaymentMethods }>("/payment-settings"),
+
+  /**
+   * Create a Stripe PaymentIntent.
+   * The Stripe secret key is stored in the backend DB (set by admin) –
+   * it is never present in frontend env vars.
+   * Pass the user's auth token so the backend can verify the request.
+   */
+  createPaymentIntent: (amount: number, token: string, currency = "usd", metadata: Record<string, string> = {}) =>
+    apiRequest<{ success: boolean; data: { clientSecret: string; paymentIntentId: string } }>("/orders/payment-intent", {
+      method: "POST",
+      body: { amount, currency, metadata },
+      token,
+    }),
 };
 
 export const promoApi = {
