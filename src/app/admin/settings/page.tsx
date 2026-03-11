@@ -33,6 +33,7 @@ import {
   Loader2,
   Search,
   Check,
+  Key,
 } from "lucide-react";
 import { ALL_CURRENCIES, CURRENCY_SYMBOLS } from "@/context/ThemeContext";
 
@@ -86,6 +87,7 @@ function maskKey(key: string) {
 const sections = [
   { id: "business", label: "Business", icon: Settings },
   { id: "payment", label: "Payment", icon: CreditCard },
+  { id: "api-keys", label: "API Keys", icon: Key },
   { id: "currency", label: "Currency", icon: DollarSign },
   { id: "language", label: "Language", icon: Globe },
   { id: "footer", label: "Footer & Branding", icon: Layout },
@@ -144,6 +146,10 @@ export default function AdminSettingsPage() {
   const [showPaystackPublic, setShowPaystackPublic] = useState(false);
   const [walletEnabled, setWalletEnabled] = useState(false);
 
+  // API Keys state (ImgBB etc.)
+  const [imgbbApiKey, setImgbbApiKey] = useState("");
+  const [showImgbbKey, setShowImgbbKey] = useState(false);
+
   // Site config state
   const [siteConfig, setSiteConfig] = useState<Partial<SiteConfig>>({
     companyName: "FitHome",
@@ -196,6 +202,7 @@ export default function AdminSettingsPage() {
 
         if (siteRes.data) {
           setSiteConfig((prev) => ({ ...prev, ...siteRes.data }));
+          if (siteRes.data.imgbbApiKey) setImgbbApiKey(siteRes.data.imgbbApiKey);
         }
       } catch {
         toast.error("Failed to load settings");
@@ -259,6 +266,10 @@ export default function AdminSettingsPage() {
 
       if (activeSection === "business" || activeSection === "currency" || activeSection === "language" || activeSection === "footer") {
         promises.push(adminApi.updateSiteConfig(siteConfig, token));
+      }
+
+      if (activeSection === "api-keys") {
+        promises.push(adminApi.updateSiteConfig({ imgbbApiKey }, token));
       }
 
       await Promise.all(promises);
@@ -1088,6 +1099,58 @@ export default function AdminSettingsPage() {
                     </CardContent>
                   </>
                 )}
+              </Card>
+            </>
+          )}
+
+
+          {/* ==================== API KEYS SECTION ==================== */}
+          {activeSection === "api-keys" && (
+            <>
+              {/* ImgBB */}
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center">
+                      <Key className="h-4 w-4 text-indigo-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">ImgBB API Key</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Used for image uploads throughout the app</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">API Key</Label>
+                    <div className="relative">
+                      <Input
+                        type={showImgbbKey ? "text" : "password"}
+                        placeholder="Enter your ImgBB API key..."
+                        value={imgbbApiKey}
+                        onChange={(e) => setImgbbApiKey(e.target.value)}
+                        className="pr-10 font-mono text-sm"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        onClick={() => setShowImgbbKey((v) => !v)}
+                      >
+                        {showImgbbKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {imgbbApiKey && !showImgbbKey && (
+                      <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(imgbbApiKey)}</p>
+                    )}
+                  </div>
+                  <div className="p-3 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg border border-indigo-100 dark:border-indigo-500/20">
+                    <p className="text-xs text-indigo-700 dark:text-indigo-400">
+                      Get your free API key from{" "}
+                      <span className="font-semibold">imgbb.com → API → Add API key</span>
+                    </p>
+                  </div>
+                </CardContent>
               </Card>
             </>
           )}

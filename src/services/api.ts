@@ -695,6 +695,7 @@ export interface SiteConfig {
   footerQuickLinks: { name: string; url: string }[];
   newsletter: { enabled: boolean; title: string; description: string };
   copyright: string;
+  imgbbApiKey?: string;
 }
 
 export interface AdminUser {

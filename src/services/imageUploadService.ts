@@ -1,5 +1,26 @@
-const IMGBB_API_KEY = process.env.NEXT_PUBLIC_IMGBB_API_KEY || '062499640037b87a330cb09793b95435';
 const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'https://fit-home-workout-planner-backend.onrender.com/api';
+
+// Cache the key in memory to avoid fetching on every upload
+let _cachedImgbbKey: string | null = null;
+
+async function getImgbbApiKey(): Promise<string> {
+  if (_cachedImgbbKey) return _cachedImgbbKey;
+  try {
+    const res = await fetch(`${API_URL}/imgbb-key`);
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && json.data?.imgbbApiKey) {
+        _cachedImgbbKey = json.data.imgbbApiKey;
+        return _cachedImgbbKey!;
+      }
+    }
+  } catch {
+    // fall through to fallback
+  }
+  // Use env var as fallback if backend key is not set
+  return process.env.NEXT_PUBLIC_IMGBB_API_KEY || '';
+}
 
 export interface ImgBBResponse {
   success: boolean;
@@ -48,8 +69,11 @@ export interface ImgBBResponse {
 // ------- Upload Image -------
 export const uploadImage = async (file: File | string): Promise<string> => {
   try {
+    const apiKey = await getImgbbApiKey();
+    if (!apiKey) throw new Error('ImgBB API key is not configured. Please set it in the admin panel.');
+
     const formData = new FormData();
-    formData.append('key', IMGBB_API_KEY);
+    formData.append('key', apiKey);
 
     if (typeof file === 'string') {
       
