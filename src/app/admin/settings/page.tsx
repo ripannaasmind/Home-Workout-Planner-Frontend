@@ -144,7 +144,6 @@ export default function AdminSettingsPage() {
   const [paystackOpen, setPaystackOpen] = useState(false);
   const [showPaystackSecret, setShowPaystackSecret] = useState(false);
   const [showPaystackPublic, setShowPaystackPublic] = useState(false);
-  const [walletEnabled, setWalletEnabled] = useState(false);
 
   // API Keys state (ImgBB etc.)
   const [imgbbApiKey, setImgbbApiKey] = useState("");
@@ -198,7 +197,6 @@ export default function AdminSettingsPage() {
           setPaystackSecretKey(d.paystack.secretKey || "");
           setPaystackPublicKey(d.paystack.publicKey || "");
         }
-        if (d.wallet) setWalletEnabled(d.wallet.enabled);
 
         if (siteRes.data) {
           setSiteConfig((prev) => ({ ...prev, ...siteRes.data }));
@@ -257,7 +255,6 @@ export default function AdminSettingsPage() {
               paypal: { enabled: paypalEnabled, clientId: paypalClientId, secret: paypalSecret },
               cashOnDelivery: { enabled: codEnabled },
               paystack: { enabled: paystackEnabled, secretKey: paystackSecretKey, publicKey: paystackPublicKey },
-              wallet: { enabled: walletEnabled },
             },
             token
           )
@@ -564,7 +561,7 @@ export default function AdminSettingsPage() {
                             {paypalClientId && !showPaypalId && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(paypalClientId)}</p>}
                           </div>
                           <div className="space-y-2">
-                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Secret</Label>
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">App Secret</Label>
                             <div className="relative">
                               <Input type={showPaypalSecret ? "text" : "password"} placeholder="EYour-PayPal-Secret..." value={paypalSecret} onChange={(e) => setPaypalSecret(e.target.value)} className="pr-10 font-mono text-sm" />
                               <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:text-gray-300" onClick={() => setShowPaypalSecret((v) => !v)}>
@@ -574,7 +571,7 @@ export default function AdminSettingsPage() {
                             {paypalSecret && !showPaypalSecret && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(paypalSecret)}</p>}
                           </div>
                           <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
-                            <p className="text-xs text-blue-700">Find your credentials in the <span className="font-semibold">PayPal Developer Dashboard → My Apps & Credentials</span></p>
+                            <p className="text-xs text-blue-700">Find your credentials in the <span className="font-semibold">PayPal Developer Dashboard → My Apps & Credentials</span>. Client ID goes to the browser; App Secret stays server-only.</p>
                           </div>
                         </div>
                       )}
@@ -658,24 +655,6 @@ export default function AdminSettingsPage() {
                     </CardContent>
                   </>
                 )}
-              </Card>
-
-              {/* Wallet */}
-              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="h-9 w-9 rounded-lg bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center">
-                        <DollarSign className="h-4 w-4 text-amber-600" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Wallet</CardTitle>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">In-app wallet balance payments</p>
-                      </div>
-                    </div>
-                    <Switch checked={walletEnabled} onCheckedChange={setWalletEnabled} />
-                  </div>
-                </CardHeader>
               </Card>
             </>
           )}

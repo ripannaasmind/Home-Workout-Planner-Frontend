@@ -605,6 +605,20 @@ export const paymentApi = {
       body: { amount, currency, metadata },
       token,
     }),
+
+  createPaypalOrder: (amount: number, token: string, currency = "USD") =>
+    apiRequest<{ success: boolean; data: { orderId: string; clientId: string } }>("/orders/paypal/create-order", {
+      method: "POST",
+      body: { amount, currency },
+      token,
+    }),
+
+  capturePaypalOrder: (paypalOrderId: string, token: string) =>
+    apiRequest<{ success: boolean; data: Record<string, unknown> }>("/orders/paypal/capture-order", {
+      method: "POST",
+      body: { paypalOrderId },
+      token,
+    }),
 };
 
 export const promoApi = {
@@ -674,7 +688,6 @@ export interface PaymentSettings {
   paypal: { enabled: boolean; clientId: string; secret: string };
   cashOnDelivery: { enabled: boolean };
   paystack?: { enabled: boolean; secretKey: string; publicKey: string };
-  wallet?: { enabled: boolean };
 }
 
 export interface SiteConfig {

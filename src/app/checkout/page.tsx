@@ -19,6 +19,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { paymentApi, ordersApi, type PublicPaymentMethods } from "@/services/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import {
   sanitize,
   validateName,
@@ -55,11 +56,15 @@ function CheckoutContent() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [paymentMethods, setPaymentMethods] = useState<PublicPaymentMethods | null>(null);
   const [placing, setPlacing] = useState(false);
+  const [paypalClientId, setPaypalClientId] = useState("");
 
   useEffect(() => {
     paymentApi.getPublicMethods()
       .then((res) => {
         setPaymentMethods(res.data);
+        if (res.data.paypal.enabled && res.data.paypal.clientId) {
+          setPaypalClientId(res.data.paypal.clientId);
+        }
         if (res.data.stripe.enabled) setPaymentMethod("stripe");
         else if (res.data.paypal.enabled) setPaymentMethod("paypal");
         else if (res.data.cashOnDelivery.enabled) setPaymentMethod("cod");
@@ -133,42 +138,88 @@ function CheckoutContent() {
     if (!user || !token) { setError("You must be logged in to place an order"); return; }
     if (cart.length === 0) { setError("Your cart is empty"); return; }
 
+    // PayPal is handled by PayPalButtons callbacks - not here
+    if (paymentMethod === "paypal") { setError("Please use the PayPal button below to complete payment."); return; }
+
     setPlacing(true);
-    ordersApi.create({
-      items: cart.map((item) => ({
-        productId: item.id,
-        name: item.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.image || "",
-      })),
-      subtotal: totalPrice,
-      discount,
-      promoCode: promoCodeParam || null,
-      shipping: shippingCost,
-      tax,
-      total,
-      paymentMethod: paymentMethod as "stripe" | "paypal" | "cod",
-      billingDetails: {
-        firstName: sanitize(firstName),
-        lastName: sanitize(lastName),
-        email: sanitize(billingEmail),
-        phone: sanitize(phone),
-      },
-      shippingAddress: sameAsBilling
-        ? { firstName: sanitize(firstName), lastName: sanitize(lastName), address: "", city: "", state: "", zip: "" }
-        : { firstName: sanitize(shipFirstName), lastName: sanitize(shipLastName), address: sanitize(shipAddress), city: sanitize(shipCity), state: sanitize(shipState), zip: sanitize(shipZip) },
-    }, token)
-      .then(() => {
-        clearCart();
-        toast.success("Order placed successfully!");
-        router.push("/dashboard/orders");
-      })
-      .catch((err: unknown) => {
-        const msg = err instanceof Error ? err.message : "Failed to place order";
-        setError(msg);
-      })
-      .finally(() => setPlacing(false));
+    try {
+      await ordersApi.create({
+        items: cart.map((item) => ({
+          productId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image || "",
+        })),
+        subtotal: totalPrice,
+        discount,
+        promoCode: promoCodeParam || null,
+        shipping: shippingCost,
+        tax,
+        total,
+        paymentMethod: paymentMethod as "stripe" | "paypal" | "cod",
+        billingDetails: {
+          firstName: sanitize(firstName),
+          lastName: sanitize(lastName),
+          email: sanitize(billingEmail),
+          phone: sanitize(phone),
+        },
+        shippingAddress: sameAsBilling
+          ? { firstName: sanitize(firstName), lastName: sanitize(lastName), address: "", city: "", state: "", zip: "" }
+          : { firstName: sanitize(shipFirstName), lastName: sanitize(shipLastName), address: sanitize(shipAddress), city: sanitize(shipCity), state: sanitize(shipState), zip: sanitize(shipZip) },
+      }, token);
+
+      clearCart();
+      toast.success("Order placed successfully!");
+      router.push("/dashboard/orders");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to place order";
+      setError(msg);
+    } finally {
+      setPlacing(false);
+    }
+  };
+
+  // Submit order after PayPal capture succeeds
+  const submitOrderAfterPaypal = async () => {
+    if (!token) return;
+    setPlacing(true);
+    try {
+      await ordersApi.create({
+        items: cart.map((item) => ({
+          productId: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image || "",
+        })),
+        subtotal: totalPrice,
+        discount,
+        promoCode: promoCodeParam || null,
+        shipping: shippingCost,
+        tax,
+        total,
+        paymentMethod: "paypal" as const,
+        billingDetails: {
+          firstName: sanitize(firstName),
+          lastName: sanitize(lastName),
+          email: sanitize(billingEmail),
+          phone: sanitize(phone),
+        },
+        shippingAddress: sameAsBilling
+          ? { firstName: sanitize(firstName), lastName: sanitize(lastName), address: "", city: "", state: "", zip: "" }
+          : { firstName: sanitize(shipFirstName), lastName: sanitize(shipLastName), address: sanitize(shipAddress), city: sanitize(shipCity), state: sanitize(shipState), zip: sanitize(shipZip) },
+      }, token);
+
+      clearCart();
+      toast.success("Order placed successfully!");
+      router.push("/dashboard/orders");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Failed to place order";
+      setError(msg);
+    } finally {
+      setPlacing(false);
+    }
   };
 
   return (
@@ -468,9 +519,42 @@ function CheckoutContent() {
                     </div>
                   )}
 
-                  {paymentMethod === "paypal" && (
+                  {paymentMethod === "paypal" && paypalClientId && (
+                    <div className="mt-4">
+                      <PayPalScriptProvider options={{ clientId: paypalClientId, currency: "USD" }}>
+                        <PayPalButtons
+                          style={{ layout: "vertical", shape: "rect", label: "pay" }}
+                          createOrder={async () => {
+                            if (!token) throw new Error("Not authenticated");
+                            const res = await paymentApi.createPaypalOrder(total, token, "USD");
+                            return res.data.orderId;
+                          }}
+                          onApprove={async (data) => {
+                            if (!token) return;
+                            setPlacing(true);
+                            setError("");
+                            try {
+                              const captureRes = await paymentApi.capturePaypalOrder(data.orderID, token);
+                              if (captureRes.success) {
+                                await submitOrderAfterPaypal();
+                              } else {
+                                setError("PayPal payment could not be captured. Please try again.");
+                              }
+                            } catch {
+                              setError("PayPal payment failed. Please try again.");
+                            } finally {
+                              setPlacing(false);
+                            }
+                          }}
+                          onError={() => setError("PayPal payment failed. Please try again.")}
+                        />
+                      </PayPalScriptProvider>
+                    </div>
+                  )}
+
+                  {paymentMethod === "paypal" && !paypalClientId && (
                     <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-lg text-center">
-                      <p className="text-sm text-blue-700">You will be redirected to PayPal to complete your payment securely.</p>
+                      <p className="text-sm text-blue-700">PayPal is not configured yet. Please contact the administrator.</p>
                     </div>
                   )}
 

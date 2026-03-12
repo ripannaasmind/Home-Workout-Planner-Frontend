@@ -806,8 +806,8 @@
                 <tr><td>Backend</td><td>Node.js + Express.js</td><td>REST API, middleware, business logic</td></tr>
                 <tr><td>Database</td><td>MongoDB + Mongoose</td><td>Users, workouts, orders, progress, achievements</td></tr>
                 <tr><td>Auth</td><td>JWT + bcrypt</td><td>Secure tokens, password hashing (12 salt rounds)</td></tr>
-                <tr><td>Payments</td><td>Stripe API</td><td>Subscriptions, shop checkout, webhook events</td></tr>
-                <tr><td>Image CDN</td><td>ImgBB</td><td>User uploads, workout cover photos</td></tr>
+                <tr><td>Payments</td><td>Stripe + PayPal + COD</td><td>Card payments via Stripe, PayPal checkout, Cash on Delivery</td></tr>
+                <tr><td>Image CDN</td><td>ImgBB</td><td>User uploads, workout cover photos (API key from Admin Panel)</td></tr>
                 <tr><td>Email</td><td>Nodemailer (SMTP)</td><td>Verification, password reset, order receipts</td></tr>
                 <tr><td>API Docs</td><td>Swagger / OpenAPI 3.0</td><td>Interactive API reference at <code>/api-docs</code></td></tr>
               </tbody>
@@ -890,6 +890,7 @@
               <li>MongoDB 6.x+ (local or Atlas)</li>
               <li>npm 9+</li>
               <li>Stripe account (for payments)</li>
+              <li>PayPal Developer account (optional, for PayPal payments)</li>
             </ul>
           </div>
         </div>
@@ -932,11 +933,12 @@ npm install</code></pre>
               <pre><code>PORT=5000
 MONGO_URI=mongodb+srv://youruser:yourpass@cluster.mongodb.net/fithome
 JWT_SECRET=your_super_secret_key
-STRIPE_SECRET_KEY=sk_live_...
-STRIPE_WEBHOOK_SECRET=whsec_...
 CLIENT_URL=http://localhost:3000
 EMAIL_USER=your@email.com
-EMAIL_PASS=your_email_password</code></pre>
+EMAIL_PASS=your_email_password
+
+# Payment keys (Stripe, PayPal, ImgBB) are now
+# managed from Admin Panel → Settings instead of .env</code></pre>
             </div>
           </div>
           <div class="step">
@@ -975,8 +977,10 @@ npm install</code></pre>
             <div class="step-body">
               <h4>Create <code>.env.local</code></h4>
               <pre><code>NEXT_PUBLIC_API_URL=http://localhost:5000/api
-NEXT_PUBLIC_IMGBB_API_KEY=your_imgbb_key
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
+
+# Stripe publishable key, PayPal client ID, and ImgBB API key
+# are fetched at runtime from the backend (Admin Panel → Settings).
+# No payment/upload keys needed here.</code></pre>
             </div>
           </div>
           <div class="step">
@@ -1636,11 +1640,11 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
               </div>
               <div class="step" style="gap:.65rem">
                 <div class="step-num" style="width:28px;height:28px;font-size:.75rem">3</div>
-                <div class="step-body" style="padding-bottom:1rem"><p>Enter shipping address and choose payment method</p></div>
+                <div class="step-body" style="padding-bottom:1rem"><p>Enter shipping address and choose payment method (Stripe, PayPal, or COD)</p></div>
               </div>
               <div class="step" style="gap:.65rem">
                 <div class="step-num" style="width:28px;height:28px;font-size:.75rem">4</div>
-                <div class="step-body"><p>Receive order confirmation email</p></div>
+                <div class="step-body"><p>Complete payment (PayPal opens an in-page checkout; Stripe uses a card form; COD skips payment) and receive order confirmation</p></div>
               </div>
             </div>
           </div>
@@ -1660,6 +1664,21 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
               <div><span class="badge badge-red">Cancelled</span> — order cancelled</div>
             </div>
           </div>
+        </div>
+        <h3 style="margin-top:2rem">Integration API Reference (Payment &amp; Settings)</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Endpoint</th><th>Method</th><th>Auth</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>/admin/payment-settings</code></td><td>GET / PUT</td><td>Admin</td><td>Read / update Stripe, PayPal, COD keys &amp; toggles</td></tr>
+              <tr><td><code>/payment-settings/public</code></td><td>GET</td><td>Public</td><td>Returns enabled methods + publishable keys only</td></tr>
+              <tr><td><code>/orders/payment-intent</code></td><td>POST</td><td>User</td><td>Create a Stripe PaymentIntent for card checkout</td></tr>
+              <tr><td><code>/orders/paypal/create-order</code></td><td>POST</td><td>User</td><td>Create a PayPal order (returns PayPal order ID)</td></tr>
+              <tr><td><code>/orders/paypal/capture-order</code></td><td>POST</td><td>User</td><td>Capture an approved PayPal payment</td></tr>
+              <tr><td><code>/orders</code></td><td>POST</td><td>User</td><td>Submit final order (server recalculates totals)</td></tr>
+              <tr><td><code>/admin/site-config</code></td><td>GET / PUT</td><td>Admin</td><td>Manage ImgBB API key and other site settings</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -2035,7 +2054,7 @@ NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...</code></pre>
         <details>
           <summary>Is payment information stored securely?</summary>
           <div class="faq-body">
-            Yes. FitHome uses <strong>Stripe</strong> for all payment processing. Card numbers are never stored on our servers — Stripe handles all sensitive payment data in a PCI-compliant environment.
+            Yes. FitHome supports <strong>Stripe</strong>, <strong>PayPal</strong>, and <strong>Cash on Delivery</strong>. Card numbers are never stored on our servers — Stripe and PayPal handle all sensitive payment data in PCI-compliant environments. Order totals are always calculated server-side to prevent tampering. COD orders are marked "paid" only after the admin confirms delivery. All payment API keys are managed from the <strong>Admin Panel → Settings</strong> (never hard-coded in .env files).
           </div>
         </details>
       </section>
