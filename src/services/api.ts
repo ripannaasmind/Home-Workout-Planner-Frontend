@@ -67,17 +67,31 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
     clearTimeout(timeoutId);
   }
 
-  const data = await response.json();
-
-  if (!response.ok) {
-    const validationMessage =
-      Array.isArray(data?.errors) && data.errors.length > 0
-        ? data.errors.map((err: { message?: string }) => err?.message).filter(Boolean).join(", ")
-        : "";
-    throw new Error(validationMessage || data.message || "API request failed");
+  const raw = await response.text();
+  let data: unknown = {};
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    data = { message: raw };
   }
 
-  return data;
+  if (!response.ok) {
+    const payload = (data && typeof data === "object") ? (data as Record<string, unknown>) : {};
+    const validationMessage =
+      Array.isArray(payload.errors) && payload.errors.length > 0
+        ? (payload.errors as Array<{ message?: string }>).map((err) => err?.message).filter(Boolean).join(", ")
+        : "";
+    const message =
+      validationMessage ||
+      (typeof payload.message === "string" ? payload.message : "") ||
+      (typeof payload.error === "string" ? payload.error : "") ||
+      (typeof payload.detail === "string" ? payload.detail : "") ||
+      (typeof raw === "string" && raw.trim() ? raw.trim() : "") ||
+      `Request failed (${response.status} ${response.statusText})`;
+    throw new Error(message);
+  }
+
+  return data as T;
 }
 
 
@@ -686,6 +700,12 @@ export const ordersApi = {
   getMyOrders: (token: string) =>
     apiRequest<{ success: boolean; data: Order[] }>("/orders/my", { token }),
 
+  deleteMyOrder: (id: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/orders/${id}`, {
+      method: "DELETE",
+      token,
+    }),
+
   getAllOrders: (token: string) =>
     apiRequest<{ success: boolean; data: Order[] }>("/admin/orders", { token }),
 
@@ -693,6 +713,12 @@ export const ordersApi = {
     apiRequest<{ success: boolean; data: Order }>(`/admin/orders/${id}/status`, {
       method: "PUT",
       body: { status },
+      token,
+    }),
+
+  deleteForAdmin: (id: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/admin/orders/${id}`, {
+      method: "DELETE",
       token,
     }),
 };

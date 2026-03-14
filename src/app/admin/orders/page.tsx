@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Package, Loader2, ShoppingBag } from "lucide-react";
+import { Package, Loader2, ShoppingBag, Trash2 } from "lucide-react";
 import SafeImage from "@/components/ui/SafeImage";
 import toast from "react-hot-toast";
 
@@ -43,6 +43,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -70,6 +71,23 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!token) return;
+    const confirmed = window.confirm("Are you sure you want to delete this order?");
+    if (!confirmed) return;
+
+    setDeletingId(orderId);
+    try {
+      await ordersApi.deleteForAdmin(orderId, token);
+      setOrders((prev) => prev.filter((o) => o._id !== orderId));
+      toast.success("Order deleted");
+    } catch {
+      toast.error("Failed to delete order");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -88,7 +106,7 @@ export default function AdminOrdersPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400">Orders placed by customers will appear here.</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {orders.map((order) => {
             const userInfo = typeof order.user === "object" ? order.user : null;
             return (
@@ -181,6 +199,19 @@ export default function AdminOrdersPage() {
                           <Loader2 className="h-3 w-3 animate-spin" />
                         </Button>
                       )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 border-red-200 text-red-600 hover:bg-red-50"
+                        onClick={() => handleDeleteOrder(order._id)}
+                        disabled={deletingId === order._id}
+                      >
+                        {deletingId === order._id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-3.5 w-3.5" />
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
