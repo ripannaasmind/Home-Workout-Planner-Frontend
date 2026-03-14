@@ -36,9 +36,9 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
         suppressHydrationWarning
       >
-        <Script src="/assets/lang-config.js" strategy="beforeInteractive" />
-        <Script src="/assets/translation.js" strategy="beforeInteractive" />
-        <Script src="//translate.google.com/translate_a/element.js?cb=TranslateInit" strategy="afterInteractive" />
+        <Script src="/assets/lang-config.js" strategy="lazyOnload" />
+        <Script src="/assets/translation.js" strategy="lazyOnload" />
+        <Script src="https://translate.google.com/translate_a/element.js?cb=TranslateInit" strategy="lazyOnload" />
         <ThemeProvider>
           <AuthProvider>
             <CartProvider>

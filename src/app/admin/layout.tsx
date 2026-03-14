@@ -42,6 +42,38 @@ function AdminSidebar() {
   const { logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const id = requestAnimationFrame(() => setMobileOpen(false));
+    return () => cancelAnimationFrame(id);
+  }, [pathname, mobileOpen]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const onDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) setMobileOpen(false);
+    };
+
+    let id: number | null = null;
+    if (media.matches && mobileOpen) {
+      id = requestAnimationFrame(() => setMobileOpen(false));
+    }
+
+    if (media.addEventListener) {
+      media.addEventListener("change", onDesktop);
+      return () => {
+        if (id !== null) cancelAnimationFrame(id);
+        media.removeEventListener("change", onDesktop);
+      };
+    }
+
+    media.addListener(onDesktop);
+    return () => {
+      if (id !== null) cancelAnimationFrame(id);
+      media.removeListener(onDesktop);
+    };
+  }, [mobileOpen]);
+
   const isActive = (href: string, exact: boolean) =>
     exact ? pathname === href : pathname.startsWith(href);
 

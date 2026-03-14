@@ -91,6 +91,38 @@ export function Header() {
 
   const isAdminPage = pathname.startsWith("/admin");
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const id = requestAnimationFrame(() => setIsOpen(false));
+    return () => cancelAnimationFrame(id);
+  }, [pathname, isOpen]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const onDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) setIsOpen(false);
+    };
+
+    let id: number | null = null;
+    if (media.matches && isOpen) {
+      id = requestAnimationFrame(() => setIsOpen(false));
+    }
+
+    if (media.addEventListener) {
+      media.addEventListener("change", onDesktop);
+      return () => {
+        if (id !== null) cancelAnimationFrame(id);
+        media.removeEventListener("change", onDesktop);
+      };
+    }
+
+    media.addListener(onDesktop);
+    return () => {
+      if (id !== null) cancelAnimationFrame(id);
+      media.removeListener(onDesktop);
+    };
+  }, [isOpen]);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="container mx-auto flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6 lg:px-8">

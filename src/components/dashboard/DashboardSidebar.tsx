@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -38,6 +38,38 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { logout, user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const id = requestAnimationFrame(() => setMobileOpen(false));
+    return () => cancelAnimationFrame(id);
+  }, [pathname, mobileOpen]);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    const onDesktop = (event: MediaQueryListEvent) => {
+      if (event.matches) setMobileOpen(false);
+    };
+
+    let id: number | null = null;
+    if (media.matches && mobileOpen) {
+      id = requestAnimationFrame(() => setMobileOpen(false));
+    }
+
+    if (media.addEventListener) {
+      media.addEventListener("change", onDesktop);
+      return () => {
+        if (id !== null) cancelAnimationFrame(id);
+        media.removeEventListener("change", onDesktop);
+      };
+    }
+
+    media.addListener(onDesktop);
+    return () => {
+      if (id !== null) cancelAnimationFrame(id);
+      media.removeListener(onDesktop);
+    };
+  }, [mobileOpen]);
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return pathname === "/dashboard";
