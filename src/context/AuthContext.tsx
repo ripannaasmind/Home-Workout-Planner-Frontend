@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 export interface User {
   _id: string;
@@ -26,6 +28,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<User>;
   register: (name: string, email: string, password: string) => Promise<User>;
   googleLogin: (payload: GoogleAuthPayload) => Promise<User>;
+  forgotPassword: (email: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
 }
@@ -67,13 +70,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [token, user]);
 
   const login = async (email: string, password: string): Promise<User> => {
-    const res = await fetch(`${API_URL}/auth/login`, {
+    let fbSuccess = false;
+
+    // 1. Try Firebase Auth First
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      fbSuccess = true;
+    } catch (error: any) {
+      // Ignore this error because they might be an old user who is only registered in MongoDB.
+    }
+
+    // 2. Try standard Backend Login
+    let res = await fetch(`${API_URL}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
-    const data = await res.json();
+    let data = await res.json();
+
+    // 3. Fallback: If Firebase succeeded but Backend failed (User reset their password in Firebase!)
+    if (!res.ok && fbSuccess) {
+      // Tell backend to update MongoDB password directly to solve sync mismatch 
+      res = await fetch(`${API_URL}/auth/firebase-sync`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      data = await res.json();
+    }
 
     if (!res.ok) {
       throw new Error(data.message || "Login failed");
@@ -86,6 +111,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string): Promise<User> => {
+    // 1. Save user in Firebase for future password resets
+    try {
+      await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error: any) {
+      if (error.code !== "auth/email-already-in-use") {
+        throw new Error(error.message || "Firebase registration failed");
+      }
+    }
+
+    // 2. Save user in our custom backend Database
     const res = await fetch(`${API_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -123,6 +158,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data.data.user;
   };
 
+  const forgotPassword = async (email: string): Promise<void> => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+      throw new Error(error.message || "Failed to send password reset email");
+    }
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -146,6 +189,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         login,
         register,
         googleLogin,
+        forgotPassword,
         logout,
         updateUser,
       }}
