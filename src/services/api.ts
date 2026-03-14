@@ -1,5 +1,5 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 4500);
+const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 12000);
 
 interface ApiOptions {
   method?: string;
@@ -70,7 +70,11 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
   const data = await response.json();
 
   if (!response.ok) {
-    throw new Error(data.message || "API request failed");
+    const validationMessage =
+      Array.isArray(data?.errors) && data.errors.length > 0
+        ? data.errors.map((err: { message?: string }) => err?.message).filter(Boolean).join(", ")
+        : "";
+    throw new Error(validationMessage || data.message || "API request failed");
   }
 
   return data;
