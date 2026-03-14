@@ -233,7 +233,7 @@ export default function AdminFeaturesPage() {
               }`}
             >
               {/* Drag handle */}
-              <GripVertical className="h-4 w-4 text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block" />
+              {/* <GripVertical className="h-4 w-4 text-gray-300 dark:text-gray-600 shrink-0 hidden sm:block" /> */}
 
               {/* Image */}
               <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-lg overflow-hidden shrink-0 bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
