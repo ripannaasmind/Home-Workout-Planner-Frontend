@@ -33,11 +33,11 @@ function StarRating({ rating }: { rating: number }) {
 
 function TestimonialCard({ t }: { t: Testimonial }) {
   return (
-    <div className="relative shrink-0 w-72 sm:w-80 bg-white dark:bg-card border border-border rounded-2xl p-5 mx-3 select-none group hover:border-primary/40 hover:shadow-xl transition-all duration-300">
+    <div className="relative shrink-0 w-72 sm:w-80 h-52 bg-white dark:bg-card border border-border rounded-2xl p-5 mx-3 select-none group hover:border-primary/40 hover:shadow-xl transition-all duration-300">
       <div className="absolute inset-x-8 top-0 h-px bg-linear-to-r from-transparent via-primary/50 to-transparent" />
       <Quote className="absolute top-4 right-4 w-7 h-7 text-primary/10 group-hover:text-primary/25 transition-colors" />
       <div className="flex items-center gap-3 mb-3">
-        <div className="relative w-10 h-10 rounded-full overflow-x-hidden ring-2 ring-primary/25 shrink-0">
+        <div className="relative w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/25 shrink-0">
           {t.avatar ? (
             <Image src={t.avatar} alt={t.name} fill className="object-cover" sizes="40px" />
           ) : (
@@ -52,7 +52,7 @@ function TestimonialCard({ t }: { t: Testimonial }) {
         </div>
       </div>
       <StarRating rating={t.rating} />
-      <p className="mt-3 text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-4">
+      <p className="mt-3 text-xs sm:text-sm text-text-secondary leading-relaxed line-clamp-4 min-h-21">
         &ldquo;{t.comment}&rdquo;
       </p>
     </div>
