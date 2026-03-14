@@ -39,6 +39,7 @@ const adminNav = [
 
 function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -119,7 +120,11 @@ function AdminSidebar() {
       </nav>
       <div className="px-3 mt-2 border-t border-gray-100 dark:border-gray-800 pt-2 space-y-0.5">
         <button
-          onClick={() => { onNavigate?.(); logout(); }}
+          onClick={() => {
+            onNavigate?.();
+            logout();
+            router.replace("/login");
+          }}
           className="relative flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 hover:translate-x-1 transition-all duration-200 group overflow-hidden"
         >
           <span className="absolute left-0 top-0 w-0.75 rounded-r-full h-0 group-hover:h-full bg-red-400 transition-all duration-300" />

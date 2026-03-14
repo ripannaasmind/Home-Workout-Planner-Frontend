@@ -36,6 +36,10 @@ export function Header() {
 
   const handleLogout = () => {
     logout();
+    if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
+      router.replace("/login");
+      return;
+    }
     router.push("/");
   };
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Dumbbell,
@@ -36,6 +36,7 @@ const navItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { logout, user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -130,7 +131,11 @@ export function DashboardSidebar() {
           </Link>
         )}
         <button
-          onClick={() => { onNavigate?.(); logout(); }}
+          onClick={() => {
+            onNavigate?.();
+            logout();
+            router.replace("/login");
+          }}
           className="relative flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 hover:translate-x-1 transition-all duration-200 group overflow-hidden"
         >
           <span className="absolute left-0 top-0 w-0.75 rounded-r-full h-0 group-hover:h-full bg-red-400 transition-all duration-300" />
