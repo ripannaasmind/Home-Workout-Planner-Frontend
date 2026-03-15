@@ -141,14 +141,14 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-5 w-full max-w-3xl">
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Settings</h1>
         <p className="text-gray-400 text-sm mt-0.5">Manage your account preferences and security</p>
       </div>
 
       {/* Language Settings */}
-      <Link href="/dashboard/settings/language">
+      <Link href="/dashboard/settings/language" className="block">
         <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-5 hover:border-primary/30 hover:shadow-md transition-all cursor-pointer group">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -169,7 +169,7 @@ export default function SettingsPage() {
       <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
         <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Profile Information</h3>
         <Separator className="bg-gray-100 dark:bg-gray-800" />
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div>
             <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Full Name</Label>
             <Input

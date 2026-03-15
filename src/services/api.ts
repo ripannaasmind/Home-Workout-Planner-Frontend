@@ -253,7 +253,8 @@ export interface Exercise {
   _id: string;
   name: string;
   description: string;
-  muscleGroup: string;
+  category?: string;
+  muscleGroup: string | string[];
   equipment: string;
   difficulty: "beginner" | "intermediate" | "advanced";
   image?: string;

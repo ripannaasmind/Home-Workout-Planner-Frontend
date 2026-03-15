@@ -41,10 +41,9 @@ export function DashboardSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    if (!mobileOpen) return;
     const id = requestAnimationFrame(() => setMobileOpen(false));
     return () => cancelAnimationFrame(id);
-  }, [pathname, mobileOpen]);
+  }, [pathname]);
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");

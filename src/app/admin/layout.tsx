@@ -44,10 +44,8 @@ function AdminSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    if (!mobileOpen) return;
-    const id = requestAnimationFrame(() => setMobileOpen(false));
-    return () => cancelAnimationFrame(id);
-  }, [pathname, mobileOpen]);
+    setMobileOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { Star, Quote } from "lucide-react";
+import { ChevronLeft, ChevronRight, Quote, Star } from "lucide-react";
 import { testimonialsApi } from "@/services/api";
 
 interface Testimonial {
@@ -59,82 +59,12 @@ function TestimonialCard({ t }: { t: Testimonial }) {
   );
 }
 
-function MarqueeRow({ items, direction }: { items: Testimonial[]; direction: "left" | "right" }) {
-  const outerRef = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const scrollStart = useRef(0);
-  const rafId = useRef<number | null>(null);
-  const initialized = useRef(false);
-
-  useEffect(() => {
-    const el = outerRef.current;
-    if (!el) return;
-    const speed = direction === "left" ? 0.8 : -0.8;
-
-    const tick = () => {
-      if (el) {
-        const copyWidth = el.scrollWidth / 3;
-        if (!initialized.current && copyWidth > 0) {
-          el.scrollLeft = copyWidth;
-          initialized.current = true;
-        }
-        if (!isDragging.current && initialized.current) {
-          el.scrollLeft += speed;
-          if (direction === "left" && el.scrollLeft >= copyWidth * 2) {
-            el.scrollLeft -= copyWidth;
-          } else if (direction === "right" && el.scrollLeft <= 0) {
-            el.scrollLeft += copyWidth;
-          }
-        }
-      }
-      rafId.current = requestAnimationFrame(tick);
-    };
-
-    rafId.current = requestAnimationFrame(tick);
-    return () => { if (rafId.current !== null) cancelAnimationFrame(rafId.current); };
-  }, [direction]);
-
-  const onMouseDown = (e: React.MouseEvent) => {
-    isDragging.current = true;
-    startX.current = e.pageX;
-    scrollStart.current = outerRef.current?.scrollLeft ?? 0;
-    if (outerRef.current) outerRef.current.style.cursor = "grabbing";
-  };
-
-  const onMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging.current || !outerRef.current) return;
-    e.preventDefault();
-    outerRef.current.scrollLeft = scrollStart.current - (e.pageX - startX.current);
-  };
-
-  const onMouseUp = () => {
-    isDragging.current = false;
-    if (outerRef.current) outerRef.current.style.cursor = "grab";
-  };
-
-  return (
-    <div
-      ref={outerRef}
-      className="flex overflow-x-scroll py-1 cursor-grab scrollbar-none [&::-webkit-scrollbar]:hidden [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar]:h-0"
-      style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={onMouseUp}
-      onMouseLeave={onMouseUp}
-    >
-      <div className="flex">
-        {[...items, ...items, ...items].map((t, i) => (
-          <TestimonialCard key={`${direction}-${i}`} t={t} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 export function Testimonials() {
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [perView, setPerView] = useState(3);
+  const touchStartX = useRef(0);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -152,9 +82,49 @@ export function Testimonials() {
     fetchTestimonials();
   }, []);
 
-  const mid = Math.ceil(testimonials.length / 2);
-  const row1 = testimonials.slice(0, mid);
-  const row2 = testimonials.slice(mid);
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth < 640) setPerView(1);
+      else if (window.innerWidth < 1024) setPerView(2);
+      else setPerView(3);
+    };
+
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const totalPages = useMemo(() => {
+    if (testimonials.length === 0) return 1;
+    return Math.ceil(testimonials.length / perView);
+  }, [testimonials.length, perView]);
+
+  useEffect(() => {
+    if (totalPages <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentPage((p) => (p + 1) % totalPages);
+    }, 3800);
+    return () => clearInterval(timer);
+  }, [totalPages]);
+
+  useEffect(() => {
+    if (currentPage >= totalPages) {
+      setCurrentPage(0);
+    }
+  }, [currentPage, totalPages]);
+
+  const goPrev = () => setCurrentPage((p) => (p - 1 + totalPages) % totalPages);
+  const goNext = () => setCurrentPage((p) => (p + 1) % totalPages);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    if (delta > 45) goPrev();
+    if (delta < -45) goNext();
+  };
 
   return (
     <section id="testimonials" className="py-12 sm:py-16 lg:py-20 bg-background overflow-hidden">
@@ -195,13 +165,60 @@ export function Testimonials() {
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : (
-        <div className="space-y-4 relative">
-          {/* Fade edges */}
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-24 z-10 bg-linear-to-r from-background to-transparent" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-24 z-10 bg-linear-to-l from-background to-transparent" />
+        <div className="relative" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+          {testimonials.length > perView && (
+            <>
+              <button
+                onClick={goPrev}
+                className="hidden sm:flex absolute -left-3 top-1/2 -translate-y-1/2 z-20 h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-card border border-gray-200 dark:border-gray-700 shadow hover:bg-primary hover:text-white"
+                aria-label="Previous testimonials"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                onClick={goNext}
+                className="hidden sm:flex absolute -right-3 top-1/2 -translate-y-1/2 z-20 h-9 w-9 items-center justify-center rounded-full bg-white dark:bg-card border border-gray-200 dark:border-gray-700 shadow hover:bg-primary hover:text-white"
+                aria-label="Next testimonials"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </>
+          )}
 
-          {row1.length > 0 && <MarqueeRow items={row1} direction="left" />}
-          {row2.length > 0 && <MarqueeRow items={row2} direction="right" />}
+          <div className="overflow-hidden">
+            <div
+              className="flex transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(-${currentPage * 100}%)` }}
+            >
+              {Array.from({ length: totalPages }).map((_, pageIndex) => {
+                const pageItems = testimonials.slice(pageIndex * perView, pageIndex * perView + perView);
+                return (
+                  <div key={pageIndex} className="w-full shrink-0">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {pageItems.map((item) => (
+                        <TestimonialCard key={item._id || String(item.id)} t={item} />
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-5">
+              {Array.from({ length: totalPages }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCurrentPage(i)}
+                  className={`h-2 rounded-full transition-all ${
+                    i === currentPage ? "w-6 bg-primary" : "w-2 bg-gray-300 dark:bg-gray-600"
+                  }`}
+                  aria-label={`Go to testimonials page ${i + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>

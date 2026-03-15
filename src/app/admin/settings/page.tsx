@@ -389,15 +389,15 @@ export default function AdminSettingsPage() {
         </div>
       </div>
 
-      <div className="flex gap-6">
+      <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar navigation */}
-        <div className="w-48 shrink-0">
-          <nav className="space-y-1 sticky top-24">
+        <div className="w-full md:w-48 shrink-0">
+          <nav className="flex md:block gap-2 md:space-y-1 overflow-x-auto pb-2 md:pb-0 sticky top-24">
             {sections.map(({ id, label, icon: Icon }) => (
               <button
                 key={id}
                 onClick={() => setActiveSection(id)}
-                className={`w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                className={`shrink-0 md:w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                   activeSection === id
                     ? "bg-primary text-white shadow-sm"
                     : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-800 dark:hover:text-gray-200"
@@ -439,7 +439,7 @@ export default function AdminSettingsPage() {
                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Tagline</Label>
                     <Textarea value={siteConfig.tagline || ""} onChange={(e) => updateField("tagline", e.target.value)} placeholder="Your fitness companion..." rows={2} className="resize-none" />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Email</Label>
                       <Input type="email" value={siteConfig.email || ""} onChange={(e) => updateField("email", e.target.value)} placeholder="hello@fithome.com" />

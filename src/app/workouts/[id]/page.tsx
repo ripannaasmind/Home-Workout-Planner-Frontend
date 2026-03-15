@@ -177,17 +177,20 @@ export default function WorkoutDetailsPage() {
 
   const handlePause = async () => {
     if (!activeSession || !token) return;
+    const nextPaused = !paused;
+    setPaused(nextPaused);
     try {
       if (paused) {
         await sessionsApi.resume(activeSession._id, token);
-        setPaused(false);
         toast.success("Session resumed");
       } else {
         await sessionsApi.pause(activeSession._id, token);
-        setPaused(true);
         toast.success("Session paused");
       }
-    } catch { toast.error("Failed to update session"); }
+    } catch {
+      setPaused(!nextPaused);
+      toast.error("Failed to update session");
+    }
   };
 
   const handleComplete = async () => {

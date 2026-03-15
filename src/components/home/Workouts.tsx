@@ -129,6 +129,7 @@ export function Workouts() {
 
   const isDragging = useRef(false);
   const dragStartX = useRef(0);
+  const touchStartX = useRef(0);
 
   const handleDragStart = (e: React.MouseEvent) => {
     isDragging.current = true;
@@ -141,6 +142,16 @@ export function Workouts() {
     const dx = e.pageX - dragStartX.current;
     if (dx < -50) goToNext();
     else if (dx > 50) goToPrevious();
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    if (dx < -40) goToNext();
+    else if (dx > 40) goToPrevious();
   };
 
   return (
@@ -197,9 +208,11 @@ export function Workouts() {
             onMouseDown={handleDragStart}
             onMouseUp={handleDragEnd}
             onMouseLeave={() => { isDragging.current = false; }}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
           >
             <div
-              className="flex transition-transform duration-300 ease-out gap-4"
+              className="flex transition-transform duration-500 ease-out gap-4"
               style={{
                 transform: `translateX(-${currentIndex * (100 / itemsToShow)}%)`,
               }}
@@ -211,7 +224,7 @@ export function Workouts() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  transition={{ duration: 0.35, delay: Math.min(index * 0.03, 0.18) }}
                   className="shrink-0"
                   style={{ width: `calc(${100 / itemsToShow}% - ${(itemsToShow - 1) * 16 / itemsToShow}px)` }}
                 >

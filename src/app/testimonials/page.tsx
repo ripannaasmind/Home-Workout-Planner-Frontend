@@ -41,6 +41,7 @@ function StarRating({ rating }: { rating: number }) {
 export default function TestimonialsPage() {
   const [testimonialList, setTestimonialList] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mobileIndex, setMobileIndex] = useState(0);
 
   useEffect(() => {
     const fetchTestimonials = async () => {
@@ -57,6 +58,12 @@ export default function TestimonialsPage() {
     };
     fetchTestimonials();
   }, []);
+
+  useEffect(() => {
+    if (mobileIndex >= testimonialList.length) {
+      setMobileIndex(0);
+    }
+  }, [mobileIndex, testimonialList.length]);
 
   
   const leftColumn = testimonialList.filter((_, i) => i % 2 === 0);
@@ -161,28 +168,28 @@ export default function TestimonialsPage() {
 
                 {}
                 <div className="sm:hidden space-y-4">
-                  {testimonialList.map((testimonial, index) => (
+                  {testimonialList.length > 0 && (
                     <motion.div
-                      key={testimonial._id || String(testimonial.id) || String(index)}
+                      key={testimonialList[mobileIndex]?._id || String(testimonialList[mobileIndex]?.id) || String(mobileIndex)}
                       initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.4, delay: index * 0.05 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      <TestimonialCard testimonial={testimonial} />
+                      <TestimonialCard testimonial={testimonialList[mobileIndex]} />
                     </motion.div>
-                  ))}
+                  )}
                 </div>
               </>
             )}
 
             {}
             <div className="flex justify-center gap-2 mt-8">
-              {[...Array(5)].map((_, i) => (
+              {(testimonialList.length ? testimonialList : [null]).map((_, i) => (
                 <button
                   key={i}
+                  onClick={() => setMobileIndex(i)}
                   className={`w-2 h-2 rounded-full transition-all ${
-                    i === 0 ? "bg-primary w-4" : "bg-gray-300"
+                    i === mobileIndex ? "bg-primary w-4" : "bg-gray-300"
                   }`}
                 />
               ))}

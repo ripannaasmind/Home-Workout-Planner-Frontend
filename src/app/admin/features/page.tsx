@@ -8,7 +8,6 @@ import {
   Loader2,
   Upload,
   Image as ImageIcon,
-  GripVertical,
   Eye,
   EyeOff,
   ArrowUp,
@@ -167,12 +166,14 @@ export default function AdminFeaturesPage() {
 
   const handleToggleActive = async (f: Feature) => {
     if (!token) return;
+    const nextValue = !f.isActive;
+    setFeatures((prev) => prev.map((item) => (item._id === f._id ? { ...item, isActive: nextValue } : item)));
     try {
       const fd = new FormData();
-      fd.append("isActive", String(!f.isActive));
+      fd.append("isActive", String(nextValue));
       await featuresApi.update(f._id, fd, token);
-      fetchFeatures();
     } catch {
+      setFeatures((prev) => prev.map((item) => (item._id === f._id ? { ...item, isActive: f.isActive } : item)));
       toast.error("Failed to update");
     }
   };
@@ -193,14 +194,14 @@ export default function AdminFeaturesPage() {
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Features Page</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">Features Page</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
             Manage feature cards shown on the public features page
           </p>
         </div>
-        <Button onClick={openCreate} className="bg-primary hover:bg-primary/90 text-white gap-2">
+        <Button onClick={openCreate} className="bg-primary hover:bg-primary/90 text-white gap-2 w-full sm:w-auto">
           <Plus className="h-4 w-4" />
           Add Feature
         </Button>

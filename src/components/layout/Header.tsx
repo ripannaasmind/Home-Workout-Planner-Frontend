@@ -96,13 +96,12 @@ export function Header() {
   const isAdminPage = pathname.startsWith("/admin");
 
   useEffect(() => {
-    if (!isOpen) return;
     const id = requestAnimationFrame(() => setIsOpen(false));
     return () => cancelAnimationFrame(id);
-  }, [pathname, isOpen]);
+  }, [pathname]);
 
   useEffect(() => {
-    const media = window.matchMedia("(min-width: 768px)");
+    const media = window.matchMedia("(min-width: 1024px)");
     const onDesktop = (event: MediaQueryListEvent) => {
       if (event.matches) setIsOpen(false);
     };
@@ -139,7 +138,7 @@ export function Header() {
         </Link>
 
         {/* Desktop nav links — hidden on admin pages */}
-        <nav className="hidden md:flex items-center gap-6 lg:gap-8">
+        <nav className="hidden lg:flex items-center gap-6 lg:gap-8">
           {!isAdminPage && navLinks.map((link) => (
             <Link
               key={link.href}
@@ -156,7 +155,7 @@ export function Header() {
         </nav>
 
         {/* Desktop right actions */}
-        <div className="hidden md:flex items-center gap-2 lg:gap-3">
+        <div className="hidden lg:flex items-center gap-2 lg:gap-3">
           {/* Search — hidden on admin pages */}
           {!isAdminPage && (isSearchOpen ? (
             <form onSubmit={handleSearch} className="flex items-center gap-2" ref={searchContainerRef}>
@@ -271,7 +270,7 @@ export function Header() {
         </div>
 
         {}
-        <div className="flex md:hidden items-center gap-1 sm:gap-2">
+        <div className="flex lg:hidden items-center gap-1 sm:gap-2">
           {/* Mobile: search — hidden on admin */}
           {!isAdminPage && (
           <Button
@@ -306,7 +305,7 @@ export function Header() {
             <Button variant="ghost" size="icon" className="h-9 w-9 relative">
               <ShoppingCart className="h-4 w-4" />
               {totalItems > 0 && (
-                <Badge className="absolute -top-1 -right-1 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-[9px] sm:text-[10px] bg-primary text-white">
+                <Badge className="absolute -top-1.5 -right-1.5 h-4.5 w-4.5 min-h-4.5 min-w-4.5 flex items-center justify-center p-0 text-[9px] bg-primary text-white">
                   {totalItems > 99 ? "99+" : totalItems}
                 </Badge>
               )}
@@ -322,7 +321,7 @@ export function Header() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-70 sm:w-[320px]">
+            <SheetContent side="right" className="w-[min(320px,calc(100vw-1rem))]">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <div className="flex flex-col gap-6 mt-6">
                 {}
@@ -410,7 +409,7 @@ export function Header() {
 
       {}
       {isSearchOpen && (
-        <div className="md:hidden border-t border-border bg-background px-4 py-3">
+        <div className="lg:hidden border-t border-border bg-background px-4 py-3">
           <form onSubmit={handleSearch} className="flex gap-2">
             <Input
               ref={searchInputRef}

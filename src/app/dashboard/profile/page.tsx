@@ -89,7 +89,7 @@ export default function ProfilePage() {
   const isDirty = name.trim() !== (user?.name ?? "") || avatarPreview !== user?.avatar;
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-5 w-full max-w-3xl">
       <div>
         <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">My Profile</h1>
         <p className="text-gray-400 text-sm mt-0.5">Manage your personal information</p>
@@ -99,7 +99,7 @@ export default function ProfilePage() {
       <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6">
         <h3 className="text-gray-800 dark:text-gray-100 font-semibold mb-4">Profile Photo</h3>
         <Separator className="bg-gray-100 dark:bg-gray-800 mb-4" />
-        <div className="flex items-center gap-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
           <div className="relative shrink-0">
             <Avatar className="h-24 w-24 ring-4 ring-primary/20">
               <AvatarImage src={avatarPreview} />

@@ -105,12 +105,12 @@ export default function AdminTestimonialsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Testimonials</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">Testimonials</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage user testimonials</p>
         </div>
-        <Button onClick={openCreate} className="bg-primary text-white gap-2">
+        <Button onClick={openCreate} className="bg-primary text-white gap-2 w-full sm:w-auto">
           <Plus className="h-4 w-4" /> Add Testimonial
         </Button>
       </div>
@@ -167,7 +167,7 @@ export default function AdminTestimonialsPage() {
                         <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:bg-primary hover:text-white hover:border-primary transition-colors" onClick={() => openEdit(t)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-50 dark:hover:bg-red-500/100/100 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(t)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(t)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>

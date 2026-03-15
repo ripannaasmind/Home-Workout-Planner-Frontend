@@ -22,6 +22,7 @@ export function UpcomingWorkout() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [touchStartX, setTouchStartX] = useState(0);
 
   useEffect(() => {
     workoutsApi.getLibrary()
@@ -31,6 +32,14 @@ export function UpcomingWorkout() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (workouts.length <= 1) return;
+    const interval = setInterval(() => {
+      setActive((prev) => (prev + 1) % workouts.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [workouts.length]);
 
   if (loading) {
     return (
@@ -52,7 +61,15 @@ export function UpcomingWorkout() {
     <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
       <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100 px-5 pt-5 pb-3">Upcoming Workouts</h3>
 
-      <div className="mx-5 rounded-xl overflow-hidden relative">
+      <div
+        className="mx-5 rounded-xl overflow-hidden relative"
+        onTouchStart={(e) => setTouchStartX(e.touches[0].clientX)}
+        onTouchEnd={(e) => {
+          const delta = e.changedTouches[0].clientX - touchStartX;
+          if (delta > 40) setActive((prev) => (prev - 1 + workouts.length) % workouts.length);
+          if (delta < -40) setActive((prev) => (prev + 1) % workouts.length);
+        }}
+      >
         <div
           className={`h-52 w-full bg-linear-to-br ${gradient} flex items-end`}
         >

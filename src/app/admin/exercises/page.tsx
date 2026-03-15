@@ -24,11 +24,24 @@ const difficultyColor: Record<string, string> = {
 const emptyForm = {
   name: "",
   description: "",
+  category: "full_body",
   muscleGroup: "",
   equipment: "no equipment",
   difficulty: "beginner" as "beginner" | "intermediate" | "advanced",
   image: "",
 };
+
+const categoryOptions = [
+  "chest",
+  "back",
+  "shoulders",
+  "arms",
+  "legs",
+  "core",
+  "full_body",
+  "cardio",
+  "stretching",
+];
 
 
 // ------- Admin Exercises Page Component -------
@@ -61,7 +74,9 @@ export default function AdminExercisesPage() {
   const filtered = exercises.filter(
     (e) =>
       e.name.toLowerCase().includes(search.toLowerCase()) ||
-      e.muscleGroup.toLowerCase().includes(search.toLowerCase())
+      (Array.isArray(e.muscleGroup) ? e.muscleGroup.join(", ") : e.muscleGroup || "")
+        .toLowerCase()
+        .includes(search.toLowerCase())
   );
 
   const openCreate = () => {
@@ -75,7 +90,8 @@ export default function AdminExercisesPage() {
     setForm({
       name: e.name,
       description: e.description,
-      muscleGroup: e.muscleGroup,
+      category: (e as Exercise & { category?: string }).category ?? "full_body",
+      muscleGroup: Array.isArray(e.muscleGroup) ? e.muscleGroup.join(", ") : e.muscleGroup,
       equipment: e.equipment,
       difficulty: e.difficulty,
       image: (e as Exercise & { image?: string }).image ?? "",
@@ -117,12 +133,12 @@ export default function AdminExercisesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Exercise Management</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-gray-100">Exercise Management</h1>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Manage the exercise library</p>
         </div>
-        <Button onClick={openCreate} className="bg-primary text-white gap-2">
+        <Button onClick={openCreate} className="bg-primary text-white gap-2 w-full sm:w-auto">
           <Plus className="h-4 w-4" /> New Exercise
         </Button>
       </div>
@@ -172,7 +188,7 @@ export default function AdminExercisesPage() {
                       )}
                     </td>
                     <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100">{e.name}</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{e.muscleGroup}</td>
+                    <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{Array.isArray(e.muscleGroup) ? e.muscleGroup.join(", ") : e.muscleGroup}</td>
                     <td className="px-4 py-3 text-gray-600 dark:text-gray-300">{e.equipment}</td>
                     <td className="px-4 py-3">
                       <Badge className={`border-0 ${difficultyColor[e.difficulty] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200"}`}>
@@ -184,7 +200,7 @@ export default function AdminExercisesPage() {
                         <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-gray-500 dark:text-gray-400 hover:bg-primary hover:text-white hover:border-primary transition-colors" onClick={() => openEdit(e)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-red-500 hover:bg-red-50 dark:hover:bg-red-50 dark:hover:bg-red-500/100/100 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(e)}>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-lg border border-gray-200 dark:border-gray-800 text-red-500 hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors" onClick={() => setDeleteTarget(e)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
@@ -214,13 +230,26 @@ export default function AdminExercisesPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
+                <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Category *</Label>
+                <Select value={form.category} onValueChange={(v) => setForm({ ...form, category: v })}>
+                  <SelectTrigger className="border-gray-200 dark:border-gray-800">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categoryOptions.map((cat) => (
+                      <SelectItem key={cat} value={cat}>{cat.replace("_", " ")}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Muscle Group *</Label>
                 <Input value={form.muscleGroup} onChange={(e) => setForm({ ...form, muscleGroup: e.target.value })} placeholder="e.g. Chest, Back" className="border-gray-200 dark:border-gray-800" />
               </div>
-              <div>
+            </div>
+            <div>
                 <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Equipment</Label>
                 <Input value={form.equipment} onChange={(e) => setForm({ ...form, equipment: e.target.value })} placeholder="e.g. dumbbells" className="border-gray-200 dark:border-gray-800" />
-              </div>
             </div>
             <div>
               <Label className="text-sm text-gray-700 dark:text-gray-200 mb-1.5 block">Difficulty</Label>
