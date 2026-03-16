@@ -1,5 +1,15 @@
 const DEFAULT_API_URL = "https://fit-home-workout-planner-backend.onrender.com/api";
-const API_URL = (process.env.NEXT_PUBLIC_API_URL?.trim() || DEFAULT_API_URL).replace(/\/+$/, "");
+const LOCAL_API_URL = "http://localhost:5000/api";
+const normalizeApiUrl = (url: string) => url.trim().replace(/\/+$/, "");
+const API_BASES = Array.from(
+  new Set(
+    [process.env.NEXT_PUBLIC_API_URL, DEFAULT_API_URL, LOCAL_API_URL]
+      .filter((url): url is string => Boolean(url && url.trim()))
+      .map(normalizeApiUrl)
+  )
+);
+let activeApiBase = API_BASES[0];
+const getApiBase = () => activeApiBase || API_BASES[0] || DEFAULT_API_URL;
 const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 12000);
 
 interface ApiOptions {
@@ -58,12 +68,41 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
 
   let response: Response;
   try {
-    response = await fetch(`${API_URL}${endpoint}`, config);
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("Request timed out. Please try again.");
+    const orderedBases = [
+      activeApiBase,
+      ...API_BASES.filter((base) => base !== activeApiBase),
+    ];
+
+    let networkError: unknown;
+    let resolved: Response | null = null;
+
+    for (const base of orderedBases) {
+      try {
+        const res = await fetch(`${base}${endpoint}`, config);
+        activeApiBase = base;
+        resolved = res;
+        break;
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          throw new Error("Request timed out. Please try again.");
+        }
+        networkError = error;
+      }
     }
-    throw error;
+
+    if (!resolved) {
+      if (networkError instanceof Error && networkError.message) {
+        throw new Error(`Cannot reach API server. Tried: ${orderedBases.join(", ")}`);
+      }
+      throw new Error("Cannot reach API server.");
+    }
+
+    response = resolved;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error("Request failed.");
   } finally {
     clearTimeout(timeoutId);
   }
@@ -551,7 +590,7 @@ export const adminApi = {
   uploadSiteImage: async (file: File, token: string) => {
     const formData = new FormData();
     formData.append("image", file);
-    const response = await fetch(`${API_URL}/admin/site-config/upload`, {
+    const response = await fetch(`${getApiBase()}/admin/site-config/upload`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
@@ -880,7 +919,7 @@ export const featuresApi = {
     apiRequest<{ success: boolean; data: Feature[] }>("/admin/features", { token }),
 
   create: (formData: FormData, token: string) =>
-    fetch(`${API_URL}/admin/features`, {
+    fetch(`${getApiBase()}/admin/features`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
@@ -891,7 +930,7 @@ export const featuresApi = {
     }),
 
   update: (id: string, formData: FormData, token: string) =>
-    fetch(`${API_URL}/admin/features/${id}`, {
+    fetch(`${getApiBase()}/admin/features/${id}`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,

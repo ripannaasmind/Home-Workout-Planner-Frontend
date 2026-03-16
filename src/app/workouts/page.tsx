@@ -275,8 +275,8 @@ export default function WorkoutsPage() {
         setElapsed(getElapsedFromSession(pausedRes.data));
         toast.success("Session paused");
       }
-    } catch {
-      toast.error("Failed to update session");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to update session");
     }
   };
 
@@ -289,8 +289,8 @@ export default function WorkoutsPage() {
       setActiveSession(null);
       setActiveWorkout(null);
       setElapsed(0);
-    } catch {
-      toast.error("Failed to complete session");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to complete session");
     }
   };
 
@@ -303,8 +303,8 @@ export default function WorkoutsPage() {
       setActiveSession(null);
       setActiveWorkout(null);
       setElapsed(0);
-    } catch {
-      toast.error("Failed to cancel session");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "Failed to cancel session");
     }
   };
 
