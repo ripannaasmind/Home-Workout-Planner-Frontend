@@ -133,6 +133,7 @@ export default function WorkoutDetailsPage() {
   const [elapsed, setElapsed] = useState(0);
   const [paused, setPaused] = useState(false);
   const [starting, setStarting] = useState(false);
+  const [sessionAction, setSessionAction] = useState<"pause" | "complete" | "cancel" | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Timer interval
@@ -148,24 +149,30 @@ export default function WorkoutDetailsPage() {
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [timerOpen, paused, activeSession]);
 
-  useEffect(() => {
-    const restoreActiveSession = async () => {
-      if (!token) return;
-      try {
-        const r = await sessionsApi.getActive(token);
-        if (r.data) {
-          setActiveSession(r.data);
-          setPaused(r.data.status === "paused");
-          setElapsed(getElapsedFromSession(r.data));
-          setTimerOpen(true);
-        }
-      } catch {
-        // Ignore active-session restore failures.
+  const syncActiveSession = useCallback(async () => {
+    if (!token) return null;
+    try {
+      const r = await sessionsApi.getActive(token);
+      if (r.data) {
+        setActiveSession(r.data);
+        setPaused(r.data.status === "paused");
+        setElapsed(getElapsedFromSession(r.data));
+        setTimerOpen(true);
+        return r.data;
       }
-    };
-
-    restoreActiveSession();
+      setActiveSession(null);
+      setPaused(false);
+      setTimerOpen(false);
+      setElapsed(0);
+      return null;
+    } catch {
+      return null;
+    }
   }, [token]);
+
+  useEffect(() => {
+    syncActiveSession();
+  }, [syncActiveSession]);
 
   const handleStart = useCallback(async () => {
     if (!workout) return;
@@ -184,28 +191,20 @@ export default function WorkoutDetailsPage() {
       toast.success(`Started: ${workout.name}`);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed to start session";
-      if (msg.includes("already have a session")) {
+      if (msg.includes("already have an active session") || msg.includes("already have a session")) {
         toast.error("You already have an active session. Finish it first.");
-        if (token) {
-          sessionsApi.getActive(token).then((r) => {
-            if (r.data) {
-              setActiveSession(r.data);
-              setPaused(r.data.status === "paused");
-              setElapsed(getElapsedFromSession(r.data));
-              setTimerOpen(true);
-            }
-          }).catch(() => {});
-        }
+        await syncActiveSession();
       } else {
         toast.error(msg);
       }
     } finally {
       setStarting(false);
     }
-  }, [workout, token, router]);
+  }, [workout, token, router, syncActiveSession]);
 
   const handlePause = async () => {
-    if (!activeSession || !token) return;
+    if (!activeSession || !token || sessionAction) return;
+    setSessionAction("pause");
     try {
       if (paused) {
         const resumed = await sessionsApi.resume(activeSession._id, token);
@@ -221,12 +220,16 @@ export default function WorkoutDetailsPage() {
         toast.success("Session paused");
       }
     } catch (e: unknown) {
+      await syncActiveSession();
       toast.error(e instanceof Error ? e.message : "Failed to update session");
+    } finally {
+      setSessionAction(null);
     }
   };
 
   const handleComplete = async () => {
-    if (!activeSession || !token) return;
+    if (!activeSession || !token || sessionAction) return;
+    setSessionAction("complete");
     try {
       const calories = workout?.estimatedCalories
         ? Math.round((workout.estimatedCalories / 60) * (elapsed / 60))
@@ -236,21 +239,30 @@ export default function WorkoutDetailsPage() {
       setTimerOpen(false);
       setActiveSession(null);
       setElapsed(0);
+      setPaused(false);
     } catch (e: unknown) {
+      await syncActiveSession();
       toast.error(e instanceof Error ? e.message : "Failed to complete session");
+    } finally {
+      setSessionAction(null);
     }
   };
 
   const handleCancel = async () => {
-    if (!activeSession || !token) return;
+    if (!activeSession || !token || sessionAction) return;
+    setSessionAction("cancel");
     try {
       await sessionsApi.cancel(activeSession._id, token);
       toast.info("Session cancelled");
       setTimerOpen(false);
       setActiveSession(null);
       setElapsed(0);
+      setPaused(false);
     } catch (e: unknown) {
+      await syncActiveSession();
       toast.error(e instanceof Error ? e.message : "Failed to cancel session");
+    } finally {
+      setSessionAction(null);
     }
   };
 
@@ -717,7 +729,7 @@ export default function WorkoutDetailsPage() {
               </div>
               <div className="flex items-center gap-1.5">
                 <Flame className="h-4 w-4 text-orange-500" />
-                <span>~{workout?.estimatedCalories ?? 0} kcal</span>
+                <span>{paused ? "Paused" : `~${workout?.estimatedCalories ?? 0} kcal`}</span>
               </div>
             </div>
             {paused && (
@@ -728,16 +740,24 @@ export default function WorkoutDetailsPage() {
                 variant="outline"
                 className="flex-1 gap-2 border-gray-200 dark:border-gray-800"
                 onClick={handlePause}
+                disabled={sessionAction !== null}
               >
-                {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                {paused ? "Resume" : "Pause"}
+                {sessionAction === "pause"
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : paused
+                    ? <Play className="h-4 w-4" />
+                    : <Pause className="h-4 w-4" />}
+                {sessionAction === "pause" ? "Updating..." : paused ? "Resume" : "Pause"}
               </Button>
               <Button
                 className="flex-1 gap-2 bg-green-600 hover:bg-green-700 text-white"
                 onClick={handleComplete}
+                disabled={sessionAction !== null}
               >
-                <Square className="h-4 w-4 fill-white" />
-                Complete
+                {sessionAction === "complete"
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : <Square className="h-4 w-4 fill-white" />}
+                {sessionAction === "complete" ? "Completing..." : "Complete"}
               </Button>
             </div>
             <Button
@@ -745,8 +765,9 @@ export default function WorkoutDetailsPage() {
               size="sm"
               className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 w-full"
               onClick={handleCancel}
+              disabled={sessionAction !== null}
             >
-              Cancel Session
+              {sessionAction === "cancel" ? "Cancelling..." : "Cancel Session"}
             </Button>
           </div>
         </DialogContent>

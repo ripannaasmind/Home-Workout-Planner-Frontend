@@ -5,7 +5,10 @@ export const dynamic = "force-dynamic";
 const DEFAULT_BACKEND_URL = "https://fit-home-workout-planner-backend.onrender.com/api";
 const LOCAL_BACKEND_URL = "http://localhost:5000/api";
 
-const normalize = (url: string) => url.trim().replace(/\/+$/, "");
+const normalize = (url: string) => {
+  const trimmed = url.trim().replace(/\/+$/, "");
+  return /\/api$/i.test(trimmed) ? trimmed : `${trimmed}/api`;
+};
 
 const backendBases = Array.from(
   new Set(
