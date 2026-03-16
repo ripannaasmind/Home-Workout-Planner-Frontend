@@ -164,7 +164,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && (!user || user.role !== "admin")) {
+    if (isLoading) return;
+    if (!user) {
+      router.replace("/login");
+      return;
+    }
+    if (user.role !== "admin") {
       router.replace("/dashboard");
     }
   }, [user, isLoading, router]);
