@@ -35,17 +35,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const DEFAULT_API_URL = "https://fit-home-workout-planner-backend.onrender.com/api";
-const LOCAL_API_URL = "http://localhost:5000/api";
-const normalizeApiUrl = (url: string) => url.trim().replace(/\/+$/, "");
-const API_BASES = Array.from(
-  new Set(
-    [process.env.NEXT_PUBLIC_API_URL, DEFAULT_API_URL, LOCAL_API_URL]
-      .filter((url): url is string => Boolean(url && url.trim()))
-      .map(normalizeApiUrl)
-  )
-);
-let activeApiBase = API_BASES[0];
+const API_PROXY_BASE = "/api/proxy";
 
 async function parseResponse(res: Response) {
   const raw = await res.text();
@@ -66,28 +56,8 @@ function toNetworkMessage(error: unknown) {
   return error instanceof Error ? error.message : "Request failed";
 }
 
-async function fetchWithFallback(path: string, init: RequestInit) {
-  const orderedBases = [
-    activeApiBase,
-    ...API_BASES.filter((base) => base !== activeApiBase),
-  ];
-
-  let networkError: unknown;
-  for (const base of orderedBases) {
-    try {
-      const response = await fetch(`${base}${path}`, init);
-      activeApiBase = base;
-      return response;
-    } catch (error) {
-      networkError = error;
-    }
-  }
-
-  throw new Error(
-    networkError instanceof Error && networkError.message
-      ? `Cannot reach server. Tried: ${orderedBases.join(", ")}`
-      : "Cannot reach server."
-  );
+async function fetchFromProxy(path: string, init: RequestInit) {
+  return fetch(`${API_PROXY_BASE}${path}`, init);
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -137,7 +107,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let res: Response;
     let data: Record<string, unknown>;
     try {
-      res = await fetchWithFallback("/auth/login", {
+      res = await fetchFromProxy("/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -151,7 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!res.ok && fbSuccess) {
       // Tell backend to update MongoDB password directly to solve sync mismatch 
       try {
-        res = await fetchWithFallback("/auth/firebase-sync", {
+        res = await fetchFromProxy("/auth/firebase-sync", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -194,7 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let res: Response;
     let data: Record<string, unknown>;
     try {
-      res = await fetchWithFallback("/auth/register", {
+      res = await fetchFromProxy("/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
@@ -224,7 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let res: Response;
     let data: Record<string, unknown>;
     try {
-      res = await fetchWithFallback("/auth/google", {
+      res = await fetchFromProxy("/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

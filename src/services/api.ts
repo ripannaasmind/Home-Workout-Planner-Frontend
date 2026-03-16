@@ -1,15 +1,4 @@
-const DEFAULT_API_URL = "https://fit-home-workout-planner-backend.onrender.com/api";
-const LOCAL_API_URL = "http://localhost:5000/api";
-const normalizeApiUrl = (url: string) => url.trim().replace(/\/+$/, "");
-const API_BASES = Array.from(
-  new Set(
-    [process.env.NEXT_PUBLIC_API_URL, DEFAULT_API_URL, LOCAL_API_URL]
-      .filter((url): url is string => Boolean(url && url.trim()))
-      .map(normalizeApiUrl)
-  )
-);
-let activeApiBase = API_BASES[0];
-const getApiBase = () => activeApiBase || API_BASES[0] || DEFAULT_API_URL;
+const API_PROXY_BASE = "/api/proxy";
 const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 12000);
 
 interface ApiOptions {
@@ -68,39 +57,16 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
 
   let response: Response;
   try {
-    const orderedBases = [
-      activeApiBase,
-      ...API_BASES.filter((base) => base !== activeApiBase),
-    ];
-
-    let networkError: unknown;
-    let resolved: Response | null = null;
-
-    for (const base of orderedBases) {
-      try {
-        const res = await fetch(`${base}${endpoint}`, config);
-        activeApiBase = base;
-        resolved = res;
-        break;
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          throw new Error("Request timed out. Please try again.");
-        }
-        networkError = error;
-      }
-    }
-
-    if (!resolved) {
-      if (networkError instanceof Error && networkError.message) {
-        throw new Error(`Cannot reach API server. Tried: ${orderedBases.join(", ")}`);
-      }
-      throw new Error("Cannot reach API server.");
-    }
-
-    response = resolved;
+    response = await fetch(`${API_PROXY_BASE}${endpoint}`, config);
   } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new Error("Request timed out. Please try again.");
+    }
+    if (error instanceof TypeError) {
+      throw new Error("Cannot reach app server. Please refresh and try again.");
+    }
     if (error instanceof Error) {
-      throw error;
+      throw new Error(error.message || "Request failed.");
     }
     throw new Error("Request failed.");
   } finally {
@@ -590,7 +556,7 @@ export const adminApi = {
   uploadSiteImage: async (file: File, token: string) => {
     const formData = new FormData();
     formData.append("image", file);
-    const response = await fetch(`${getApiBase()}/admin/site-config/upload`, {
+    const response = await fetch(`${API_PROXY_BASE}/admin/site-config/upload`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
@@ -919,7 +885,7 @@ export const featuresApi = {
     apiRequest<{ success: boolean; data: Feature[] }>("/admin/features", { token }),
 
   create: (formData: FormData, token: string) =>
-    fetch(`${getApiBase()}/admin/features`, {
+    fetch(`${API_PROXY_BASE}/admin/features`, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
@@ -930,7 +896,7 @@ export const featuresApi = {
     }),
 
   update: (id: string, formData: FormData, token: string) =>
-    fetch(`${getApiBase()}/admin/features/${id}`, {
+    fetch(`${API_PROXY_BASE}/admin/features/${id}`, {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
       body: formData,
