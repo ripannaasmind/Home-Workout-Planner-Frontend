@@ -44,10 +44,6 @@ function AdminSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
-  useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
     const onDesktop = (event: MediaQueryListEvent) => {
       if (event.matches) setMobileOpen(false);

@@ -35,7 +35,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const DEFAULT_API_URL = "https://fit-home-workout-planner-backend.onrender.com/api";
+const API_URL = (process.env.NEXT_PUBLIC_API_URL?.trim() || DEFAULT_API_URL).replace(/\/+$/, "");
+
+async function parseResponse(res: Response) {
+  const raw = await res.text();
+  try {
+    return (raw ? JSON.parse(raw) : {}) as Record<string, unknown>;
+  } catch {
+    return { message: raw } as Record<string, unknown>;
+  }
+}
+
+function toNetworkMessage(error: unknown) {
+  if (error instanceof DOMException && error.name === "AbortError") {
+    return "Request timed out. Please try again.";
+  }
+  if (error instanceof TypeError) {
+    return "Cannot reach server. Please check internet/API URL and try again.";
+  }
+  return error instanceof Error ? error.message : "Request failed";
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -76,93 +96,133 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await signInWithEmailAndPassword(auth, email, password);
       fbSuccess = true;
-    } catch (error: any) {
+    } catch {
       // Ignore this error because they might be an old user who is only registered in MongoDB.
     }
 
     // 2. Try standard Backend Login
-    let res = await fetch(`${API_URL}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    let data = await res.json();
-
-    // 3. Fallback: If Firebase succeeded but Backend failed (User reset their password in Firebase!)
-    if (!res.ok && fbSuccess) {
-      // Tell backend to update MongoDB password directly to solve sync mismatch 
-      res = await fetch(`${API_URL}/auth/firebase-sync`, {
+    let res: Response;
+    let data: Record<string, unknown>;
+    try {
+      res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      data = await res.json();
+      data = await parseResponse(res);
+    } catch (error) {
+      throw new Error(toNetworkMessage(error));
+    }
+
+    // 3. Fallback: If Firebase succeeded but Backend failed (User reset their password in Firebase!)
+    if (!res.ok && fbSuccess) {
+      // Tell backend to update MongoDB password directly to solve sync mismatch 
+      try {
+        res = await fetch(`${API_URL}/auth/firebase-sync`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        });
+        data = await parseResponse(res);
+      } catch (error) {
+        throw new Error(toNetworkMessage(error));
+      }
     }
 
     if (!res.ok) {
-      throw new Error(data.message || "Login failed");
+      const message = typeof data.message === "string" ? data.message : "Login failed";
+      throw new Error(message);
     }
 
-    setToken(data.data.token);
-    setUser(data.data.user);
-    localStorage.setItem("fithome-refresh-token", data.data.refreshToken);
-    return data.data.user;
+    const authData = data.data as { user: User; token: string; refreshToken: string } | undefined;
+    if (!authData?.token || !authData?.user) {
+      throw new Error("Invalid login response from server");
+    }
+
+    setToken(authData.token);
+    setUser(authData.user);
+    localStorage.setItem("fithome-refresh-token", authData.refreshToken || "");
+    return authData.user;
   };
 
   const register = async (name: string, email: string, password: string): Promise<User> => {
     // 1. Save user in Firebase for future password resets
     try {
       await createUserWithEmailAndPassword(auth, email, password);
-    } catch (error: any) {
-      if (error.code !== "auth/email-already-in-use") {
-        throw new Error(error.message || "Firebase registration failed");
+    } catch (error: unknown) {
+      const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
+      const message = typeof error === "object" && error && "message" in error ? String(error.message) : "Firebase registration failed";
+      if (code !== "auth/email-already-in-use") {
+        throw new Error(message);
       }
     }
 
     // 2. Save user in our custom backend Database
-    const res = await fetch(`${API_URL}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Registration failed");
+    let res: Response;
+    let data: Record<string, unknown>;
+    try {
+      res = await fetch(`${API_URL}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      data = await parseResponse(res);
+    } catch (error) {
+      throw new Error(toNetworkMessage(error));
     }
 
-    setToken(data.data.token);
-    setUser(data.data.user);
-    localStorage.setItem("fithome-refresh-token", data.data.refreshToken);
-    return data.data.user;
+    if (!res.ok) {
+      const message = typeof data.message === "string" ? data.message : "Registration failed";
+      throw new Error(message);
+    }
+
+    const authData = data.data as { user: User; token: string; refreshToken: string } | undefined;
+    if (!authData?.token || !authData?.user) {
+      throw new Error("Invalid registration response from server");
+    }
+
+    setToken(authData.token);
+    setUser(authData.user);
+    localStorage.setItem("fithome-refresh-token", authData.refreshToken || "");
+    return authData.user;
   };
 
   const googleLogin = async (payload: GoogleAuthPayload): Promise<User> => {
-    const res = await fetch(`${API_URL}/auth/google`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.message || "Google login failed");
+    let res: Response;
+    let data: Record<string, unknown>;
+    try {
+      res = await fetch(`${API_URL}/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      data = await parseResponse(res);
+    } catch (error) {
+      throw new Error(toNetworkMessage(error));
     }
 
-    setToken(data.data.token);
-    setUser(data.data.user);
-    localStorage.setItem("fithome-refresh-token", data.data.refreshToken);
-    return data.data.user;
+    if (!res.ok) {
+      const message = typeof data.message === "string" ? data.message : "Google login failed";
+      throw new Error(message);
+    }
+
+    const authData = data.data as { user: User; token: string; refreshToken: string } | undefined;
+    if (!authData?.token || !authData?.user) {
+      throw new Error("Invalid Google login response from server");
+    }
+
+    setToken(authData.token);
+    setUser(authData.user);
+    localStorage.setItem("fithome-refresh-token", authData.refreshToken || "");
+    return authData.user;
   };
 
   const forgotPassword = async (email: string): Promise<void> => {
     try {
       await sendPasswordResetEmail(auth, email);
-    } catch (error: any) {
-      throw new Error(error.message || "Failed to send password reset email");
+    } catch (error: unknown) {
+      const message = typeof error === "object" && error && "message" in error ? String(error.message) : "Failed to send password reset email";
+      throw new Error(message);
     }
   };
 

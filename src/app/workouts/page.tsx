@@ -75,6 +75,15 @@ function formatTime(seconds: number) {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+function getElapsedFromSession(session: WorkoutSession, nowMs = Date.now()) {
+  const startMs = new Date(session.startTime).getTime();
+  const pausedBase = session.totalPausedMs ?? 0;
+  const pausedAtMs = session.pausedAt ? new Date(session.pausedAt).getTime() : nowMs;
+  const effectiveNow = session.status === "paused" ? pausedAtMs : nowMs;
+  const elapsedMs = Math.max(0, effectiveNow - startMs - pausedBase);
+  return Math.floor(elapsedMs / 1000);
+}
+
 
 // ------- Workouts Page Component -------
 export default function WorkoutsPage() {
@@ -178,13 +187,37 @@ export default function WorkoutsPage() {
 
   // Timer interval
   useEffect(() => {
-    if (timerOpen && !paused) {
-      intervalRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
+    if (timerOpen && activeSession && !paused) {
+      setElapsed(getElapsedFromSession(activeSession));
+      intervalRef.current = setInterval(() => {
+        setElapsed(getElapsedFromSession(activeSession));
+      }, 1000);
     } else {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [timerOpen, paused]);
+  }, [timerOpen, paused, activeSession]);
+
+  useEffect(() => {
+    const restoreActiveSession = async () => {
+      if (!token) return;
+      try {
+        const r = await sessionsApi.getActive(token);
+        if (r.data) {
+          setActiveSession(r.data);
+          const w = typeof r.data.workout === "object" ? r.data.workout as Workout : null;
+          setActiveWorkout(w ? { id: w._id, name: w.name, duration: w.duration } : null);
+          setPaused(r.data.status === "paused");
+          setElapsed(getElapsedFromSession(r.data));
+          setTimerOpen(true);
+        }
+      } catch {
+        // Ignore active-session restore failures.
+      }
+    };
+
+    restoreActiveSession();
+  }, [token]);
 
   const handleStart = useCallback(async (workout: WorkoutData) => {
     if (!workout._id) return;
@@ -198,8 +231,8 @@ export default function WorkoutsPage() {
       const res = await sessionsApi.start(workout._id, token);
       setActiveSession(res.data);
       setActiveWorkout({ id: workout._id, name: workout.title || workout.name || "Workout", duration: workout.duration });
-      setElapsed(0);
-      setPaused(false);
+      setPaused(res.data.status === "paused");
+      setElapsed(getElapsedFromSession(res.data));
       setTimerOpen(true);
       toast.success(`Started: ${workout.title || workout.name}`);
     } catch (e: unknown) {
@@ -212,10 +245,8 @@ export default function WorkoutsPage() {
               setActiveSession(r.data);
               const w = typeof r.data.workout === "object" ? r.data.workout as Workout : null;
               setActiveWorkout(w ? { id: w._id, name: w.name, duration: w.duration } : null);
-              const start = new Date(r.data.startTime).getTime();
-              const totalPausedMs = r.data.totalPausedMs ?? 0;
-              setElapsed(Math.floor((Date.now() - start - totalPausedMs) / 1000));
               setPaused(r.data.status === "paused");
+              setElapsed(getElapsedFromSession(r.data));
               setTimerOpen(true);
             }
           }).catch(() => {});
@@ -232,12 +263,16 @@ export default function WorkoutsPage() {
     if (!activeSession || !token) return;
     try {
       if (paused) {
-        await sessionsApi.resume(activeSession._id, token);
+        const resumed = await sessionsApi.resume(activeSession._id, token);
+        setActiveSession(resumed.data);
         setPaused(false);
+        setElapsed(getElapsedFromSession(resumed.data));
         toast.success("Session resumed");
       } else {
-        await sessionsApi.pause(activeSession._id, token);
+        const pausedRes = await sessionsApi.pause(activeSession._id, token);
+        setActiveSession(pausedRes.data);
         setPaused(true);
+        setElapsed(getElapsedFromSession(pausedRes.data));
         toast.success("Session paused");
       }
     } catch {
