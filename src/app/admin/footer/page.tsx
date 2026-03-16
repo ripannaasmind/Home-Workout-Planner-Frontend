@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import { Save, Globe, Smartphone, Mail, MapPin, Phone, Link as LinkIcon, LayoutTemplate, Loader2, CheckCircle, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -256,7 +257,13 @@ export default function FooterSettingsPage() {
         <Field label="App Store Badge Logo" id="appStoreBadge">
           <div className="flex items-center gap-3">
             {config.appStoreBadge && (
-              <img src={config.appStoreBadge} alt="App Store badge" className="h-10 rounded border border-gray-200 dark:border-gray-700 object-contain bg-black px-2" />
+              <Image
+                src={config.appStoreBadge}
+                alt="App Store badge"
+                width={160}
+                height={40}
+                className="h-10 w-auto rounded border border-gray-200 dark:border-gray-700 object-contain bg-black px-2"
+              />
             )}
             <button
               type="button"
@@ -286,7 +293,13 @@ export default function FooterSettingsPage() {
         <Field label="Google Play Badge Logo" id="googlePlayBadge">
           <div className="flex items-center gap-3">
             {config.googlePlayBadge && (
-              <img src={config.googlePlayBadge} alt="Google Play badge" className="h-10 rounded border border-gray-200 dark:border-gray-700 object-contain bg-white px-2" />
+              <Image
+                src={config.googlePlayBadge}
+                alt="Google Play badge"
+                width={160}
+                height={40}
+                className="h-10 w-auto rounded border border-gray-200 dark:border-gray-700 object-contain bg-white px-2"
+              />
             )}
             <button
               type="button"

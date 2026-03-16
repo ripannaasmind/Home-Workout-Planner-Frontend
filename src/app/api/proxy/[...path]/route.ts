@@ -66,29 +66,30 @@ async function forward(req: NextRequest, method: string, path: string, query: st
   return NextResponse.json({ success: false, message }, { status: 502 });
 }
 
-async function handle(req: NextRequest, params: { path: string[] }) {
+async function handle(req: NextRequest, paramsPromise: Promise<{ path: string[] }>) {
+  const params = await paramsPromise;
   const method = req.method.toUpperCase();
   const path = (params.path || []).join("/");
   const query = req.nextUrl.search || "";
   return forward(req, method, path, query);
 }
 
-export async function GET(req: NextRequest, { params }: { params: { path: string[] } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   return handle(req, params);
 }
 
-export async function POST(req: NextRequest, { params }: { params: { path: string[] } }) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   return handle(req, params);
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { path: string[] } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   return handle(req, params);
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { path: string[] } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   return handle(req, params);
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { path: string[] } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
   return handle(req, params);
 }

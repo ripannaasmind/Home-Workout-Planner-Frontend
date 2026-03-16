@@ -6,3 +6,5 @@ function TranslateInit() {
     pageLanguage: window.__GOOGLE_TRANSLATION_CONFIG__.defaultLanguage,
   });
 }
+
+window.TranslateInit = TranslateInit;
