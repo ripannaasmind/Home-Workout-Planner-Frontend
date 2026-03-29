@@ -640,17 +640,32 @@ export const paymentApi = {
    * it is never present in frontend env vars.
    * Pass the user's auth token so the backend can verify the request.
    */
-  createPaymentIntent: (amount: number, token: string, currency = "usd", metadata: Record<string, string> = {}) =>
-    apiRequest<{ success: boolean; data: { clientSecret: string; paymentIntentId: string } }>("/orders/payment-intent", {
+  // Amount is computed server-side — never send a client-calculated total.
+  createPaymentIntent: (
+    items: Array<{ productId: string; quantity: number }>,
+    promoCode: string | null,
+    deliveryMethod: "standard" | "express",
+    token: string,
+    currency = "usd",
+    metadata: Record<string, string> = {}
+  ) =>
+    apiRequest<{ success: boolean; data: { clientSecret: string; paymentIntentId: string; calculatedTotal: number } }>("/orders/payment-intent", {
       method: "POST",
-      body: { amount, currency, metadata },
+      body: { items, promoCode, deliveryMethod, currency, metadata },
       token,
     }),
 
-  createPaypalOrder: (amount: number, token: string, currency = "USD") =>
-    apiRequest<{ success: boolean; data: { orderId: string; clientId: string } }>("/orders/paypal/create-order", {
+  // Amount is computed server-side — never send a client-calculated total.
+  createPaypalOrder: (
+    items: Array<{ productId: string; quantity: number }>,
+    promoCode: string | null,
+    deliveryMethod: "standard" | "express",
+    token: string,
+    currency = "USD"
+  ) =>
+    apiRequest<{ success: boolean; data: { orderId: string; clientId: string; calculatedTotal: number } }>("/orders/paypal/create-order", {
       method: "POST",
-      body: { amount, currency },
+      body: { items, promoCode, deliveryMethod, currency },
       token,
     }),
 
@@ -851,14 +866,12 @@ export interface Order {
   createdAt: string;
 }
 
+// Price fields (subtotal, discount, shipping, tax, total) are intentionally
+// omitted — all calculations happen server-side via orderPricingService.
 export interface CreateOrderPayload {
-  items: OrderItem[];
-  subtotal: number;
-  discount: number;
+  items: Array<{ productId: string; quantity: number; image?: string }>;
   promoCode: string | null;
-  shipping: number;
-  tax: number;
-  total: number;
+  deliveryMethod: "standard" | "express";
   paymentMethod: string;
   billingDetails: { firstName: string; lastName: string; email: string; phone: string };
   shippingAddress: { firstName: string; lastName: string; address: string; city: string; state: string; zip: string };

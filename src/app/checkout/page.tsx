@@ -146,17 +146,11 @@ function CheckoutContent() {
       await ordersApi.create({
         items: cart.map((item) => ({
           productId: item.id,
-          name: item.name,
-          price: item.price,
           quantity: item.quantity,
           image: item.image || "",
         })),
-        subtotal: totalPrice,
-        discount,
         promoCode: promoCodeParam || null,
-        shipping: shippingCost,
-        tax,
-        total,
+        deliveryMethod: deliveryMethod as "standard" | "express",
         paymentMethod: paymentMethod as "stripe" | "paypal" | "cod",
         billingDetails: {
           firstName: sanitize(firstName),
@@ -188,17 +182,11 @@ function CheckoutContent() {
       await ordersApi.create({
         items: cart.map((item) => ({
           productId: item.id,
-          name: item.name,
-          price: item.price,
           quantity: item.quantity,
           image: item.image || "",
         })),
-        subtotal: totalPrice,
-        discount,
         promoCode: promoCodeParam || null,
-        shipping: shippingCost,
-        tax,
-        total,
+        deliveryMethod: deliveryMethod as "standard" | "express",
         paymentMethod: "paypal" as const,
         billingDetails: {
           firstName: sanitize(firstName),
@@ -526,7 +514,13 @@ function CheckoutContent() {
                           style={{ layout: "vertical", shape: "rect", label: "pay" }}
                           createOrder={async () => {
                             if (!token) throw new Error("Not authenticated");
-                            const res = await paymentApi.createPaypalOrder(total, token, "USD");
+                            const res = await paymentApi.createPaypalOrder(
+                              cart.map((i) => ({ productId: i.id, quantity: i.quantity })),
+                              promoCodeParam || null,
+                              deliveryMethod as "standard" | "express",
+                              token,
+                              "USD"
+                            );
                             return res.data.orderId;
                           }}
                           onApprove={async (data) => {
