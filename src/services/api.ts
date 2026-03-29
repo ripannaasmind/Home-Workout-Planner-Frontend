@@ -564,6 +564,23 @@ export const adminApi = {
     return response.json() as Promise<{ success: boolean; data: { url: string } }>;
   },
 
+  getEmailSettings: (token: string) =>
+    apiRequest<{ success: boolean; data: EmailSettings }>("/admin/email-settings", { token }),
+
+  updateEmailSettings: (data: Partial<EmailSettings>, token: string) =>
+    apiRequest<{ success: boolean; data: EmailSettings; message: string }>("/admin/email-settings", {
+      method: "PUT",
+      body: data,
+      token,
+    }),
+
+  testEmailSettings: (to: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>("/admin/email-settings/test", {
+      method: "POST",
+      body: { to },
+      token,
+    }),
+
   deleteCart: (userId: string, token: string) =>
     apiRequest<{ success: boolean; message: string }>(`/admin/cart/${userId}`, {
       method: "DELETE",
@@ -821,6 +838,15 @@ export interface SiteConfig {
   newsletter: { enabled: boolean; title: string; description: string };
   copyright: string;
   imgbbApiKey?: string;
+}
+
+export interface EmailSettings {
+  host: string;
+  port: number;
+  user: string;
+  pass: string;
+  fromEmail: string;
+  fromName: string;
 }
 
 export interface AdminUser {

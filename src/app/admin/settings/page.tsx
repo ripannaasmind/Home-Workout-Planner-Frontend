@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { adminApi, SiteConfig } from "@/services/api";
+import { adminApi, SiteConfig, EmailSettings } from "@/services/api";
 import { toast } from "sonner";
 import Image from "next/image";
 import {
@@ -34,6 +34,8 @@ import {
   Search,
   Check,
   Key,
+  Mail,
+  Send,
 } from "lucide-react";
 import { ALL_CURRENCIES, CURRENCY_SYMBOLS } from "@/context/ThemeContext";
 
@@ -86,6 +88,7 @@ function maskKey(key: string) {
 // ------- Sections -------
 const sections = [
   { id: "business", label: "Business", icon: Settings },
+  { id: "email", label: "Email", icon: Mail },
   { id: "payment", label: "Payment", icon: CreditCard },
   { id: "api-keys", label: "API Keys", icon: Key },
   { id: "currency", label: "Currency", icon: DollarSign },
@@ -150,6 +153,19 @@ export default function AdminSettingsPage() {
   const [imgbbApiKey, setImgbbApiKey] = useState("");
   const [showImgbbKey, setShowImgbbKey] = useState(false);
 
+  // Email / SMTP state
+  const [emailSettings, setEmailSettings] = useState<EmailSettings>({
+    host: "smtp.gmail.com",
+    port: 587,
+    user: "",
+    pass: "",
+    fromEmail: "",
+    fromName: "",
+  });
+  const [showSmtpPass, setShowSmtpPass] = useState(false);
+  const [testEmail, setTestEmail] = useState("");
+  const [testingEmail, setTestingEmail] = useState(false);
+
   // Site config state
   const [siteConfig, setSiteConfig] = useState<Partial<SiteConfig>>({
     companyName: "FitHome",
@@ -185,6 +201,11 @@ export default function AdminSettingsPage() {
           adminApi.getPaymentSettings(token),
           adminApi.getSiteConfig(token),
         ]);
+        // Load email settings separately
+        try {
+          const emailRes = await adminApi.getEmailSettings(token);
+          if (emailRes.data) setEmailSettings(emailRes.data);
+        } catch { /* email settings may not exist yet */ }
         const d = payRes.data;
         setStripeEnabled(d.stripe.enabled);
         setStripePublishable(d.stripe.publishableKey || "");
@@ -248,6 +269,10 @@ export default function AdminSettingsPage() {
     setSaving(true);
     try {
       const promises = [];
+
+      if (activeSection === "email") {
+        promises.push(adminApi.updateEmailSettings(emailSettings, token));
+      }
 
       if (activeSection === "payment") {
         promises.push(
@@ -455,6 +480,109 @@ export default function AdminSettingsPage() {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Address</Label>
                     <Textarea value={siteConfig.address || ""} onChange={(e) => updateField("address", e.target.value)} placeholder="123 Fitness St, City" rows={2} className="resize-none" />
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+
+
+          {/* ==================== EMAIL SECTION ==================== */}
+          {activeSection === "email" && (
+            <>
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
+                      <Mail className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">SMTP Email Settings</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Configure outgoing email for OTP verification & password resets</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">SMTP Host</Label>
+                      <Input value={emailSettings.host} onChange={(e) => setEmailSettings((s) => ({ ...s, host: e.target.value }))} placeholder="smtp.gmail.com" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">SMTP Port</Label>
+                      <Input type="number" value={emailSettings.port} onChange={(e) => setEmailSettings((s) => ({ ...s, port: Number(e.target.value) || 587 }))} placeholder="587" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Email Address (SMTP User)</Label>
+                    <Input type="email" value={emailSettings.user} onChange={(e) => setEmailSettings((s) => ({ ...s, user: e.target.value }))} placeholder="your.email@gmail.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">App Password</Label>
+                    <div className="relative">
+                      <Input type={showSmtpPass ? "text" : "password"} value={emailSettings.pass} onChange={(e) => setEmailSettings((s) => ({ ...s, pass: e.target.value }))} placeholder="Gmail App Password..." className="pr-10 font-mono text-sm" />
+                      <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setShowSmtpPass((v) => !v)}>
+                        {showSmtpPass ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {emailSettings.pass && !showSmtpPass && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(emailSettings.pass)}</p>}
+                  </div>
+                  <Separator />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">From Name</Label>
+                      <Input value={emailSettings.fromName} onChange={(e) => setEmailSettings((s) => ({ ...s, fromName: e.target.value }))} placeholder="Workout Planner" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">From Email</Label>
+                      <Input type="email" value={emailSettings.fromEmail} onChange={(e) => setEmailSettings((s) => ({ ...s, fromEmail: e.target.value }))} placeholder="noreply@workoutplanner.com" />
+                    </div>
+                  </div>
+                  <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-blue-500/20">
+                    <p className="text-xs text-blue-700 dark:text-blue-400">
+                      For Gmail: Enable <span className="font-semibold">2-Step Verification</span> → Go to <span className="font-semibold">App Passwords</span> → Generate a password for &quot;Mail&quot;. Use that as the App Password above.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Test Email */}
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-green-50 dark:bg-green-500/10 flex items-center justify-center">
+                      <Send className="h-4 w-4 text-green-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Send Test Email</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Save settings first, then test if emails are working</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-4">
+                  <div className="flex gap-3">
+                    <Input type="email" value={testEmail} onChange={(e) => setTestEmail(e.target.value)} placeholder="recipient@example.com" className="flex-1" />
+                    <Button
+                      disabled={testingEmail || !testEmail}
+                      onClick={async () => {
+                        if (!token || !testEmail) return;
+                        setTestingEmail(true);
+                        try {
+                          const res = await adminApi.testEmailSettings(testEmail, token);
+                          toast.success(res.message || "Test email sent!");
+                        } catch (err) {
+                          toast.error(err instanceof Error ? err.message : "Failed to send test email");
+                        } finally {
+                          setTestingEmail(false);
+                        }
+                      }}
+                      className="gap-2"
+                    >
+                      {testingEmail ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      {testingEmail ? "Sending..." : "Send Test"}
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
