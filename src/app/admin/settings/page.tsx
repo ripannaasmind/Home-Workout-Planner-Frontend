@@ -148,6 +148,9 @@ export default function AdminSettingsPage() {
   const [showPaystackSecret, setShowPaystackSecret] = useState(false);
   const [showPaystackPublic, setShowPaystackPublic] = useState(false);
   const [taxRate, setTaxRate] = useState(8);
+  const [shippingStandard, setShippingStandard] = useState(5);
+  const [shippingExpress, setShippingExpress] = useState(15);
+  const [shippingFreeThreshold, setShippingFreeThreshold] = useState(100);
 
   // API Keys state (ImgBB etc.)
   const [imgbbApiKey, setImgbbApiKey] = useState("");
@@ -220,6 +223,11 @@ export default function AdminSettingsPage() {
           setPaystackPublicKey(d.paystack.publicKey || "");
         }
         if (d.taxRate !== undefined) setTaxRate(d.taxRate);
+        if (d.shipping) {
+          if (d.shipping.standardCost !== undefined) setShippingStandard(d.shipping.standardCost);
+          if (d.shipping.expressCost !== undefined) setShippingExpress(d.shipping.expressCost);
+          if (d.shipping.freeThreshold !== undefined) setShippingFreeThreshold(d.shipping.freeThreshold);
+        }
 
         if (siteRes.data) {
           setSiteConfig((prev) => ({ ...prev, ...siteRes.data }));
@@ -283,6 +291,11 @@ export default function AdminSettingsPage() {
               cashOnDelivery: { enabled: codEnabled },
               paystack: { enabled: paystackEnabled, secretKey: paystackSecretKey, publicKey: paystackPublicKey },
               taxRate,
+              shipping: {
+                standardCost: shippingStandard,
+                expressCost: shippingExpress,
+                freeThreshold: shippingFreeThreshold,
+              },
             },
             token
           )
@@ -819,6 +832,63 @@ export default function AdminSettingsPage() {
                     <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-500/10 rounded-lg border border-orange-100 dark:border-orange-500/20">
                       <span className="text-xl font-bold text-orange-700 dark:text-orange-400">{taxRate}%</span>
                       <p className="text-xs text-orange-600 dark:text-orange-400">This tax rate will be applied to all orders during checkout</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Shipping Rates */}
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center">
+                      <Truck className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Shipping Rates</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Set shipping costs applied at checkout</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Standard Shipping ($)</Label>
+                        <Input
+                          type="number" min={0} step={0.01}
+                          value={shippingStandard}
+                          onChange={(e) => setShippingStandard(Math.max(0, parseFloat(e.target.value) || 0))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Express Shipping ($)</Label>
+                        <Input
+                          type="number" min={0} step={0.01}
+                          value={shippingExpress}
+                          onChange={(e) => setShippingExpress(Math.max(0, parseFloat(e.target.value) || 0))}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Free Shipping Above ($)</Label>
+                        <Input
+                          type="number" min={0} step={1}
+                          value={shippingFreeThreshold}
+                          onChange={(e) => setShippingFreeThreshold(Math.max(0, parseFloat(e.target.value) || 0))}
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-100 dark:border-blue-500/20">
+                        <span className="text-sm font-bold text-blue-700 dark:text-blue-400">Standard: ${shippingStandard.toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-3 py-2 bg-purple-50 dark:bg-purple-500/10 rounded-lg border border-purple-100 dark:border-purple-500/20">
+                        <span className="text-sm font-bold text-purple-700 dark:text-purple-400">Express: ${shippingExpress.toFixed(2)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-500/10 rounded-lg border border-green-100 dark:border-green-500/20">
+                        <span className="text-sm font-bold text-green-700 dark:text-green-400">Free above: ${shippingFreeThreshold.toFixed(2)}</span>
+                      </div>
                     </div>
                   </div>
                 </CardContent>

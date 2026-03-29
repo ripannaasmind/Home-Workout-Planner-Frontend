@@ -820,6 +820,11 @@ export interface PaymentSettings {
   cashOnDelivery: { enabled: boolean };
   paystack?: { enabled: boolean; secretKey: string; publicKey: string };
   taxRate?: number;
+  shipping?: {
+    standardCost: number;
+    expressCost: number;
+    freeThreshold: number;
+  };
 }
 
 export interface SiteConfig {
