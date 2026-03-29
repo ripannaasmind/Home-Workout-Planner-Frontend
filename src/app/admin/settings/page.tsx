@@ -144,6 +144,7 @@ export default function AdminSettingsPage() {
   const [paystackOpen, setPaystackOpen] = useState(false);
   const [showPaystackSecret, setShowPaystackSecret] = useState(false);
   const [showPaystackPublic, setShowPaystackPublic] = useState(false);
+  const [taxRate, setTaxRate] = useState(8);
 
   // API Keys state (ImgBB etc.)
   const [imgbbApiKey, setImgbbApiKey] = useState("");
@@ -197,6 +198,7 @@ export default function AdminSettingsPage() {
           setPaystackSecretKey(d.paystack.secretKey || "");
           setPaystackPublicKey(d.paystack.publicKey || "");
         }
+        if (d.taxRate !== undefined) setTaxRate(d.taxRate);
 
         if (siteRes.data) {
           setSiteConfig((prev) => ({ ...prev, ...siteRes.data }));
@@ -255,6 +257,7 @@ export default function AdminSettingsPage() {
               paypal: { enabled: paypalEnabled, clientId: paypalClientId, secret: paypalSecret },
               cashOnDelivery: { enabled: codEnabled },
               paystack: { enabled: paystackEnabled, secretKey: paystackSecretKey, publicKey: paystackPublicKey },
+              taxRate,
             },
             token
           )
@@ -655,6 +658,42 @@ export default function AdminSettingsPage() {
                     </CardContent>
                   </>
                 )}
+              </Card>
+
+              {/* Tax Rate */}
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-9 w-9 rounded-lg bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center">
+                      <DollarSign className="h-4 w-4 text-orange-600" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Tax Rate</CardTitle>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Applied to all orders at checkout</p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4">
+                  <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Tax Percentage (%)</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={100}
+                        step={0.1}
+                        value={taxRate}
+                        onChange={(e) => setTaxRate(Math.min(100, Math.max(0, parseFloat(e.target.value) || 0)))}
+                        className="max-w-50"
+                      />
+                    </div>
+                    <div className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-500/10 rounded-lg border border-orange-100 dark:border-orange-500/20">
+                      <span className="text-xl font-bold text-orange-700 dark:text-orange-400">{taxRate}%</span>
+                      <p className="text-xs text-orange-600 dark:text-orange-400">This tax rate will be applied to all orders during checkout</p>
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
             </>
           )}

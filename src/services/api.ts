@@ -563,6 +563,12 @@ export const adminApi = {
     });
     return response.json() as Promise<{ success: boolean; data: { url: string } }>;
   },
+
+  deleteCart: (userId: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/admin/cart/${userId}`, {
+      method: "DELETE",
+      token,
+    }),
 };
 
 // ─── Auth API ────────────────────────────────────────────────────────────────
@@ -745,10 +751,44 @@ export const ordersApi = {
     }),
 };
 
+// ─── Cart API ────────────────────────────────────────────────────────────────
+export interface CartApiItem {
+  productId: string;
+  name: string;
+  price: number;
+  image: string;
+  category: string;
+  stock: number;
+  quantity: number;
+}
+
+export interface CartApiResponse {
+  success: boolean;
+  data: { items: CartApiItem[]; totalItems: number; totalPrice: number };
+}
+
+export const cartApi = {
+  get: (token: string) =>
+    apiRequest<CartApiResponse>("/cart", { token }),
+
+  add: (productId: string, quantity: number, token: string) =>
+    apiRequest<CartApiResponse>("/cart", { method: "POST", body: { productId, quantity }, token }),
+
+  update: (productId: string, quantity: number, token: string) =>
+    apiRequest<CartApiResponse>(`/cart/${productId}`, { method: "PUT", body: { quantity }, token }),
+
+  remove: (productId: string, token: string) =>
+    apiRequest<CartApiResponse>(`/cart/${productId}`, { method: "DELETE", token }),
+
+  clear: (token: string) =>
+    apiRequest<{ success: boolean; message: string }>("/cart/clear", { method: "DELETE", token }),
+};
+
 export interface PublicPaymentMethods {
   stripe: { enabled: boolean; publishableKey: string };
   paypal: { enabled: boolean; clientId: string };
   cashOnDelivery: { enabled: boolean };
+  taxRate: number;
 }
 
 export interface PaymentSettings {
@@ -756,6 +796,7 @@ export interface PaymentSettings {
   paypal: { enabled: boolean; clientId: string; secret: string };
   cashOnDelivery: { enabled: boolean };
   paystack?: { enabled: boolean; secretKey: string; publicKey: string };
+  taxRate?: number;
 }
 
 export interface SiteConfig {

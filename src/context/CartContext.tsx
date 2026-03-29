@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { cartApi } from "@/services/api";
 
 export interface Product {
   id: string;
@@ -29,52 +31,107 @@ export interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const LS_KEY = "fithome-cart";
+
+function readLocalCart(): CartItem[] {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed as CartItem[];
+    }
+  } catch { /* ignore */ }
+  return [];
+}
+
+function writeLocalCart(items: CartItem[]) {
+  localStorage.setItem(LS_KEY, JSON.stringify(items));
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
+  const { token } = useAuth();
   const [items, setItems] = useState<CartItem[]>([]);
   const [initialized, setInitialized] = useState(false);
+  const syncingRef = useRef(false);
 
-  // Load from localStorage on mount (deferred to avoid sync setState in effect)
-  useEffect(() => {
-    const id = requestAnimationFrame(() => {
-      const savedCart = localStorage.getItem("fithome-cart");
-      if (savedCart) {
-        try {
-          const parsed = JSON.parse(savedCart);
-          if (Array.isArray(parsed)) setItems(parsed as CartItem[]);
-        } catch {
-          // ignore invalid stored data
-        }
-      }
-      setInitialized(true);
-    });
-    return () => cancelAnimationFrame(id);
+  // Helper: convert API response items to CartItem[]
+  const apiToCartItems = useCallback((apiItems: Array<{ productId: string; name: string; price: number; image: string; category: string; quantity: number }>): CartItem[] => {
+    return apiItems.map((it) => ({
+      id: it.productId,
+      name: it.name,
+      price: it.price,
+      image: it.image,
+      category: it.category,
+      quantity: it.quantity,
+    }));
   }, []);
 
-  // Save to localStorage only after initial load is done
+  // Load cart on mount / when auth state changes
   useEffect(() => {
-    if (!initialized) return;
-    localStorage.setItem("fithome-cart", JSON.stringify(items));
-  }, [items, initialized]);
+    let cancelled = false;
+    (async () => {
+      if (token) {
+        try {
+          const res = await cartApi.get(token);
+          if (!cancelled) {
+            setItems(apiToCartItems(res.data.items));
 
-  const addToCart = (product: Product) => {
+            // Merge any guest localStorage items into the server cart
+            const local = readLocalCart();
+            if (local.length > 0) {
+              for (const li of local) {
+                try { await cartApi.add(li.id, li.quantity, token); } catch { /* ignore */ }
+              }
+              localStorage.removeItem(LS_KEY);
+              // Re-fetch merged cart
+              const merged = await cartApi.get(token);
+              if (!cancelled) setItems(apiToCartItems(merged.data.items));
+            }
+          }
+        } catch {
+          // API failed — fall back to localStorage
+          if (!cancelled) setItems(readLocalCart());
+        }
+      } else {
+        // Guest: use localStorage
+        if (!cancelled) setItems(readLocalCart());
+      }
+      if (!cancelled) setInitialized(true);
+    })();
+    return () => { cancelled = true; };
+  }, [token, apiToCartItems]);
+
+  // Save to localStorage for guests (when no token)
+  useEffect(() => {
+    if (!initialized || token || syncingRef.current) return;
+    writeLocalCart(items);
+  }, [items, initialized, token]);
+
+  const addToCart = useCallback((product: Product) => {
     setItems((prev) => {
-      const existingItem = prev.find((item) => item.id === product.id);
-      if (existingItem) {
+      const existing = prev.find((item) => item.id === product.id);
+      if (existing) {
         return prev.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
       return [...prev, { ...product, quantity: 1 }];
     });
-  };
 
-  const removeFromCart = (productId: string) => {
+    if (token) {
+      cartApi.add(product.id, 1, token).catch(() => {});
+    }
+  }, [token]);
+
+  const removeFromCart = useCallback((productId: string) => {
     setItems((prev) => prev.filter((item) => item.id !== productId));
-  };
 
-  const updateQuantity = (productId: string, quantity: number) => {
+    if (token) {
+      cartApi.remove(productId, token).catch(() => {});
+    }
+  }, [token]);
+
+  const updateQuantity = useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(productId);
       return;
@@ -84,11 +141,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
         item.id === productId ? { ...item, quantity } : item
       )
     );
-  };
 
-  const clearCart = () => {
+    if (token) {
+      cartApi.update(productId, quantity, token).catch(() => {});
+    }
+  }, [token, removeFromCart]);
+
+  const clearCart = useCallback(() => {
     setItems([]);
-  };
+    localStorage.removeItem(LS_KEY);
+
+    if (token) {
+      cartApi.clear(token).catch(() => {});
+    }
+  }, [token]);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);

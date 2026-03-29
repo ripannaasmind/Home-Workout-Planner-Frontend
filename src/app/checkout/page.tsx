@@ -70,7 +70,7 @@ function CheckoutContent() {
         else if (res.data.cashOnDelivery.enabled) setPaymentMethod("cod");
       })
       .catch(() => {
-        setPaymentMethods({ stripe: { enabled: false, publishableKey: "" }, paypal: { enabled: false, clientId: "" }, cashOnDelivery: { enabled: true } });
+        setPaymentMethods({ stripe: { enabled: false, publishableKey: "" }, paypal: { enabled: false, clientId: "" }, cashOnDelivery: { enabled: true }, taxRate: 8 });
         setPaymentMethod("cod");
       });
   }, []);
@@ -96,7 +96,7 @@ function CheckoutContent() {
   const shippingCost = deliveryMethod === "express" ? 15.00 : totalPrice >= 100 ? 0 : 5.00;
   const discount = promoDiscountParam;
   const subtotalAfterDiscount = Math.max(0, totalPrice - discount);
-  const tax = subtotalAfterDiscount * 0.08;
+  const tax = subtotalAfterDiscount * ((paymentMethods?.taxRate ?? 8) / 100);
   const total = subtotalAfterDiscount + shippingCost + tax;
 
   const handlePlaceOrder = async () => {
