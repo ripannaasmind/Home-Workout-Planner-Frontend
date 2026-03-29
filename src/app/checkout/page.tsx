@@ -21,7 +21,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { loadStripe, type Stripe as StripeType } from "@stripe/stripe-js";
-import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
+import { Elements, CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import {
   sanitize,
   validateName,
@@ -51,11 +51,11 @@ const StripeCardForm = forwardRef<StripeCardRef>((_, ref) => {
   useImperativeHandle(ref, () => ({
     confirmPayment: async (clientSecret: string) => {
       if (!stripe || !elements) return { success: false, error: "Stripe not ready. Please wait and try again." };
-      const cardElement = elements.getElement(CardElement);
-      if (!cardElement) return { success: false, error: "Card form not ready." };
+      const cardNumberElement = elements.getElement(CardNumberElement);
+      if (!cardNumberElement) return { success: false, error: "Card form not ready." };
 
       const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: { card: cardElement },
+        payment_method: { card: cardNumberElement },
       });
 
       if (error) return { success: false, error: error.message || "Card payment failed." };
@@ -64,26 +64,48 @@ const StripeCardForm = forwardRef<StripeCardRef>((_, ref) => {
     },
   }));
 
+  const elementStyle = {
+    base: {
+      fontSize: "15px",
+      color: "#374151",
+      fontFamily: "system-ui, -apple-system, sans-serif",
+      fontSmoothing: "antialiased",
+      "::placeholder": { color: "#9ca3af" },
+    },
+    invalid: { color: "#ef4444" },
+  };
+
   return (
-    <div className="mt-4 p-4 border border-border rounded-lg bg-muted/10">
-      <Label className="text-sm font-medium text-foreground mb-3 block">Card Details</Label>
-      <div className="p-3 border border-border rounded-md bg-background">
-        <CardElement
-          options={{
-            style: {
-              base: {
-                fontSize: "16px",
-                color: "#374151",
-                fontFamily: "system-ui, sans-serif",
-                "::placeholder": { color: "#9ca3af" },
-              },
-              invalid: { color: "#ef4444" },
-            },
-            hidePostalCode: true,
-          }}
-        />
+    <div className="mt-5 space-y-4">
+      <div className="space-y-1.5">
+        <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Card Number</Label>
+        <div className="flex items-center gap-3 px-4 py-3 border border-border rounded-lg bg-background hover:border-primary/50 transition-colors">
+          <CreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
+          <div className="flex-1">
+            <CardNumberElement options={{ style: elementStyle, showIcon: true }} />
+          </div>
+        </div>
       </div>
-      <p className="text-xs text-muted-foreground mt-2">Test card: 4242 4242 4242 4242 · Any future date · Any CVC</p>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Expiry Date</Label>
+          <div className="px-4 py-3 border border-border rounded-lg bg-background hover:border-primary/50 transition-colors">
+            <CardExpiryElement options={{ style: elementStyle }} />
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">CVC</Label>
+          <div className="px-4 py-3 border border-border rounded-lg bg-background hover:border-primary/50 transition-colors">
+            <CardCvcElement options={{ style: elementStyle }} />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>
+        Your card details are encrypted and secure
+      </div>
     </div>
   );
 });
