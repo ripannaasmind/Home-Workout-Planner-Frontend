@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { productsApi, promoApi } from "@/services/api";
+import { productsApi, promoApi, ordersApi } from "@/services/api";
 import toast from "react-hot-toast";
 
 
@@ -38,6 +38,11 @@ export default function CartPage() {
   const [promoData, setPromoData] = useState<{ code: string; discount: number; discountType: string; discountValue: number } | null>(null);
   const [promoLoading, setPromoLoading] = useState(false);
   const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
+  const [shippingConfig, setShippingConfig] = useState({ standard: 5.00, express: 15.00, freeShippingThreshold: 100 });
+
+  useEffect(() => {
+    ordersApi.getShippingConfig().then((res) => setShippingConfig(res.data)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     productsApi.getAll({ limit: 4 }).then((res) => {
@@ -54,7 +59,7 @@ export default function CartPage() {
     }).catch(() => {});
   }, []);
 
-  const shippingCost = totalPrice >= 100 ? 0 : 9.99;
+  const shippingCost = totalPrice >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.standard;
   const tax = (totalPrice - promoDiscount) * 0.08;
   const finalTotal = totalPrice - promoDiscount + shippingCost + tax;
 
@@ -418,10 +423,10 @@ export default function CartPage() {
                     </div>
 
                     {}
-                    {totalPrice < 100 && (
+                    {totalPrice < shippingConfig.freeShippingThreshold && (
                       <div className="bg-primary/10 rounded-lg p-3 mb-4">
                         <p className="text-xs sm:text-sm text-primary text-center">
-                          Add {formatPrice(100 - totalPrice)} more for free shipping!
+                          Add {formatPrice(shippingConfig.freeShippingThreshold - totalPrice)} more for free shipping!
                         </p>
                       </div>
                     )}

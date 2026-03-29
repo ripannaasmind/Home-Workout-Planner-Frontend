@@ -738,6 +738,9 @@ export const promoApi = {
 };
 
 export const ordersApi = {
+  getShippingConfig: () =>
+    apiRequest<{ success: boolean; data: { standard: number; express: number; freeShippingThreshold: number } }>("/orders/shipping-config"),
+
   create: (data: CreateOrderPayload, token: string) =>
     apiRequest<{ success: boolean; data: Order }>("/orders", {
       method: "POST",

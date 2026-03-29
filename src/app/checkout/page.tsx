@@ -57,6 +57,11 @@ function CheckoutContent() {
   const [paymentMethods, setPaymentMethods] = useState<PublicPaymentMethods | null>(null);
   const [placing, setPlacing] = useState(false);
   const [paypalClientId, setPaypalClientId] = useState("");
+  const [shippingConfig, setShippingConfig] = useState({ standard: 5.00, express: 15.00, freeShippingThreshold: 100 });
+
+  useEffect(() => {
+    ordersApi.getShippingConfig().then((res) => setShippingConfig(res.data)).catch(() => {});
+  }, []);
 
   useEffect(() => {
     paymentApi.getPublicMethods()
@@ -93,7 +98,7 @@ function CheckoutContent() {
 
   const [error, setError] = useState("");
 
-  const shippingCost = deliveryMethod === "express" ? 15.00 : totalPrice >= 100 ? 0 : 5.00;
+  const shippingCost = deliveryMethod === "express" ? shippingConfig.express : totalPrice >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.standard;
   const discount = promoDiscountParam;
   const subtotalAfterDiscount = Math.max(0, totalPrice - discount);
   const tax = subtotalAfterDiscount * ((paymentMethods?.taxRate ?? 8) / 100);
@@ -373,7 +378,7 @@ function CheckoutContent() {
                             <span className="font-medium">Standard Delivery</span>
                           </div>
                           <p className="text-sm text-text-secondary mt-0.5">
-                            3-5 days • {totalPrice >= 100 ? "Free" : formatPrice(5)}
+                            3-5 days • {totalPrice >= shippingConfig.freeShippingThreshold ? "Free" : formatPrice(shippingConfig.standard)}
                           </p>
                         </Label>
                       </div>
@@ -385,7 +390,7 @@ function CheckoutContent() {
                             <span className="font-medium">Express Delivery</span>
                           </div>
                           <p className="text-sm text-text-secondary mt-0.5">
-                            1-2 days • {formatPrice(15)}
+                            1-2 days • {formatPrice(shippingConfig.express)}
                           </p>
                         </Label>
                       </div>
