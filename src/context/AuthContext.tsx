@@ -10,7 +10,8 @@ export interface User {
   email: string;
   avatar?: string;
   role: "user" | "admin";
-  isVerified: boolean;
+  isEmailVerified: boolean;
+  isProfileComplete?: boolean;
 }
 
 interface GoogleAuthPayload {
@@ -26,11 +27,12 @@ interface AuthContextType {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<User>;
-  register: (name: string, email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   googleLogin: (payload: GoogleAuthPayload) => Promise<User>;
   forgotPassword: (email: string) => Promise<void>;
   logout: () => void;
   updateUser: (user: User) => void;
+  completeAuth: (user: User, token: string, refreshToken: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -148,7 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return authData.user;
   };
 
-  const register = async (name: string, email: string, password: string): Promise<User> => {
+  const register = async (name: string, email: string, password: string): Promise<void> => {
     // 1. Save user in Firebase for future password resets
     try {
       await createUserWithEmailAndPassword(auth, email, password);
@@ -178,16 +180,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const message = typeof data.message === "string" ? data.message : "Registration failed";
       throw new Error(message);
     }
-
-    const authData = data.data as { user: User; token: string; refreshToken: string } | undefined;
-    if (!authData?.token || !authData?.user) {
-      throw new Error("Invalid registration response from server");
-    }
-
-    setToken(authData.token);
-    setUser(authData.user);
-    localStorage.setItem("fithome-refresh-token", authData.refreshToken || "");
-    return authData.user;
+    // Do NOT set token/user here — user must verify email first
   };
 
   const googleLogin = async (payload: GoogleAuthPayload): Promise<User> => {
@@ -252,6 +245,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(updatedUser);
   };
 
+  const completeAuth = (authUser: User, authToken: string, refreshToken: string) => {
+    setToken(authToken);
+    setUser(authUser);
+    localStorage.setItem("fithome-refresh-token", refreshToken);
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -265,6 +264,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         forgotPassword,
         logout,
         updateUser,
+        completeAuth,
       }}
     >
       {children}

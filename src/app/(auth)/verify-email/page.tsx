@@ -8,13 +8,14 @@ import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { authApi } from "@/services/api";
+import type { User } from "@/context/AuthContext";
 import { Dumbbell, Loader2, AlertCircle, CheckCircle2, Mail } from "lucide-react";
 
 function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const emailParam = searchParams.get("email") || "";
-  const { token } = useAuth();
+  const { completeAuth } = useAuth();
 
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,9 +69,20 @@ function VerifyEmailContent() {
 
     setIsLoading(true);
     try {
-      await authApi.verifyEmail(emailParam, code);
+      const res = await authApi.verifyEmail(emailParam, code);
+      if (res.data?.token && res.data?.user) {
+        const authUser: User = {
+          _id: res.data.user.id,
+          name: res.data.user.name,
+          email: res.data.user.email,
+          role: res.data.user.role,
+          isEmailVerified: res.data.user.isEmailVerified,
+          isProfileComplete: res.data.user.isProfileComplete,
+        };
+        completeAuth(authUser, res.data.token, res.data.refreshToken);
+      }
       setSuccess(true);
-      setTimeout(() => router.push("/login"), 2000);
+      setTimeout(() => router.push("/dashboard"), 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Verification failed");
     } finally {
@@ -79,14 +91,14 @@ function VerifyEmailContent() {
   };
 
   const handleResend = async () => {
-    if (!token) {
-      setResendMsg("Please login first to resend verification OTP.");
+    if (!emailParam) {
+      setResendMsg("Email is missing. Please go back to signup.");
       return;
     }
     setResending(true);
     setResendMsg("");
     try {
-      await authApi.resendVerification(token);
+      await authApi.resendVerification(emailParam);
       setResendMsg("A new OTP has been sent to your email.");
     } catch (err) {
       setResendMsg(err instanceof Error ? err.message : "Failed to resend OTP");
@@ -120,7 +132,7 @@ function VerifyEmailContent() {
                 <CheckCircle2 className="h-12 w-12 text-green-500" />
               </div>
               <h3 className="text-lg font-medium text-foreground mb-2">Email verified!</h3>
-              <p className="text-text-secondary mb-6">Redirecting to login...</p>
+              <p className="text-text-secondary mb-6">Redirecting to dashboard...</p>
             </motion.div>
           ) : (
             <form onSubmit={handleVerify} className="space-y-6">

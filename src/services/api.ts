@@ -631,15 +631,15 @@ export const authApi = {
     }),
 
   verifyEmail: (email: string, otp: string) =>
-    apiRequest<{ success: boolean; message: string }>("/auth/verify-email", {
+    apiRequest<AuthResponse>("/auth/verify-email", {
       method: "POST",
       body: { email, otp },
     }),
 
-  resendVerification: (token: string) =>
+  resendVerification: (email: string) =>
     apiRequest<{ success: boolean; message: string }>("/auth/resend-verification", {
       method: "POST",
-      token,
+      body: { email },
     }),
 
   changePassword: (data: { currentPassword: string; newPassword: string }, token: string) =>
