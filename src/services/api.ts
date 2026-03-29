@@ -607,14 +607,17 @@ export const authApi = {
       body: { email },
     }),
 
-  resetPassword: (resetToken: string, password: string) =>
-    apiRequest<{ success: boolean; message: string }>(`/auth/reset-password/${resetToken}`, {
-      method: "PUT",
-      body: { password },
+  resetPassword: (email: string, otp: string, password: string) =>
+    apiRequest<{ success: boolean; message: string }>("/auth/reset-password", {
+      method: "POST",
+      body: { email, otp, password },
     }),
 
-  verifyEmail: (verifyToken: string) =>
-    apiRequest<{ success: boolean; message: string }>(`/auth/verify-email/${verifyToken}`),
+  verifyEmail: (email: string, otp: string) =>
+    apiRequest<{ success: boolean; message: string }>("/auth/verify-email", {
+      method: "POST",
+      body: { email, otp },
+    }),
 
   resendVerification: (token: string) =>
     apiRequest<{ success: boolean; message: string }>("/auth/resend-verification", {

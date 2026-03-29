@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useAuth } from "@/context/AuthContext";
+import { authApi } from "@/services/api";
 import { validateEmail } from "@/lib/validation";
 import { Dumbbell, Mail, Loader2, AlertCircle, ArrowLeft, CheckCircle2 } from "lucide-react";
 
 export default function ForgotPasswordPage() {
-  const { forgotPassword } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -31,10 +32,10 @@ export default function ForgotPasswordPage() {
     setIsLoading(true);
 
     try {
-      await forgotPassword(email);
+      await authApi.forgotPassword(email);
       setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send reset email");
+      setError(err instanceof Error ? err.message : "Failed to send reset OTP");
     } finally {
       setIsLoading(false);
     }
@@ -53,7 +54,7 @@ export default function ForgotPasswordPage() {
           Reset your password
         </h2>
         <p className="mt-2 text-center text-sm text-text-secondary">
-          Enter your email address and we&apos;ll send you a link to reset your password.
+          Enter your email address and we&apos;ll send you an OTP to reset your password.
         </p>
       </div>
 
@@ -68,12 +69,12 @@ export default function ForgotPasswordPage() {
               <div className="flex justify-center mb-4">
                 <CheckCircle2 className="h-12 w-12 text-green-500" />
               </div>
-              <h3 className="text-lg font-medium text-foreground mb-2">Check your email</h3>
+              <h3 className="text-lg font-medium text-foreground mb-2">OTP sent!</h3>
               <p className="text-text-secondary mb-6">
-                We&apos;ve sent a password reset link to <strong>{email}</strong>
+                We&apos;ve sent a password reset OTP to <strong>{email}</strong>
               </p>
-              <Button asChild className="w-full">
-                <Link href="/login">Return to login</Link>
+              <Button className="w-full" onClick={() => router.push(`/reset-password?email=${encodeURIComponent(email)}`)}>
+                Enter OTP &amp; Reset Password
               </Button>
             </motion.div>
           ) : (
@@ -108,10 +109,10 @@ export default function ForgotPasswordPage() {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sending link...
+                      Sending OTP...
                     </>
                   ) : (
-                    "Send reset link"
+                    "Send reset OTP"
                   )}
                 </Button>
                 

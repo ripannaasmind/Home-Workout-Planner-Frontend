@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/lib/firebase";
 
 export interface User {
@@ -221,10 +221,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const forgotPassword = async (email: string): Promise<void> => {
+    let res: Response;
+    let data: Record<string, unknown>;
     try {
-      await sendPasswordResetEmail(auth, email);
-    } catch (error: unknown) {
-      const message = typeof error === "object" && error && "message" in error ? String(error.message) : "Failed to send password reset email";
+      res = await fetchFromProxy("/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      data = await parseResponse(res);
+    } catch (error) {
+      throw new Error(toNetworkMessage(error));
+    }
+    if (!res.ok) {
+      const message = typeof data.message === "string" ? data.message : "Failed to send password reset email";
       throw new Error(message);
     }
   };

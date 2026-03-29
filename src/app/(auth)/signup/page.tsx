@@ -80,12 +80,8 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      const registeredUser = await register(sanitize(name), sanitize(email), password);
-      if (registeredUser.role === "admin") {
-        router.push("/admin");
-      } else {
-        router.push("/dashboard");
-      }
+      await register(sanitize(name), sanitize(email), password);
+      router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
