@@ -500,10 +500,10 @@ function CheckoutContent() {
                             <span className="font-medium">Credit / Debit Card</span>
                             <span className="text-xs bg-violet-50 text-violet-600 border border-violet-200 px-1.5 py-0.5 rounded font-medium">Stripe</span>
                           </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/200px-Visa_Inc._logo.svg.png" alt="Visa" width={32} height={20} className="object-contain" />
-                            <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/200px-Mastercard-logo.svg.png" alt="Mastercard" width={32} height={20} className="object-contain" />
-                            <Image src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/200px-American_Express_logo_%282018%29.svg.png" alt="Amex" width={32} height={20} className="object-contain" />
+                          <div className="flex items-center gap-1.5 mt-2">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-black tracking-wider bg-blue-600 text-white">VISA</span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-gray-100 text-gray-700 border border-gray-200">MC</span>
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500 text-white">AMEX</span>
                           </div>
                         </Label>
                       </div>
