@@ -1672,10 +1672,10 @@ npm install</code></pre>
             <tbody>
               <tr><td><code>/admin/payment-settings</code></td><td>GET / PUT</td><td>Admin</td><td>Read / update Stripe, PayPal, COD keys &amp; toggles</td></tr>
               <tr><td><code>/payment-settings/public</code></td><td>GET</td><td>Public</td><td>Returns enabled methods + publishable keys only</td></tr>
-              <tr><td><code>/orders/payment-intent</code></td><td>POST</td><td>User</td><td>Create a Stripe PaymentIntent for card checkout</td></tr>
-              <tr><td><code>/orders/paypal/create-order</code></td><td>POST</td><td>User</td><td>Create a PayPal order (returns PayPal order ID)</td></tr>
+              <tr><td><code>/orders/payment-intent</code></td><td>POST</td><td>User</td><td>Create a Stripe PaymentIntent — send <code>items</code>, <code>deliveryMethod</code>, optional <code>promoCode</code>; total computed server-side</td></tr>
+              <tr><td><code>/orders/paypal/create-order</code></td><td>POST</td><td>User</td><td>Create a PayPal order — send <code>items</code>, <code>deliveryMethod</code>, optional <code>promoCode</code>; total computed server-side</td></tr>
               <tr><td><code>/orders/paypal/capture-order</code></td><td>POST</td><td>User</td><td>Capture an approved PayPal payment</td></tr>
-              <tr><td><code>/orders</code></td><td>POST</td><td>User</td><td>Submit final order (server recalculates totals)</td></tr>
+              <tr><td><code>/orders</code></td><td>POST</td><td>User</td><td>Submit final order — send <code>items</code>, <code>deliveryMethod</code>, <code>paymentMethod</code>; all pricing computed server-side</td></tr>
               <tr><td><code>/admin/site-config</code></td><td>GET / PUT</td><td>Admin</td><td>Manage ImgBB API key and other site settings</td></tr>
             </tbody>
           </table>

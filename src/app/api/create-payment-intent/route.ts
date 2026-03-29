@@ -36,10 +36,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Return clientSecret and paymentIntentId from backend response
+    // Return clientSecret, paymentIntentId, and server-computed total
     return NextResponse.json({
       clientSecret: data.data?.clientSecret,
       paymentIntentId: data.data?.paymentIntentId,
+      calculatedTotal: data.data?.calculatedTotal,
     });
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to create payment intent';
