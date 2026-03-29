@@ -131,7 +131,7 @@ export default function ProfilePage() {
               <Badge className="bg-primary/10 text-primary border-0 capitalize">
                 {user?.role ?? "user"}
               </Badge>
-              {user?.isVerified && (
+              {user?.isEmailVerified && (
                 <span className="flex items-center gap-1 text-xs text-green-600">
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Verified

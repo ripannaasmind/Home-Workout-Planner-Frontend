@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef, forwardRef, useImperativeHandle } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
@@ -20,6 +20,8 @@ import { paymentApi, ordersApi, type PublicPaymentMethods } from "@/services/api
 import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { loadStripe, type Stripe as StripeType } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import {
   sanitize,
   validateName,
@@ -27,9 +29,6 @@ import {
   validatePhone,
   validateAddress,
   validateZip,
-  validateCardNumber,
-  validateCardExpiry,
-  validateCVC,
 } from "@/lib/validation";
 import {
   CreditCard,
@@ -39,6 +38,56 @@ import {
   AlertCircle,
   Loader2,
 } from "lucide-react";
+
+// ------- Stripe Card Element component (must live inside <Elements>) -------
+interface StripeCardRef {
+  confirmPayment: (clientSecret: string) => Promise<{ success: boolean; error?: string }>;
+}
+
+const StripeCardForm = forwardRef<StripeCardRef>((_, ref) => {
+  const stripe = useStripe();
+  const elements = useElements();
+
+  useImperativeHandle(ref, () => ({
+    confirmPayment: async (clientSecret: string) => {
+      if (!stripe || !elements) return { success: false, error: "Stripe not ready. Please wait and try again." };
+      const cardElement = elements.getElement(CardElement);
+      if (!cardElement) return { success: false, error: "Card form not ready." };
+
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardElement },
+      });
+
+      if (error) return { success: false, error: error.message || "Card payment failed." };
+      if (paymentIntent?.status === "succeeded") return { success: true };
+      return { success: false, error: "Payment was not completed. Please try again." };
+    },
+  }));
+
+  return (
+    <div className="mt-4 p-4 border border-border rounded-lg bg-muted/10">
+      <Label className="text-sm font-medium text-foreground mb-3 block">Card Details</Label>
+      <div className="p-3 border border-border rounded-md bg-background">
+        <CardElement
+          options={{
+            style: {
+              base: {
+                fontSize: "16px",
+                color: "#374151",
+                fontFamily: "system-ui, sans-serif",
+                "::placeholder": { color: "#9ca3af" },
+              },
+              invalid: { color: "#ef4444" },
+            },
+            hidePostalCode: true,
+          }}
+        />
+      </div>
+      <p className="text-xs text-muted-foreground mt-2">Test card: 4242 4242 4242 4242 · Any future date · Any CVC</p>
+    </div>
+  );
+});
+StripeCardForm.displayName = "StripeCardForm";
 
 
 function CheckoutContent() {
@@ -58,6 +107,8 @@ function CheckoutContent() {
   const [placing, setPlacing] = useState(false);
   const [paypalClientId, setPaypalClientId] = useState("");
   const [shippingConfig, setShippingConfig] = useState({ standard: 5.00, express: 15.00, freeShippingThreshold: 100 });
+  const [stripePromise, setStripePromise] = useState<Promise<StripeType | null> | null>(null);
+  const stripeCardRef = useRef<StripeCardRef>(null);
 
   useEffect(() => {
     ordersApi.getShippingConfig().then((res) => setShippingConfig(res.data)).catch(() => {});
@@ -70,8 +121,10 @@ function CheckoutContent() {
         if (res.data.paypal.enabled && res.data.paypal.clientId) {
           setPaypalClientId(res.data.paypal.clientId);
         }
-        if (res.data.stripe.enabled) setPaymentMethod("stripe");
-        else if (res.data.paypal.enabled) setPaymentMethod("paypal");
+        if (res.data.stripe.enabled && res.data.stripe.publishableKey) {
+          setStripePromise(loadStripe(res.data.stripe.publishableKey));
+          setPaymentMethod("stripe");
+        } else if (res.data.paypal.enabled) setPaymentMethod("paypal");
         else if (res.data.cashOnDelivery.enabled) setPaymentMethod("cod");
       })
       .catch(() => {
@@ -91,10 +144,6 @@ function CheckoutContent() {
   const [shipCity, setShipCity] = useState("");
   const [shipState, setShipState] = useState("");
   const [shipZip, setShipZip] = useState("");
-
-  const [cardNumber, setCardNumber] = useState("");
-  const [expiry, setExpiry] = useState("");
-  const [cvc, setCvc] = useState("");
 
   const [error, setError] = useState("");
 
@@ -131,15 +180,6 @@ function CheckoutContent() {
       if (!check.valid) { setError(check.message); return; }
     }
 
-    if (paymentMethod === "stripe") {
-      check = validateCardNumber(cardNumber);
-      if (!check.valid) { setError(check.message); return; }
-      check = validateCardExpiry(expiry);
-      if (!check.valid) { setError(check.message); return; }
-      check = validateCVC(cvc);
-      if (!check.valid) { setError(check.message); return; }
-    }
-
     if (!user || !token) { setError("You must be logged in to place an order"); return; }
     if (cart.length === 0) { setError("Your cart is empty"); return; }
 
@@ -148,24 +188,39 @@ function CheckoutContent() {
 
     setPlacing(true);
     try {
+      const orderItems = cart.map((item) => ({ productId: item.id, quantity: item.quantity, image: item.image || "" }));
+      const billingDetails = { firstName: sanitize(firstName), lastName: sanitize(lastName), email: sanitize(billingEmail), phone: sanitize(phone) };
+      const shippingAddress = sameAsBilling
+        ? { firstName: sanitize(firstName), lastName: sanitize(lastName), address: "", city: "", state: "", zip: "" }
+        : { firstName: sanitize(shipFirstName), lastName: sanitize(shipLastName), address: sanitize(shipAddress), city: sanitize(shipCity), state: sanitize(shipState), zip: sanitize(shipZip) };
+
+      if (paymentMethod === "stripe") {
+        // Step 1: get clientSecret from backend (amount calculated server-side)
+        const piRes = await paymentApi.createPaymentIntent(
+          cart.map((i) => ({ productId: i.id, quantity: i.quantity })),
+          promoCodeParam || null,
+          deliveryMethod as "standard" | "express",
+          token
+        );
+        const { clientSecret } = piRes.data;
+
+        // Step 2: confirm card payment via Stripe Elements
+        const stripeResult = await stripeCardRef.current?.confirmPayment(clientSecret);
+        if (!stripeResult?.success) {
+          setError(stripeResult?.error || "Card payment failed. Please try again.");
+          setPlacing(false);
+          return;
+        }
+      }
+
+      // Step 3: create the order record
       await ordersApi.create({
-        items: cart.map((item) => ({
-          productId: item.id,
-          quantity: item.quantity,
-          image: item.image || "",
-        })),
+        items: orderItems,
         promoCode: promoCodeParam || null,
         deliveryMethod: deliveryMethod as "standard" | "express",
         paymentMethod: paymentMethod as "stripe" | "paypal" | "cod",
-        billingDetails: {
-          firstName: sanitize(firstName),
-          lastName: sanitize(lastName),
-          email: sanitize(billingEmail),
-          phone: sanitize(phone),
-        },
-        shippingAddress: sameAsBilling
-          ? { firstName: sanitize(firstName), lastName: sanitize(lastName), address: "", city: "", state: "", zip: "" }
-          : { firstName: sanitize(shipFirstName), lastName: sanitize(shipLastName), address: sanitize(shipAddress), city: sanitize(shipCity), state: sanitize(shipState), zip: sanitize(shipZip) },
+        billingDetails,
+        shippingAddress,
       }, token);
 
       clearCart();
@@ -466,49 +521,15 @@ function CheckoutContent() {
                   </RadioGroup>
                   )}
 
-                  {paymentMethod === "stripe" && (
-                    <div className="mt-4 space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="cardNumber" className="text-sm">
-                          Card Number
-                        </Label>
-                        <div className="relative">
-                          <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            id="cardNumber"
-                            placeholder="Card Number"
-                            className="pl-10 h-11"
-                            value={cardNumber}
-                            onChange={(e) => setCardNumber(e.target.value)}
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="expiry" className="text-sm">
-                            Expiration Date
-                          </Label>
-                          <Input
-                            id="expiry"
-                            placeholder="MM / YY"
-                            className="h-11"
-                            value={expiry}
-                            onChange={(e) => setExpiry(e.target.value)}
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cvc" className="text-sm">
-                            CVC
-                          </Label>
-                          <Input
-                            id="cvc"
-                            placeholder="CVC"
-                            className="h-11"
-                            value={cvc}
-                            onChange={(e) => setCvc(e.target.value)}
-                          />
-                        </div>
-                      </div>
+                  {paymentMethod === "stripe" && stripePromise && (
+                    <Elements stripe={stripePromise}>
+                      <StripeCardForm ref={stripeCardRef} />
+                    </Elements>
+                  )}
+
+                  {paymentMethod === "stripe" && !stripePromise && (
+                    <div className="mt-4 p-4 bg-yellow-50 border border-yellow-100 rounded-lg text-center">
+                      <p className="text-sm text-yellow-700">Stripe is not configured yet. Please contact the administrator.</p>
                     </div>
                   )}
 
