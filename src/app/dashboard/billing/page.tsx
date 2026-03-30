@@ -153,8 +153,12 @@ export default function BillingPage() {
         setCurrentEndDate(null);
       }
 
-      if (paymentRes.data.stripe.enabled && paymentRes.data.stripe.publishableKey) {
-        setStripePromise(loadStripe(paymentRes.data.stripe.publishableKey));
+      const stripeKey =
+        (paymentRes.data.stripe?.enabled && paymentRes.data.stripe?.publishableKey)
+          ? paymentRes.data.stripe.publishableKey
+          : process.env.NEXT_PUBLIC_STRIPE_KEY || "";
+      if (stripeKey) {
+        setStripePromise(loadStripe(stripeKey));
       }
     }).catch(() => {}).finally(() => setLoading(false));
   }, [token]);
@@ -226,6 +230,12 @@ export default function BillingPage() {
         </div>
       ) : null}
 
+      {!loading && !stripePromise ? (
+        <div className="rounded-xl border border-yellow-400/40 bg-yellow-400/10 p-4 text-sm text-yellow-600 dark:text-yellow-400">
+          Payment gateway is not configured yet. Please contact the admin to enable payments.
+        </div>
+      ) : null}
+
       {loading ? (
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -259,7 +269,7 @@ export default function BillingPage() {
                 </ul>
                 <Button
                   className={isCurrent ? "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200" : "bg-primary hover:bg-primary/90 text-white"}
-                  disabled={isCurrent || creatingPlanId === plan.id}
+                  disabled={isCurrent || creatingPlanId === plan.id || (!isCurrent && plan.price > 0 && !stripePromise)}
                   onClick={() => handleUpgradeClick(plan)}
                 >
                   {creatingPlanId === plan.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
