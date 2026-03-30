@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Dumbbell, Search, Loader2, Play, Square, Pause, Clock, Flame } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ function formatTime(seconds: number) {
 // ------- Workouts Page Component -------
 export default function WorkoutsPage() {
   const { token } = useAuth();
+  const router = useRouter();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -127,7 +129,11 @@ export default function WorkoutsPage() {
       toast.success(`Started: ${workout.name}`);
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Failed to start session";
-      if (msg.includes("already have a session")) {
+      const lowerMsg = msg.toLowerCase();
+      if (lowerMsg.includes("subscription required") || lowerMsg.includes("premium subscription") || lowerMsg.includes("premium required")) {
+        toast.error("Subscription required. Please choose a plan first.");
+        router.push("/dashboard/billing");
+      } else if (msg.includes("already have a session")) {
         toast.error("You already have an active session. Finish it first.");
         
         if (token) {
@@ -150,7 +156,7 @@ export default function WorkoutsPage() {
     } finally {
       setStarting(null);
     }
-  }, [token]);
+  }, [token, router]);
 
   const handlePause = async () => {
     if (!activeSession || !token) return;
