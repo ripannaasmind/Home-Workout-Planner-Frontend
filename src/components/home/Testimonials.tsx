@@ -16,6 +16,41 @@ interface Testimonial {
   size?: "small" | "medium" | "large";
 }
 
+const fallbackTestimonials: Testimonial[] = [
+  {
+    id: 1,
+    name: "Rahim",
+    role: "Office Professional",
+    rating: 5,
+    avatar: "",
+    comment: "I lost 7kg in 3 months. The daily plan keeps me consistent.",
+  },
+  {
+    id: 2,
+    name: "Nusrat",
+    role: "University Student",
+    rating: 5,
+    avatar: "",
+    comment: "Short home workouts fit my busy class schedule perfectly.",
+  },
+  {
+    id: 3,
+    name: "Sabbir",
+    role: "Coach",
+    rating: 4,
+    avatar: "",
+    comment: "The workout quality and progress tracking are really strong.",
+  },
+  {
+    id: 4,
+    name: "Mim",
+    role: "Designer",
+    rating: 5,
+    avatar: "",
+    comment: "I can train from home without missing structure and motivation.",
+  },
+];
+
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5">
@@ -142,9 +177,11 @@ export function Testimonials() {
         const response = await testimonialsApi.getAll();
         if (response.success && response.data && response.data.length > 0) {
           setTestimonials(response.data);
+        } else {
+          setTestimonials(fallbackTestimonials);
         }
       } catch {
-        // silently handle
+        setTestimonials(fallbackTestimonials);
       } finally {
         setIsLoading(false);
       }
@@ -152,9 +189,10 @@ export function Testimonials() {
     fetchTestimonials();
   }, []);
 
-  const mid = Math.ceil(testimonials.length / 2);
-  const row1 = testimonials.slice(0, mid);
-  const row2 = testimonials.slice(mid);
+  const stableTestimonials = testimonials.length >= 2 ? testimonials : [...testimonials, ...fallbackTestimonials.slice(0, 1)];
+  const mid = Math.ceil(stableTestimonials.length / 2);
+  const row1 = stableTestimonials.slice(0, mid);
+  const row2 = stableTestimonials.slice(mid).length > 0 ? stableTestimonials.slice(mid) : stableTestimonials.slice(0, mid);
 
   return (
     <section id="testimonials" className="py-12 sm:py-16 lg:py-20 bg-background overflow-hidden">

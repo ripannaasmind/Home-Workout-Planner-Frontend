@@ -8,6 +8,12 @@ interface ApiOptions {
   token?: string;
 }
 
+export interface ApiError extends Error {
+  status?: number;
+  code?: string;
+  redirectTo?: string;
+}
+
 export interface AuthUser {
   id: string;
   name: string;
@@ -35,15 +41,21 @@ export interface AuthResponse {
 async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
   const { method = "GET", body, token } = options;
 
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
+  const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+
+  const headers: HeadersInit = {};
+
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
 
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const jsonBody = body ? JSON.stringify(body) : undefined;
+  const requestBody = body
+    ? (isFormData ? (body as FormData) : JSON.stringify(body))
+    : undefined;
 
   // Try proxy first (fast path ~8s), then fall back to direct backend call
   let response: Response | null = null;
@@ -52,7 +64,7 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
     const ctrl = new AbortController();
     const tid = setTimeout(() => ctrl.abort(), 8000);
     response = await fetch(`${API_PROXY_BASE}${endpoint}`, {
-      method, headers, body: jsonBody, signal: ctrl.signal,
+      method, headers, body: requestBody, signal: ctrl.signal,
     });
     clearTimeout(tid);
     // If proxy returned 502 (backend unreachable), fall through to direct
@@ -66,7 +78,7 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
     const tid = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
     try {
       response = await fetch(`${BACKEND_DIRECT}${endpoint}`, {
-        method, headers, body: jsonBody, signal: ctrl.signal,
+        method, headers, body: requestBody, signal: ctrl.signal,
       });
     } catch (error) {
       clearTimeout(tid);
@@ -103,7 +115,12 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
       (typeof payload.detail === "string" ? payload.detail : "") ||
       (typeof raw === "string" && raw.trim() ? raw.trim() : "") ||
       `Request failed (${response.status} ${response.statusText})`;
-    throw new Error(message);
+
+    const apiError = new Error(message) as ApiError;
+    apiError.status = response.status;
+    if (typeof payload.code === "string") apiError.code = payload.code;
+    if (typeof payload.redirectTo === "string") apiError.redirectTo = payload.redirectTo;
+    throw apiError;
   }
 
   return data as T;
@@ -278,10 +295,11 @@ export interface Exercise {
 
 
 export const userApi = {
-  // --- Unified Profile Update (name + avatar + password + confirmPassword) ---
-  updateProfileAll: (data: { name?: string; avatar?: File | string; currentPassword?: string; newPassword?: string; confirmPassword?: string }, token: string) => {
+  // --- Unified Profile Update (name + email + avatar + password + confirmPassword) ---
+  updateProfileAll: (data: { name?: string; email?: string; avatar?: File | string; currentPassword?: string; newPassword?: string; confirmPassword?: string }, token: string) => {
     const formData = new FormData();
     if (data.name) formData.append("name", data.name);
+    if (data.email) formData.append("email", data.email);
     if (data.avatar instanceof File) formData.append("avatar", data.avatar);
     if (data.currentPassword) formData.append("currentPassword", data.currentPassword);
     if (data.newPassword) formData.append("newPassword", data.newPassword);
@@ -365,6 +383,33 @@ export const subscriptionApi = {
       "/subscription",
       { method: "POST", body: { plan, paymentId }, token }
     ),
+
+  createPayment: (plan: string, token: string) =>
+    apiRequest<{
+      success: boolean;
+      data: {
+        clientSecret: string;
+        paymentIntentId: string;
+        amount: number;
+        currency: string;
+        plan: { slug: string; name: string; price: number; period: string | null };
+      };
+    }>("/subscription/create-payment", {
+      method: "POST",
+      body: { plan },
+      token,
+    }),
+
+  confirmPayment: (plan: string, paymentIntentId: string, token: string) =>
+    apiRequest<{
+      success: boolean;
+      message: string;
+      data: { subscription: Subscription; plan: { name: string; slug: string; period: string | null } };
+    }>("/subscription/confirm-payment", {
+      method: "POST",
+      body: { plan, paymentIntentId },
+      token,
+    }),
 
   cancel: (token: string) =>
     apiRequest<{ success: boolean; message: string }>(

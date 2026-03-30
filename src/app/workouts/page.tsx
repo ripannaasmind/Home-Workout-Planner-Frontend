@@ -244,11 +244,18 @@ export default function WorkoutsPage() {
       setTimerOpen(true);
       toast.success(`Started: ${workout.title || workout.name}`);
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : "Failed to start session";
+      const err = (e instanceof Error ? e : new Error("Failed to start session")) as Error & { code?: string; redirectTo?: string };
+      const msg = err.message;
       const lowerMsg = msg.toLowerCase();
-      if (lowerMsg.includes("subscription required") || lowerMsg.includes("premium subscription") || lowerMsg.includes("premium required")) {
+      const isSubscriptionError =
+        err.code === "SUBSCRIPTION_REQUIRED" ||
+        lowerMsg.includes("subscription required") ||
+        lowerMsg.includes("premium subscription") ||
+        lowerMsg.includes("premium required");
+
+      if (isSubscriptionError) {
         toast.error("Subscription required. Please choose a plan first.");
-        router.push("/dashboard/billing");
+        router.push(err.redirectTo || "/dashboard/billing");
       } else if (msg.includes("already have an active session") || msg.includes("already have a session")) {
         toast.error("You already have an active session. Finish it first.");
         await syncActiveSession();

@@ -1,13 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { CreditCard, Plus, Loader2 } from "lucide-react";
+import { loadStripe, type Stripe as StripeType } from "@stripe/stripe-js";
+import { Elements, CardCvcElement, CardExpiryElement, CardNumberElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { CheckCircle2, CreditCard, Loader2, Plus } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { subscriptionApi } from "@/services/api";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { paymentApi, subscriptionApi } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
+import { toast } from "sonner";
 
 interface Plan {
   id: string;
@@ -17,6 +21,99 @@ interface Plan {
   features: string[];
 }
 
+interface PaymentIntentData {
+  clientSecret: string;
+  paymentIntentId: string;
+  amount: number;
+  currency: string;
+  plan: { slug: string; name: string; price: number; period: string | null };
+}
+
+interface StripeCardFormProps {
+  clientSecret: string;
+  disabled: boolean;
+  onConfirmed: (paymentIntentId: string) => Promise<void>;
+}
+
+function StripeCardForm({ clientSecret, disabled, onConfirmed }: StripeCardFormProps) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [submitting, setSubmitting] = useState(false);
+
+  const elementStyle = {
+    style: {
+      base: {
+        color: "#111827",
+        fontSize: "15px",
+        fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
+        "::placeholder": { color: "#9ca3af" },
+      },
+      invalid: { color: "#dc2626" },
+    },
+  };
+
+  const handlePay = async () => {
+    if (!stripe || !elements || disabled || submitting) return;
+    const cardNumber = elements.getElement(CardNumberElement);
+    if (!cardNumber) {
+      toast.error("Card field is not ready yet");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: { card: cardNumber },
+      });
+
+      if (error) {
+        toast.error(error.message || "Payment failed");
+        return;
+      }
+
+      if (!paymentIntent || paymentIntent.status !== "succeeded") {
+        toast.error("Payment not completed. Please try again.");
+        return;
+      }
+
+      await onConfirmed(paymentIntent.id);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Payment failed");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Card Number</label>
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 bg-white dark:bg-gray-900">
+          <CardNumberElement options={{ ...elementStyle, showIcon: true }} />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Expiry</label>
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 bg-white dark:bg-gray-900">
+            <CardExpiryElement options={elementStyle} />
+          </div>
+        </div>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">CVC</label>
+          <div className="rounded-lg border border-gray-200 dark:border-gray-700 px-3 py-2 bg-white dark:bg-gray-900">
+            <CardCvcElement options={elementStyle} />
+          </div>
+        </div>
+      </div>
+      <Button className="w-full bg-primary hover:bg-primary/90 text-white" onClick={handlePay} disabled={disabled || submitting}>
+        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+        {submitting ? "Processing..." : "Pay & Activate Plan"}
+      </Button>
+    </div>
+  );
+}
+
 
 // ------- Billing Page Component -------
 export default function BillingPage() {
@@ -24,18 +121,40 @@ export default function BillingPage() {
   const { formatPrice } = useTheme();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlanId, setCurrentPlanId] = useState<string>("free");
+  const [currentEndDate, setCurrentEndDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [creatingPlanId, setCreatingPlanId] = useState<string | null>(null);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const [checkoutPlan, setCheckoutPlan] = useState<Plan | null>(null);
+  const [paymentIntentData, setPaymentIntentData] = useState<PaymentIntentData | null>(null);
+  const [stripePromise, setStripePromise] = useState<Promise<StripeType | null> | null>(null);
+  const [activating, setActivating] = useState(false);
 
   useEffect(() => {
     if (!token) return;
+
     Promise.all([
       subscriptionApi.getPlans(token),
       subscriptionApi.getCurrent(token),
-    ]).then(([plansRes, subRes]) => {
+      paymentApi.getPublicMethods(),
+    ]).then(([plansRes, subRes, paymentRes]) => {
       setPlans(plansRes.data as unknown as Plan[]);
-      const sub = subRes.data as unknown as { plan?: string; status?: string } | null;
-      if (sub && sub.plan) {
-        setCurrentPlanId(sub.plan as string);
+      const sub = subRes.data as unknown as { plan?: string | { slug?: string; id?: string }; status?: string; endDate?: string | null } | null;
+      const planId =
+        typeof sub?.plan === "string"
+          ? sub.plan
+          : sub?.plan?.slug || sub?.plan?.id || "free";
+
+      if (sub && planId) {
+        setCurrentPlanId(planId);
+        setCurrentEndDate(sub.endDate || null);
+      } else {
+        setCurrentPlanId("free");
+        setCurrentEndDate(null);
+      }
+
+      if (paymentRes.data.stripe.enabled && paymentRes.data.stripe.publishableKey) {
+        setStripePromise(loadStripe(paymentRes.data.stripe.publishableKey));
       }
     }).catch(() => {}).finally(() => setLoading(false));
   }, [token]);
@@ -47,9 +166,65 @@ export default function BillingPage() {
       ? `${formatPrice(plan.price)}/${plan.period === "month" ? "mo" : plan.period}`
       : `${formatPrice(plan.price)} once`;
 
+  const handleUpgradeClick = async (plan: Plan) => {
+    if (!token) {
+      toast.error("Please log in to continue");
+      return;
+    }
+    if (plan.id === "free" || plan.id === currentPlanId) return;
+
+    if (!stripePromise) {
+      toast.error("Stripe is not configured right now. Please contact admin.");
+      return;
+    }
+
+    setCreatingPlanId(plan.id);
+    try {
+      const paymentRes = await subscriptionApi.createPayment(plan.id, token);
+      setCheckoutPlan(plan);
+      setPaymentIntentData(paymentRes.data);
+      setPaymentOpen(true);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Unable to start payment");
+    } finally {
+      setCreatingPlanId(null);
+    }
+  };
+
+  const handlePaymentConfirmed = async (paymentIntentId: string) => {
+    if (!token || !checkoutPlan) return;
+
+    setActivating(true);
+    try {
+      await subscriptionApi.confirmPayment(checkoutPlan.id, paymentIntentId, token);
+
+      const current = await subscriptionApi.getCurrent(token);
+      const sub = current.data as unknown as { plan?: string | { slug?: string; id?: string }; endDate?: string | null } | null;
+      const planId =
+        typeof sub?.plan === "string"
+          ? sub.plan
+          : sub?.plan?.slug || sub?.plan?.id || checkoutPlan.id;
+
+      setCurrentPlanId(planId);
+      setCurrentEndDate(sub?.endDate || null);
+      setPaymentOpen(false);
+      toast.success("Payment successful. Premium unlocked!");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to activate subscription");
+    } finally {
+      setActivating(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <DashboardHeader title="Billing & Plans" description="Manage your subscription and payment methods" />
+
+      {currentPlanId !== "free" && currentEndDate ? (
+        <div className="rounded-xl border border-primary/20 bg-primary/10 p-4 text-sm text-primary">
+          Your plan is active until {new Date(currentEndDate).toLocaleDateString()}. After expiry, workout access will lock until payment is completed again.
+        </div>
+      ) : null}
 
       {loading ? (
         <div className="flex items-center justify-center py-20">
@@ -84,9 +259,11 @@ export default function BillingPage() {
                 </ul>
                 <Button
                   className={isCurrent ? "bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-gray-200" : "bg-primary hover:bg-primary/90 text-white"}
-                  disabled={isCurrent}
+                  disabled={isCurrent || creatingPlanId === plan.id}
+                  onClick={() => handleUpgradeClick(plan)}
                 >
-                  {isCurrent ? "Active Plan" : "Upgrade"}
+                  {creatingPlanId === plan.id ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {isCurrent ? "Active Plan" : creatingPlanId === plan.id ? "Preparing Payment" : "Upgrade"}
                 </Button>
               </div>
             );
@@ -115,6 +292,31 @@ export default function BillingPage() {
           </div>
         )}
       </div>
+
+      <Dialog open={paymentOpen} onOpenChange={(open) => { if (!activating) setPaymentOpen(open); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Complete Subscription Payment</DialogTitle>
+            <DialogDescription>
+              {checkoutPlan
+                ? `${checkoutPlan.name} - ${getPriceLabel(checkoutPlan)}`
+                : "Complete payment to activate your plan."}
+            </DialogDescription>
+          </DialogHeader>
+
+          {stripePromise && paymentIntentData?.clientSecret ? (
+            <Elements stripe={stripePromise}>
+              <StripeCardForm
+                clientSecret={paymentIntentData.clientSecret}
+                disabled={activating}
+                onConfirmed={handlePaymentConfirmed}
+              />
+            </Elements>
+          ) : (
+            <div className="text-sm text-red-500">Unable to initialize payment. Please try again.</div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
