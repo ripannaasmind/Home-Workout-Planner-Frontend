@@ -162,7 +162,7 @@ export default function SettingsPage() {
     if (!token) return;
     setSavingPassword(true);
     try {
-      await userApi.changePassword({ currentPassword, newPassword }, token);
+      await userApi.changePassword({ currentPassword, newPassword, confirmPassword }, token);
       toast.success("Password changed successfully");
       setCurrentPassword("");
       setNewPassword("");

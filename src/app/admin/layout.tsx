@@ -16,6 +16,7 @@ import {
   Tag,
   Package,
   Layers,
+  CreditCard,
   Menu,
   X,
 } from "lucide-react";
@@ -34,6 +35,7 @@ const adminNav = [
   { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquare, exact: false },
   { href: "/admin/features", label: "Features Page", icon: Layers, exact: false },
   { href: "/admin/promo-codes", label: "Promo Codes", icon: Tag, exact: false },
+  { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard, exact: false },
   { href: "/admin/settings", label: "Settings", icon: Settings, exact: false },
 ];
 

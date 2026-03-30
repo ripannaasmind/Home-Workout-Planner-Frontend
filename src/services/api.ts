@@ -278,15 +278,30 @@ export interface Exercise {
 
 
 export const userApi = {
+  // --- Unified Profile Update (name + avatar + password + confirmPassword) ---
+  updateProfileAll: (data: { name?: string; avatar?: File | string; currentPassword?: string; newPassword?: string; confirmPassword?: string }, token: string) => {
+    const formData = new FormData();
+    if (data.name) formData.append("name", data.name);
+    if (data.avatar instanceof File) formData.append("avatar", data.avatar);
+    if (data.currentPassword) formData.append("currentPassword", data.currentPassword);
+    if (data.newPassword) formData.append("newPassword", data.newPassword);
+    if (data.confirmPassword) formData.append("confirmPassword", data.confirmPassword);
+    return apiRequest<{ success: boolean; message: string; data: { _id: string; name: string; email: string; avatar?: string; token?: string } }>(
+      "/users/update-profile",
+      { method: "PUT", body: formData, token }
+    );
+  },
+
+  // Legacy wrappers (both call the unified endpoint)
   updateProfile: (data: { name: string; avatar?: string }, token: string) =>
     apiRequest<{ success: boolean; data: { _id: string; name: string; email: string; avatar?: string; role: "user" | "admin"; isEmailVerified: boolean } }>(
-      "/users/profile",
+      "/users/update-profile",
       { method: "PUT", body: data, token }
     ),
 
-  changePassword: (data: { currentPassword: string; newPassword: string }, token: string) =>
-    apiRequest<{ success: boolean; message: string }>(
-      "/auth/change-password",
+  changePassword: (data: { currentPassword: string; newPassword: string; confirmPassword: string }, token: string) =>
+    apiRequest<{ success: boolean; message: string; data: { token?: string } }>(
+      "/users/update-profile",
       { method: "PUT", body: data, token }
     ),
 
@@ -336,6 +351,7 @@ export const subscriptionApi = {
     apiRequest<{
       success: boolean;
       data: SubscriptionPlan[];
+      currency?: string;
     }>("/subscription/plans", { token }),
 
   getCurrent: (token: string) =>
@@ -344,10 +360,10 @@ export const subscriptionApi = {
       data: Subscription | null;
     }>("/subscription", { token }),
 
-  subscribe: (planId: string, token: string) =>
+  subscribe: (plan: string, paymentId: string, token: string) =>
     apiRequest<{ success: boolean; data: Subscription }>(
       "/subscription",
-      { method: "POST", body: { planId }, token }
+      { method: "POST", body: { plan, paymentId }, token }
     ),
 
   cancel: (token: string) =>
@@ -355,6 +371,31 @@ export const subscriptionApi = {
       "/subscription/cancel",
       { method: "PUT", token }
     ),
+
+  // Admin
+  adminGetPlans: (token: string) =>
+    apiRequest<{ success: boolean; data: SubscriptionPlan[] }>(
+      "/subscription/admin/plans", { token }
+    ),
+
+  adminUpdatePlan: (id: string, data: Partial<SubscriptionPlan>, token: string) =>
+    apiRequest<{ success: boolean; data: SubscriptionPlan }>(
+      `/subscription/admin/plans/${id}`,
+      { method: "PUT", body: data, token }
+    ),
+
+  adminGetSubscribers: (token: string, params?: { status?: string; plan?: string; page?: number }) => {
+    const searchParams = new URLSearchParams();
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined) searchParams.append(key, String(value));
+      });
+    }
+    const query = searchParams.toString();
+    return apiRequest<{ success: boolean; data: AdminSubscriber[]; pagination: { page: number; limit: number; total: number; pages: number } }>(
+      `/subscription/admin/subscribers${query ? `?${query}` : ""}`, { token }
+    );
+  },
 };
 
 
@@ -384,8 +425,8 @@ export const sessionsApi = {
       token,
     }),
 
-  complete: (sessionId: string, data: { caloriesBurned?: number; notes?: string }, token: string) =>
-    apiRequest<{ success: boolean; data: WorkoutSession }>(`/sessions/${sessionId}/complete`, {
+  complete: (sessionId: string, data: { caloriesBurned?: number; rating?: number; mood?: string; notes?: string }, token: string) =>
+    apiRequest<{ success: boolean; data: WorkoutSession; summary: WorkoutCompleteSummary }>(`/sessions/${sessionId}/complete`, {
       method: "PUT",
       body: data,
       token,
@@ -892,18 +933,35 @@ export interface AdminUser {
 
 export interface SubscriptionPlan {
   _id: string;
+  id?: string;
   name: string;
+  slug?: string;
   price: number;
-  interval: string;
+  period: string | null;
+  interval?: string;
   features: string[];
+  isActive?: boolean;
+  order?: number;
 }
 
 export interface Subscription {
   _id: string;
-  plan: SubscriptionPlan;
+  plan: SubscriptionPlan | string;
   status: string;
   startDate: string;
   endDate: string;
+}
+
+export interface AdminSubscriber {
+  _id: string;
+  user: { _id: string; name: string; email: string; avatar?: string } | null;
+  plan: string;
+  status: string;
+  startDate: string;
+  endDate: string | null;
+  amount: number;
+  paymentId: string | null;
+  createdAt: string;
 }
 
 export interface WorkoutSession {
@@ -916,6 +974,18 @@ export interface WorkoutSession {
   caloriesBurned?: number;
   totalPausedMs?: number;
   pausedAt?: string;
+  rating?: number;
+  exerciseLogs?: { exercise: string; isCompleted: boolean }[];
+}
+
+export interface WorkoutCompleteSummary {
+  duration: number;
+  caloriesBurned: number;
+  exercisesCompleted: number;
+  totalExercises: number;
+  rating: number | null;
+  mood: string | null;
+  workoutName: string;
 }
 
 export interface PromoCode {
