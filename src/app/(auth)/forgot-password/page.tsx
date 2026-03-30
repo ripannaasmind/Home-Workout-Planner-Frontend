@@ -19,8 +19,8 @@ export default function ForgotPasswordPage() {
   const [success, setSuccess] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("Sending OTP...");
 
-  // Wake up the Render backend while the user fills the form
-  useEffect(() => { fetch("/api/proxy/health").catch(() => {}); }, []);
+  // Wake up the Render backend directly (bypass Vercel proxy 10s limit)
+  useEffect(() => { fetch("https://fit-home-workout-planner-backend.onrender.com/api/health").catch(() => {}); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,4 +1,5 @@
 const API_PROXY_BASE = "/api/proxy";
+const BACKEND_DIRECT = process.env.NEXT_PUBLIC_BACKEND_URL || "https://fit-home-workout-planner-backend.onrender.com/api";
 const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 60000);
 
 interface ApiOptions {
@@ -42,35 +43,43 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  const config: RequestInit = {
-    method,
-    headers,
-  };
+  const jsonBody = body ? JSON.stringify(body) : undefined;
 
-  if (body) {
-    config.body = JSON.stringify(body);
+  // Try proxy first (fast path ~8s), then fall back to direct backend call
+  let response: Response | null = null;
+
+  try {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 8000);
+    response = await fetch(`${API_PROXY_BASE}${endpoint}`, {
+      method, headers, body: jsonBody, signal: ctrl.signal,
+    });
+    clearTimeout(tid);
+    // If proxy returned 502 (backend unreachable), fall through to direct
+    if (response.status === 502) response = null;
+  } catch {
+    // proxy timed out or failed — fall through
   }
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT_MS);
-  config.signal = controller.signal;
-
-  let response: Response;
-  try {
-    response = await fetch(`${API_PROXY_BASE}${endpoint}`, config);
-  } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("Request timed out. Please try again.");
+  if (!response) {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
+    try {
+      response = await fetch(`${BACKEND_DIRECT}${endpoint}`, {
+        method, headers, body: jsonBody, signal: ctrl.signal,
+      });
+    } catch (error) {
+      clearTimeout(tid);
+      if (error instanceof DOMException && error.name === "AbortError") {
+        throw new Error("Request timed out. Please try again.");
+      }
+      if (error instanceof TypeError) {
+        throw new Error("Cannot reach server. Please check your internet and try again.");
+      }
+      throw new Error(error instanceof Error ? error.message : "Request failed.");
+    } finally {
+      clearTimeout(tid);
     }
-    if (error instanceof TypeError) {
-      throw new Error("Cannot reach app server. Please refresh and try again.");
-    }
-    if (error instanceof Error) {
-      throw new Error(error.message || "Request failed.");
-    }
-    throw new Error("Request failed.");
-  } finally {
-    clearTimeout(timeoutId);
   }
 
   const raw = await response.text();

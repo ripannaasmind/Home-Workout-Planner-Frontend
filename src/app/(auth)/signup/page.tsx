@@ -42,8 +42,8 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [loadingMsg, setLoadingMsg] = useState("Creating account...");
 
-  // Wake up the Render backend while the user fills the form
-  useEffect(() => { fetch("/api/proxy/health").catch(() => {}); }, []);
+  // Wake up the Render backend directly (bypass Vercel proxy 10s limit)
+  useEffect(() => { fetch("https://fit-home-workout-planner-backend.onrender.com/api/health").catch(() => {}); }, []);
 
   const getPasswordStrength = (pass: string) => {
     let strength = 0;

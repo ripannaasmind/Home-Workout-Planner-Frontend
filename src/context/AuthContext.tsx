@@ -38,6 +38,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const API_PROXY_BASE = "/api/proxy";
+const BACKEND_DIRECT = process.env.NEXT_PUBLIC_BACKEND_URL || "https://fit-home-workout-planner-backend.onrender.com/api";
 
 async function parseResponse(res: Response) {
   const raw = await res.text();
@@ -53,20 +54,28 @@ function toNetworkMessage(error: unknown) {
     return "Request timed out. Please try again.";
   }
   if (error instanceof TypeError) {
-    return "Cannot reach server. Please check internet/API URL and try again.";
+    return "Cannot reach server. Please check internet and try again.";
   }
   return error instanceof Error ? error.message : "Request failed";
 }
 
-const AUTH_TIMEOUT_MS = 60000;
-
-async function fetchFromProxy(path: string, init: RequestInit) {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), AUTH_TIMEOUT_MS);
+async function fetchBackend(path: string, init: RequestInit) {
+  // Try proxy first (fast, 8s), fall back to direct backend
   try {
-    return await fetch(`${API_PROXY_BASE}${path}`, { ...init, signal: controller.signal });
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(`${API_PROXY_BASE}${path}`, { ...init, signal: ctrl.signal });
+    clearTimeout(tid);
+    if (res.status !== 502) return res;
+  } catch {
+    // proxy failed — fall through
+  }
+  const ctrl = new AbortController();
+  const tid = setTimeout(() => ctrl.abort(), 60000);
+  try {
+    return await fetch(`${BACKEND_DIRECT}${path}`, { ...init, signal: ctrl.signal });
   } finally {
-    clearTimeout(timeoutId);
+    clearTimeout(tid);
   }
 }
 
@@ -117,7 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let res: Response;
     let data: Record<string, unknown>;
     try {
-      res = await fetchFromProxy("/auth/login", {
+      res = await fetchBackend("/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -131,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!res.ok && fbSuccess) {
       // Tell backend to update MongoDB password directly to solve sync mismatch 
       try {
-        res = await fetchFromProxy("/auth/firebase-sync", {
+        res = await fetchBackend("/auth/firebase-sync", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
@@ -174,7 +183,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let res: Response;
     let data: Record<string, unknown>;
     try {
-      res = await fetchFromProxy("/auth/register", {
+      res = await fetchBackend("/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, email, password }),
@@ -195,7 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let res: Response;
     let data: Record<string, unknown>;
     try {
-      res = await fetchFromProxy("/auth/google", {
+      res = await fetchBackend("/auth/google", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -225,7 +234,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let res: Response;
     let data: Record<string, unknown>;
     try {
-      res = await fetchFromProxy("/auth/forgot-password", {
+      res = await fetchBackend("/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
