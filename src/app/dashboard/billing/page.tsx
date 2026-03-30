@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { loadStripe, type Stripe as StripeType } from "@stripe/stripe-js";
 import { Elements, CardCvcElement, CardExpiryElement, CardNumberElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { CheckCircle2, CreditCard, Loader2, Plus } from "lucide-react";
+import { CheckCircle2, CreditCard, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,12 @@ import { paymentApi, subscriptionApi } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
 import { toast } from "sonner";
+
+interface PaymentMethodsConfig {
+  stripe: { enabled: boolean; publishableKey?: string };
+  paypal: { enabled: boolean; clientId?: string };
+  cashOnDelivery: { enabled: boolean };
+}
 
 interface Plan {
   id: string;
@@ -129,6 +135,8 @@ export default function BillingPage() {
   const [paymentIntentData, setPaymentIntentData] = useState<PaymentIntentData | null>(null);
   const [stripePromise, setStripePromise] = useState<Promise<StripeType | null> | null>(null);
   const [activating, setActivating] = useState(false);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodsConfig | null>(null);
+  const [renewingPlanId, setRenewingPlanId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) return;
@@ -160,6 +168,12 @@ export default function BillingPage() {
       if (stripeKey) {
         setStripePromise(loadStripe(stripeKey));
       }
+
+      setPaymentMethods({
+        stripe: { enabled: paymentRes.data.stripe?.enabled ?? false, publishableKey: paymentRes.data.stripe?.publishableKey },
+        paypal: { enabled: paymentRes.data.paypal?.enabled ?? false, clientId: paymentRes.data.paypal?.clientId },
+        cashOnDelivery: { enabled: paymentRes.data.cashOnDelivery?.enabled ?? false },
+      });
     }).catch(() => {}).finally(() => setLoading(false));
   }, [token]);
 
@@ -169,6 +183,25 @@ export default function BillingPage() {
       : plan.period
       ? `${formatPrice(plan.price)}/${plan.period === "month" ? "mo" : plan.period}`
       : `${formatPrice(plan.price)} once`;
+
+  const getDaysUntilExpiry = () => {
+    if (!currentEndDate) return null;
+    const diff = new Date(currentEndDate).getTime() - Date.now();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
+  const isExpired = () => {
+    if (!currentEndDate) return false;
+    return new Date(currentEndDate) <= new Date();
+  };
+
+  const handleRenewClick = async () => {
+    const plan = plans.find((p) => p.id === currentPlanId);
+    if (!plan) return;
+    setRenewingPlanId(plan.id);
+    await handleUpgradeClick(plan);
+    setRenewingPlanId(null);
+  };
 
   const handleUpgradeClick = async (plan: Plan) => {
     if (!token) {
@@ -224,11 +257,37 @@ export default function BillingPage() {
     <div className="space-y-6">
       <DashboardHeader title="Billing & Plans" description="Manage your subscription and payment methods" />
 
-      {currentPlanId !== "free" && currentEndDate ? (
-        <div className="rounded-xl border border-primary/20 bg-primary/10 p-4 text-sm text-primary">
-          Your plan is active until {new Date(currentEndDate).toLocaleDateString()}. After expiry, workout access will lock until payment is completed again.
-        </div>
-      ) : null}
+      {currentPlanId !== "free" && currentEndDate ? (() => {
+        const days = getDaysUntilExpiry();
+        const expired = isExpired();
+        return (
+          <div className={`rounded-xl border p-4 flex items-center justify-between gap-4 ${
+            expired
+              ? "border-red-400/40 bg-red-400/10 text-red-600 dark:text-red-400"
+              : days !== null && days <= 7
+              ? "border-yellow-400/40 bg-yellow-400/10 text-yellow-600 dark:text-yellow-400"
+              : "border-primary/20 bg-primary/10 text-primary"
+          }`}>
+            <div className="flex items-center gap-2 text-sm">
+              {expired || (days !== null && days <= 7) ? <AlertCircle className="h-4 w-4 shrink-0" /> : <CheckCircle2 className="h-4 w-4 shrink-0" />}
+              {expired
+                ? `Your plan expired on ${new Date(currentEndDate).toLocaleDateString()}. Renew to restore access.`
+                : `Your plan is active until ${new Date(currentEndDate).toLocaleDateString()}${days !== null && days <= 7 ? ` — ${days} day${days !== 1 ? "s" : ""} remaining` : ""}.`}
+            </div>
+            {(expired || (days !== null && days <= 7)) && (
+              <Button
+                size="sm"
+                className="shrink-0 bg-primary hover:bg-primary/90 text-white"
+                onClick={handleRenewClick}
+                disabled={renewingPlanId !== null}
+              >
+                {renewingPlanId ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                {renewingPlanId ? "Preparing..." : "Renew"}
+              </Button>
+            )}
+          </div>
+        );
+      })() : null}
 
       {!loading && !stripePromise ? (
         <div className="rounded-xl border border-yellow-400/40 bg-yellow-400/10 p-4 text-sm text-yellow-600 dark:text-yellow-400">
@@ -285,20 +344,41 @@ export default function BillingPage() {
       <div className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Payment Methods</h3>
-          <Button variant="outline" size="sm" className="border-gray-200 dark:border-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:bg-gray-800 gap-1">
-            <Plus className="h-3 w-3" /> Add card
-          </Button>
         </div>
-        {currentPlanId === "free" ? (
-          <p className="text-gray-400 text-sm">No payment method on file. Upgrade to add a card.</p>
+        {!paymentMethods || (!paymentMethods.stripe.enabled && !paymentMethods.paypal.enabled && !paymentMethods.cashOnDelivery.enabled) ? (
+          <p className="text-gray-400 text-sm">No payment methods configured. Contact admin.</p>
         ) : (
-          <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-            <CreditCard className="h-6 w-6 text-primary" />
-            <div>
-              <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Visa ending in 4242</p>
-              <p className="text-gray-500 dark:text-gray-400 text-xs">Expires 08/2028</p>
-            </div>
-            <Badge className="ml-auto bg-green-500/20 text-green-400 border-0">Default</Badge>
+          <div className="flex flex-wrap gap-3">
+            {paymentMethods.stripe.enabled && (
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                <CreditCard className="h-5 w-5 text-primary" />
+                <div>
+                  <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Credit / Debit Card</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs">Powered by Stripe</p>
+                </div>
+                <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
+              </div>
+            )}
+            {paymentMethods.paypal.enabled && (
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                <span className="text-blue-500 font-bold text-base">PP</span>
+                <div>
+                  <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">PayPal</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs">Available for store orders</p>
+                </div>
+                <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
+              </div>
+            )}
+            {paymentMethods.cashOnDelivery.enabled && (
+              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                <span className="text-gray-500 text-base">💵</span>
+                <div>
+                  <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Cash on Delivery</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-xs">Available for store orders</p>
+                </div>
+                <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
+              </div>
+            )}
           </div>
         )}
       </div>
