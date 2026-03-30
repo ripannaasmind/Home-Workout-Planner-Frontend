@@ -281,6 +281,18 @@ export const userApi = {
       { method: "PUT", body: data, token }
     ),
 
+  requestEmailChange: (newEmail: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(
+      "/auth/request-email-change",
+      { method: "POST", body: { newEmail }, token }
+    ),
+
+  verifyEmailChange: (otp: string, token: string) =>
+    apiRequest<{ success: boolean; message: string; data: { email: string } }>(
+      "/auth/verify-email-change",
+      { method: "POST", body: { otp }, token }
+    ),
+
   deleteAccount: (token: string) =>
     apiRequest<{ success: boolean; message: string }>(
       "/users/account",

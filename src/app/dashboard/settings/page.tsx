@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
-import { Eye, EyeOff, Loader2, Globe, ChevronRight } from "lucide-react";
+import { Eye, EyeOff, Loader2, Globe, ChevronRight, Mail, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,11 +33,18 @@ export default function SettingsPage() {
   const { user, token, updateUser, logout } = useAuth();
   const router = useRouter();
 
-  
+  // Profile
   const [name, setName] = useState(user?.name ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
 
-  
+  // Email change
+  const [newEmail, setNewEmail] = useState("");
+  const [emailOtp, setEmailOtp] = useState("");
+  const [emailStep, setEmailStep] = useState<"idle" | "otp-sent" | "done">("idle");
+  const [sendingOtp, setSendingOtp] = useState(false);
+  const [verifyingOtp, setVerifyingOtp] = useState(false);
+
+  // Password
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -45,35 +52,31 @@ export default function SettingsPage() {
   const [showNew, setShowNew] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
-  
+  // Notifications
   const [notif, setNotif] = useState({
     orderUpdates: true,
     workoutReminders: true,
     promoEmails: false,
   });
 
-  
+  // Danger zone
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  
   useEffect(() => {
     if (user?.name) setName(user.name);
   }, [user?.name]);
 
-  
   useEffect(() => {
     setNotif(loadPref(NOTIF_KEY, { orderUpdates: true, workoutReminders: true, promoEmails: false }));
   }, []);
 
-  
   const saveNotif = (updated: typeof notif) => {
     setNotif(updated);
     localStorage.setItem(NOTIF_KEY, JSON.stringify(updated));
     toast.success("Notification preferences saved");
   };
 
-  
   const handleSaveProfile = async () => {
     const nameCheck = validateName(name);
     if (!nameCheck.valid) {
@@ -93,7 +96,54 @@ export default function SettingsPage() {
     }
   };
 
-  
+  const handleRequestEmailChange = async () => {
+    if (!newEmail.trim()) {
+      toast.error("Please enter a new email address");
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail.trim())) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
+    if (newEmail.trim().toLowerCase() === user?.email?.toLowerCase()) {
+      toast.error("New email must be different from your current email");
+      return;
+    }
+    if (!token) return;
+    setSendingOtp(true);
+    try {
+      const res = await userApi.requestEmailChange(newEmail.trim(), token);
+      toast.success(res.message ?? "OTP sent to your new email address");
+      setEmailStep("otp-sent");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to send OTP");
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
+  const handleVerifyEmailChange = async () => {
+    if (!emailOtp.trim()) {
+      toast.error("Please enter the OTP");
+      return;
+    }
+    if (!token) return;
+    setVerifyingOtp(true);
+    try {
+      const res = await userApi.verifyEmailChange(emailOtp.trim(), token);
+      updateUser({ ...user!, email: res.data.email });
+      toast.success("Email updated successfully!");
+      setEmailStep("done");
+      setNewEmail("");
+      setEmailOtp("");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Invalid or expired OTP");
+    } finally {
+      setVerifyingOtp(false);
+    }
+  };
+
   const handleChangePassword = async () => {
     const passCheck = validatePassword(newPassword);
     if (!currentPassword) {
@@ -124,7 +174,6 @@ export default function SettingsPage() {
     }
   };
 
-  
   const handleDeleteAccount = async () => {
     if (!token) return;
     setDeleting(true);
@@ -165,11 +214,12 @@ export default function SettingsPage() {
         </section>
       </Link>
 
-      {}
+      {/* Profile Information */}
       <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
         <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Profile Information</h3>
         <Separator className="bg-gray-100 dark:bg-gray-800" />
         <div className="space-y-4">
+          {/* Name */}
           <div>
             <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Full Name</Label>
             <Input
@@ -179,27 +229,123 @@ export default function SettingsPage() {
               className="bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100"
             />
           </div>
+
+          {/* Current email (read-only display) */}
           <div>
-            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Email Address</Label>
+            <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Current Email</Label>
             <Input
               value={user?.email ?? ""}
               readOnly
-              className="bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-800 text-gray-400 cursor-not-allowed"
+              className="bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-800 text-gray-500 cursor-default"
             />
-            <p className="text-xs text-gray-400 mt-1">Email address cannot be changed</p>
           </div>
+
           <Button
             onClick={handleSaveProfile}
             disabled={savingProfile || name.trim() === (user?.name ?? "")}
             className="bg-primary hover:bg-primary/90 text-white"
           >
             {savingProfile && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save Changes
+            Save Name
           </Button>
         </div>
       </section>
 
-      {}
+      {/* Change Email */}
+      <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
+        <div className="flex items-center gap-2">
+          <Mail className="h-5 w-5 text-primary" />
+          <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Change Email Address</h3>
+        </div>
+        <Separator className="bg-gray-100 dark:bg-gray-800" />
+
+        {emailStep === "done" ? (
+          <div className="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl">
+            <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0" />
+            <div>
+              <p className="text-green-700 dark:text-green-400 font-medium text-sm">Email updated successfully!</p>
+              <p className="text-green-600 dark:text-green-500 text-xs mt-0.5">Your email is now <strong>{user?.email}</strong></p>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="ml-auto text-xs text-gray-500"
+              onClick={() => setEmailStep("idle")}
+            >
+              Change again
+            </Button>
+          </div>
+        ) : emailStep === "otp-sent" ? (
+          <div className="space-y-3">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              An OTP has been sent to <span className="font-medium text-gray-700 dark:text-gray-300">{newEmail}</span>. Enter it below to confirm.
+            </p>
+            <div>
+              <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">Enter OTP</Label>
+              <Input
+                value={emailOtp}
+                onChange={(e) => setEmailOtp(e.target.value)}
+                placeholder="6-digit code"
+                maxLength={6}
+                className="bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100 tracking-widest text-center text-lg"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleVerifyEmailChange}
+                disabled={verifyingOtp}
+                className="bg-primary hover:bg-primary/90 text-white"
+              >
+                {verifyingOtp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Verify & Save
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => { setEmailStep("idle"); setEmailOtp(""); }}
+                disabled={verifyingOtp}
+              >
+                Cancel
+              </Button>
+            </div>
+            <p className="text-xs text-gray-400">
+              Didn&apos;t receive the OTP?{" "}
+              <button
+                onClick={() => { setEmailStep("idle"); setEmailOtp(""); }}
+                className="text-primary hover:underline"
+              >
+                Re-enter email
+              </button>
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Enter a new email address. We&apos;ll send a 6-digit OTP to confirm.
+            </p>
+            <div>
+              <Label className="text-gray-600 dark:text-gray-300 mb-1.5 block text-sm">New Email Address</Label>
+              <Input
+                type="email"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                placeholder="new@email.com"
+                className="bg-white dark:bg-card border-gray-200 dark:border-gray-800 text-gray-800 dark:text-gray-100"
+                onKeyDown={(e) => e.key === "Enter" && handleRequestEmailChange()}
+              />
+            </div>
+            <Button
+              onClick={handleRequestEmailChange}
+              disabled={sendingOtp || !newEmail.trim()}
+              className="bg-primary hover:bg-primary/90 text-white"
+            >
+              {sendingOtp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Send OTP
+            </Button>
+          </div>
+        )}
+      </section>
+
+      {/* Change Password */}
       <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
         <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Change Password</h3>
         <Separator className="bg-gray-100 dark:bg-gray-800" />
@@ -270,7 +416,7 @@ export default function SettingsPage() {
         </div>
       </section>
 
-      {}
+      {/* Notifications */}
       <section className="rounded-2xl bg-white dark:bg-card border border-gray-100 dark:border-gray-800 shadow-sm p-6 space-y-4">
         <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Notifications</h3>
         <Separator className="bg-gray-100 dark:bg-gray-800" />
@@ -294,7 +440,7 @@ export default function SettingsPage() {
         ))}
       </section>
 
-      {}
+      {/* Danger Zone */}
       <section className="rounded-2xl bg-red-50 border border-red-200 p-6 space-y-4">
         <h3 className="text-red-600 font-semibold">Danger Zone</h3>
         <Separator className="bg-red-200" />
