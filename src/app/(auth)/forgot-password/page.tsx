@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -17,6 +17,10 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [loadingMsg, setLoadingMsg] = useState("Sending OTP...");
+
+  // Wake up the Render backend while the user fills the form
+  useEffect(() => { fetch("/api/proxy/health").catch(() => {}); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +34,8 @@ export default function ForgotPasswordPage() {
     }
 
     setIsLoading(true);
+    setLoadingMsg("Sending OTP...");
+    const slowTimer = setTimeout(() => setLoadingMsg("Server is waking up, please wait..."), 5000);
 
     try {
       await authApi.forgotPassword(email);
@@ -37,6 +43,7 @@ export default function ForgotPasswordPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send reset OTP");
     } finally {
+      clearTimeout(slowTimer);
       setIsLoading(false);
     }
   };
@@ -109,7 +116,7 @@ export default function ForgotPasswordPage() {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sending OTP...
+                      {loadingMsg}
                     </>
                   ) : (
                     "Send reset OTP"

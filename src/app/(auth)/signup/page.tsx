@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import SafeImage from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
@@ -40,8 +40,11 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const [loadingMsg, setLoadingMsg] = useState("Creating account...");
 
-  
+  // Wake up the Render backend while the user fills the form
+  useEffect(() => { fetch("/api/proxy/health").catch(() => {}); }, []);
+
   const getPasswordStrength = (pass: string) => {
     let strength = 0;
     if (pass.length >= 8) strength++;
@@ -78,6 +81,8 @@ export default function SignupPage() {
     }
 
     setIsLoading(true);
+    setLoadingMsg("Creating account...");
+    const slowTimer = setTimeout(() => setLoadingMsg("Server is waking up, please wait..."), 5000);
 
     try {
       await register(sanitize(name), sanitize(email), password);
@@ -85,6 +90,7 @@ export default function SignupPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Registration failed");
     } finally {
+      clearTimeout(slowTimer);
       setIsLoading(false);
     }
   };
@@ -362,7 +368,7 @@ export default function SignupPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating account...
+                  {loadingMsg}
                 </>
               ) : (
                 "Create account"

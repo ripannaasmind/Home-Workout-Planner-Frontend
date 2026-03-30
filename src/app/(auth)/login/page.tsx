@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import SafeImage from "@/components/ui/SafeImage";
 import { useRouter } from "next/navigation";
@@ -36,6 +36,10 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState("");
+  const [loadingMsg, setLoadingMsg] = useState("Signing in...");
+
+  // Wake up the Render backend while the user fills the form
+  useEffect(() => { fetch("/api/proxy/health").catch(() => {}); }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +52,8 @@ export default function LoginPage() {
     if (!passCheck.valid) { setError(passCheck.message); return; }
 
     setIsLoading(true);
+    setLoadingMsg("Signing in...");
+    const slowTimer = setTimeout(() => setLoadingMsg("Server is waking up, please wait..."), 5000);
 
     try {
       const loggedInUser = await login(sanitize(email), password);
@@ -59,6 +65,7 @@ export default function LoginPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
+      clearTimeout(slowTimer);
       setIsLoading(false);
     }
   };
@@ -231,7 +238,7 @@ export default function LoginPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Signing in...
+                  {loadingMsg}
                 </>
               ) : (
                 "Sign in"

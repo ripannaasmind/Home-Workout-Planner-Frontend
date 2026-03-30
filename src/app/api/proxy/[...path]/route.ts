@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 const DEFAULT_BACKEND_URL = "https://fit-home-workout-planner-backend.onrender.com/api";
 const LOCAL_BACKEND_URL = "http://localhost:5000/api";
@@ -40,12 +41,20 @@ async function forward(req: NextRequest, method: string, path: string, query: st
   for (const base of backendBases) {
     try {
       const target = `${base}/${path}${query}`;
-      const upstream = await fetch(target, {
-        method,
-        headers,
-        body,
-        cache: "no-store",
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 55000);
+      let upstream: Response;
+      try {
+        upstream = await fetch(target, {
+          method,
+          headers,
+          body,
+          cache: "no-store",
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       const text = await upstream.text();
       const resHeaders = new Headers();

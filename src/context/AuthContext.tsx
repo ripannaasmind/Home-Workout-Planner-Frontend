@@ -58,8 +58,16 @@ function toNetworkMessage(error: unknown) {
   return error instanceof Error ? error.message : "Request failed";
 }
 
+const AUTH_TIMEOUT_MS = 60000;
+
 async function fetchFromProxy(path: string, init: RequestInit) {
-  return fetch(`${API_PROXY_BASE}${path}`, init);
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), AUTH_TIMEOUT_MS);
+  try {
+    return await fetch(`${API_PROXY_BASE}${path}`, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeoutId);
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {

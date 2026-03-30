@@ -1,5 +1,5 @@
 const API_PROXY_BASE = "/api/proxy";
-const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 12000);
+const API_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_API_TIMEOUT_MS || 60000);
 
 interface ApiOptions {
   method?: string;
