@@ -18,6 +18,7 @@ export default function ForgotPasswordPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState("Sending OTP...");
+  const [fallbackOtp, setFallbackOtp] = useState<string | null>(null);
 
   // Wake up the Render backend directly (bypass Vercel proxy 10s limit)
   useEffect(() => { fetch("https://fit-home-workout-planner-backend.onrender.com/api/health").catch(() => {}); }, []);
@@ -38,7 +39,10 @@ export default function ForgotPasswordPage() {
     const slowTimer = setTimeout(() => setLoadingMsg("Server is waking up, please wait..."), 5000);
 
     try {
-      await authApi.forgotPassword(email);
+      const res = await authApi.forgotPassword(email);
+      if (res.data?.devOtp) {
+        setFallbackOtp(res.data.devOtp);
+      }
       setSuccess(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to send reset OTP");
@@ -78,7 +82,9 @@ export default function ForgotPasswordPage() {
               </div>
               <h3 className="text-lg font-medium text-foreground mb-2">OTP sent!</h3>
               <p className="text-text-secondary mb-6">
-                We&apos;ve sent a password reset OTP to <strong>{email}</strong>
+                {fallbackOtp
+                  ? <>Email delivery failed. Your OTP code is: <strong className="text-primary text-lg tracking-widest">{fallbackOtp}</strong></>
+                  : <>We&apos;ve sent a password reset OTP to <strong>{email}</strong></>}
               </p>
               <Button className="w-full" onClick={() => router.push(`/reset-password?email=${encodeURIComponent(email)}`)}>
                 Enter OTP &amp; Reset Password

@@ -98,8 +98,12 @@ function VerifyEmailContent() {
     setResending(true);
     setResendMsg("");
     try {
-      await authApi.resendVerification(emailParam);
-      setResendMsg("A new OTP has been sent to your email.");
+      const res = await authApi.resendVerification(emailParam);
+      if (res.data?.devOtp) {
+        setResendMsg(`Email delivery failed. Your OTP: ${res.data.devOtp}`);
+      } else {
+        setResendMsg("A new OTP has been sent to your email.");
+      }
     } catch (err) {
       setResendMsg(err instanceof Error ? err.message : "Failed to resend OTP");
     } finally {

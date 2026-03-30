@@ -726,7 +726,7 @@ export const authApi = {
     }),
 
   forgotPassword: (email: string) =>
-    apiRequest<{ success: boolean; message: string }>("/auth/forgot-password", {
+    apiRequest<{ success: boolean; message: string; data?: { devOtp?: string } }>("/auth/forgot-password", {
       method: "POST",
       body: { email },
     }),
@@ -744,7 +744,7 @@ export const authApi = {
     }),
 
   resendVerification: (email: string) =>
-    apiRequest<{ success: boolean; message: string }>("/auth/resend-verification", {
+    apiRequest<{ success: boolean; message: string; data?: { devOtp?: string } }>("/auth/resend-verification", {
       method: "POST",
       body: { email },
     }),
