@@ -15,6 +15,7 @@ import {
   Shield,
   Activity,
   Ticket,
+  HelpCircle,
   Menu,
   X,
 } from "lucide-react";
@@ -30,6 +31,7 @@ const navItems = [
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
   { href: "/dashboard/coupons", label: "Coupons", icon: Ticket },
   { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
+  { href: "/dashboard/support", label: "Support", icon: HelpCircle },
   { href: "/dashboard/profile", label: "Profile", icon: User },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];

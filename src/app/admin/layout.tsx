@@ -19,6 +19,7 @@ import {
   CreditCard,
   Menu,
   X,
+  HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -36,6 +37,7 @@ const adminNav = [
   { href: "/admin/features", label: "Features Page", icon: Layers, exact: false },
   { href: "/admin/promo-codes", label: "Promo Codes", icon: Tag, exact: false },
   { href: "/admin/subscriptions", label: "Subscriptions", icon: CreditCard, exact: false },
+  { href: "/admin/support", label: "Support", icon: HelpCircle, exact: false },
   { href: "/admin/settings", label: "Settings", icon: Settings, exact: false },
 ];
 

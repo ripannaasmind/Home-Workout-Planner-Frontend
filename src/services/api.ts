@@ -1091,6 +1091,68 @@ export interface CreateOrderPayload {
   shippingAddress: { firstName: string; lastName: string; address: string; city: string; state: string; zip: string };
 }
 
+export interface SupportTicket {
+  _id: string;
+  user: string | { _id: string; name: string; email: string; avatar?: string };
+  subject: string;
+  message: string;
+  category: "general" | "account" | "payment" | "workout" | "bug" | "feature_request" | "other";
+  priority: "low" | "medium" | "high";
+  status: "open" | "in_progress" | "resolved" | "closed";
+  adminReply?: string;
+  repliedAt?: string;
+  repliedBy?: string | { _id: string; name: string; email: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const supportApi = {
+  create: (body: { subject: string; message: string; category?: string }, token: string) =>
+    apiRequest<{ success: boolean; data: SupportTicket }>("/support", {
+      method: "POST",
+      body,
+      token,
+    }),
+
+  getMyTickets: (token: string) =>
+    apiRequest<{ success: boolean; data: SupportTicket[] }>("/support/my", { token }),
+
+  getAllTickets: (token: string, params?: { status?: string; category?: string; page?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.status) q.set("status", params.status);
+    if (params?.category) q.set("category", params.category);
+    if (params?.page) q.set("page", String(params.page));
+    const qs = q.toString();
+    return apiRequest<{ success: boolean; data: SupportTicket[]; pagination: { page: number; limit: number; total: number; pages: number } }>(
+      `/support/all${qs ? `?${qs}` : ""}`,
+      { token }
+    );
+  },
+
+  getTicket: (id: string, token: string) =>
+    apiRequest<{ success: boolean; data: SupportTicket }>(`/support/${id}`, { token }),
+
+  reply: (id: string, adminReply: string, token: string) =>
+    apiRequest<{ success: boolean; data: SupportTicket }>(`/support/${id}/reply`, {
+      method: "PUT",
+      body: { adminReply },
+      token,
+    }),
+
+  updateStatus: (id: string, status: string, token: string) =>
+    apiRequest<{ success: boolean; data: SupportTicket }>(`/support/${id}/status`, {
+      method: "PUT",
+      body: { status },
+      token,
+    }),
+
+  delete: (id: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/support/${id}`, {
+      method: "DELETE",
+      token,
+    }),
+};
+
 export interface Feature {
   _id: string;
   title: string;
