@@ -33,6 +33,7 @@ export default function WorkoutsPage() {
   const { token } = useAuth();
   const router = useRouter();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [completedTodayIds, setCompletedTodayIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -75,6 +76,23 @@ export default function WorkoutsPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Fetch today's completed sessions to hide those workouts
+  useEffect(() => {
+    if (!token) return;
+    sessionsApi.getAll(token).then((res) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const ids = new Set<string>();
+      for (const s of res.data) {
+        if (s.status === "completed" && new Date(s.endTime || s.updatedAt || s.startTime) >= today) {
+          const wId = typeof s.workout === "object" ? (s.workout as Workout)._id : s.workout;
+          if (wId) ids.add(wId as string);
+        }
+      }
+      setCompletedTodayIds(ids);
+    }).catch(() => {});
+  }, [token]);
+
   
   useEffect(() => {
     if (!token) return;
@@ -108,6 +126,7 @@ export default function WorkoutsPage() {
   const difficulties = ["all", "beginner", "intermediate", "advanced"];
 
   const filtered = workouts.filter((w) => {
+    if (completedTodayIds.has(w._id)) return false;
     const matchSearch =
       w.name.toLowerCase().includes(search.toLowerCase()) ||
       w.category.toLowerCase().includes(search.toLowerCase());
@@ -194,6 +213,11 @@ export default function WorkoutsPage() {
       setActiveSession(null);
       setActiveWorkout(null);
       setElapsed(0);
+      // Hide this workout for the rest of today
+      if (activeSession?.workout) {
+        const wId = typeof activeSession.workout === "object" ? (activeSession.workout as Workout)._id : activeSession.workout;
+        if (wId) setCompletedTodayIds((prev) => new Set(prev).add(wId as string));
+      }
     } catch {
       toast.error("Failed to complete session");
     }
