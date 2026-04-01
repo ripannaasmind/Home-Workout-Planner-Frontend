@@ -93,7 +93,7 @@ export function Hero() {
                 className="relative z-10"
               >
                 <Image
-                  src="/Images/hero-workout.gif"
+                  src="/Runner.gif"
                   alt="FitHome Workout"
                   width={420}
                   height={420}
