@@ -206,7 +206,7 @@ export function Footer() {
                 ))}
               </ul>
             </div>
-            <div>
+            {/* <div>
               <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-500 mb-3">Resources</h4>
               <ul className="space-y-2">
                 {resourceLinks.map((l) => (
@@ -217,7 +217,7 @@ export function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
           </div>
 
           {/* Newsletter column */}
