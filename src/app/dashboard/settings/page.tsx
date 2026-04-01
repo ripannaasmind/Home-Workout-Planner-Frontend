@@ -446,12 +446,12 @@ export default function SettingsPage() {
         <Separator className="bg-red-200" />
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Delete Account</p>
+            <p className="text-gray-800 dark:text-gray-400 text-sm font-medium">Delete Account</p>
             <p className="text-gray-500 dark:text-gray-400 text-xs">Permanently delete your account and all associated data</p>
           </div>
-          <Button variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+          <Button variant="destructive bg-red-600 hover:bg-red-700" size="sm" onClick={() => setDeleteOpen(true)}>
             Delete Account
-          </Button>
+          </Button>          
         </div>
       </section>
 

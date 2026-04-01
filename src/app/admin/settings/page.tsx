@@ -545,7 +545,7 @@ export default function AdminSettingsPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">From Name</Label>
-                      <Input value={emailSettings.fromName} onChange={(e) => setEmailSettings((s) => ({ ...s, fromName: e.target.value }))} placeholder="Workout Planner" />
+                      <Input value={emailSettings.fromName} onChange={(e) => setEmailSettings((s) => ({ ...s, fromName: e.target.value }))} placeholder="Fit Home " />
                     </div>
                     <div className="space-y-2">
                       <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">From Email</Label>
