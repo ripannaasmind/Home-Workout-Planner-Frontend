@@ -441,15 +441,15 @@ export default function SettingsPage() {
       </section>
 
       {/* Danger Zone */}
-      <section className="rounded-2xl bg-red-50 border border-red-200 p-6 space-y-4">
-        <h3 className="text-red-600 font-semibold">Danger Zone</h3>
-        <Separator className="bg-red-200" />
+      <section className="rounded-2xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/50 p-6 space-y-4">
+        <h3 className="text-red-600 dark:text-red-400 font-semibold">Danger Zone</h3>
+        <Separator className="bg-red-200 dark:bg-red-900/50" />
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-gray-800 dark:text-gray-400 text-sm font-medium">Delete Account</p>
+            <p className="text-gray-800 dark:text-gray-200 text-sm font-medium">Delete Account</p>
             <p className="text-gray-500 dark:text-gray-400 text-xs">Permanently delete your account and all associated data</p>
           </div>
-          <Button variant="destructive" size="sm" className="bg-red-500 " onClick={() => setDeleteOpen(true)}>
+          <Button size="sm" className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white" onClick={() => setDeleteOpen(true)}>
             Delete Account
           </Button>          
         </div>

@@ -56,8 +56,9 @@ export function RecentOrdersGrid() {
   }, [token]);
 
   return (
-    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5">
+    <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-5 flex flex-col">
       <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100 mb-4">Recent Sessions</h3>
+      <div className="flex-1">
       {loading ? (
         <div className="flex justify-center py-6">
           <Loader2 className="w-5 h-5 animate-spin text-primary" />
@@ -100,8 +101,9 @@ export function RecentOrdersGrid() {
           ))}
         </div>
       )}
+      </div>
       <div className="mt-3 text-right">
-        <Link href="/dashboard/orders" className="text-xs text-gray-500 dark:text-gray-400 hover:text-primary transition-colors">
+        <Link href="/dashboard/sessions" className="text-xs text-gray-500 dark:text-gray-400 hover:text-primary transition-colors">
           View All
         </Link>
       </div>

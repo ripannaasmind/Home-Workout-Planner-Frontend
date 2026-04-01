@@ -341,47 +341,65 @@ export default function BillingPage() {
       )}
 
       {}
-      <div className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Payment Methods</h3>
-        </div>
-        {!paymentMethods || (!paymentMethods.stripe.enabled && !paymentMethods.paypal.enabled && !paymentMethods.cashOnDelivery.enabled) ? (
-          <p className="text-gray-400 text-sm">No payment methods configured. Contact admin.</p>
-        ) : (
+      {loading ? (
+        <div className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5 animate-pulse">
+          <div className="h-4 w-36 rounded bg-gray-200 dark:bg-gray-700 mb-4" />
           <div className="flex flex-wrap gap-3">
-            {paymentMethods.stripe.enabled && (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                <CreditCard className="h-5 w-5 text-primary" />
-                <div>
-                  <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Credit / Debit Card</p>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs">Powered by Stripe</p>
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                <div className="h-5 w-5 rounded bg-gray-200 dark:bg-gray-700" />
+                <div className="space-y-1.5">
+                  <div className="h-3 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+                  <div className="h-2.5 w-24 rounded bg-gray-200 dark:bg-gray-700" />
                 </div>
-                <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
+                <div className="ml-2 h-5 w-12 rounded-full bg-gray-200 dark:bg-gray-700" />
               </div>
-            )}
-            {paymentMethods.paypal.enabled && (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                <span className="text-blue-500 font-bold text-base">PP</span>
-                <div>
-                  <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">PayPal</p>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs">Available for store orders</p>
-                </div>
-                <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
-              </div>
-            )}
-            {paymentMethods.cashOnDelivery.enabled && (
-              <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                <span className="text-gray-500 text-base">💵</span>
-                <div>
-                  <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Cash on Delivery</p>
-                  <p className="text-gray-500 dark:text-gray-400 text-xs">Available for store orders</p>
-                </div>
-                <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
-              </div>
-            )}
+            ))}
           </div>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Payment Methods</h3>
+          </div>
+          {!paymentMethods || (!paymentMethods.stripe.enabled && !paymentMethods.paypal.enabled && !paymentMethods.cashOnDelivery.enabled) ? (
+            <p className="text-gray-400 text-sm">No payment methods configured. Contact admin.</p>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              {paymentMethods.stripe.enabled && (
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                  <CreditCard className="h-5 w-5 text-primary" />
+                  <div>
+                    <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Credit / Debit Card</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">Powered by Stripe</p>
+                  </div>
+                  <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
+                </div>
+              )}
+              {paymentMethods.paypal.enabled && (
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                  <span className="text-blue-500 font-bold text-base">PP</span>
+                  <div>
+                    <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">PayPal</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">Available for store orders</p>
+                  </div>
+                  <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
+                </div>
+              )}
+              {paymentMethods.cashOnDelivery.enabled && (
+                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                  <span className="text-gray-500 text-base">💵</span>
+                  <div>
+                    <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Cash on Delivery</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">Available for store orders</p>
+                  </div>
+                  <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
       <Dialog open={paymentOpen} onOpenChange={(open) => { if (!activating) setPaymentOpen(open); }}>
         <DialogContent className="sm:max-w-md">
