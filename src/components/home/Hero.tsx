@@ -95,8 +95,8 @@ export function Hero() {
                 <Image
                   src="/hero.png"
                   alt="FitHome Workout"
-                  width={420}
-                  height={420}
+                  width={600}
+                  height={600}
                   unoptimized
                   className="w-full h-auto drop-shadow-2xl"
                   priority
