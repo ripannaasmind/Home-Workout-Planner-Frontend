@@ -2,13 +2,13 @@
 
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Play, Flame, Dumbbell, User } from "lucide-react";
+import { Play, Flame, Dumbbell } from "lucide-react";
 import Image from "next/image";
 
 export function Hero() {
   return (
     <section className="relative overflow-hidden bg-linear-to-br from-background via-background to-primary/5">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-8 md:py-10 lg:py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {}
           <motion.div 
@@ -75,86 +75,77 @@ export function Hero() {
           </motion.div>
 
           {}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="relative flex justify-center lg:justify-end order-1 lg:order-2"
           >
-            <div className="relative w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[380px]">
-              {}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-primary/5 rounded-[2rem] transform rotate-3 scale-105" />
-              
-              {}
-              <div className="relative bg-gradient-to-br from-gray-900 to-gray-800 rounded-[2.5rem] p-2 shadow-2xl">
-                <div className="bg-white rounded-[2rem] overflow-hidden">
-                  {}
-                  <div className="aspect-[9/19] bg-gradient-to-b from-gray-50 to-white p-4">
-                    {}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                          <span className="text-white text-xs font-bold">FH</span>
-                        </div>
-                        <span className="font-semibold text-sm text-gray-900">FitHome</span>
-                      </div>
-                      <div className="w-8 h-8 rounded-full bg-gray-200" />
-                    </div>
-                    
-                    {}
-                    <div className="bg-primary/10 rounded-xl p-3 mb-4">
-                      <p className="text-xs text-primary font-medium flex items-center gap-1">
-                        <User className="w-3 h-3" /> Hi Talha
-                      </p>
-                      <p className="text-sm font-semibold text-gray-900 mt-1">Ready for today&apos;s workout?</p>
-                      <div className="flex items-center gap-4 mt-2">
-                        <div className="text-xs flex items-center gap-1">
-                          <Flame className="w-3 h-3 text-orange-500" />
-                          <span className="text-gray-500">45 min</span>
-                        </div>
-                        <div className="text-xs">
-                          <span className="text-gray-500">Progress</span>
-                          <span className="ml-1 font-semibold text-primary">65%</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {}
-                    <Button className="w-full bg-primary hover:bg-primary-dark text-white text-sm h-10 rounded-xl mb-4">
-                      Start Workout
-                    </Button>
-                    
-                    {}
-                    <div className="bg-gray-100 rounded-xl p-3">
-                      <p className="text-xs text-gray-500 mb-2">Upcoming Session</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
-                          <Dumbbell className="text-primary w-6 h-6" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-sm text-gray-900">Upper Body Strength</p>
-                          <p className="text-xs text-gray-500">60 min • Beginner</p>
-                        </div>
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-                          <Play className="w-4 h-4 text-white fill-white" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-                className="hidden lg:block absolute -right-20 top-1/2 -translate-y-1/2 w-48 h-64 rounded-2xl overflow-hidden shadow-xl"
+            <div className="relative w-full max-w-75 sm:max-w-90 lg:max-w-105">
+
+              {/* Glow background blob */}
+              <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-primary/10 to-transparent rounded-full blur-3xl scale-110 pointer-events-none" />
+
+              {/* GIF */}
+              <motion.div
+                animate={{ y: [0, -12, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                className="relative z-10"
               >
-                <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/40 flex items-center justify-center">
-                  <Dumbbell className="w-16 h-16 text-primary" />
+                <Image
+                  src="/Images/hero-workout.gif"
+                  alt="FitHome Workout"
+                  width={420}
+                  height={420}
+                  unoptimized
+                  className="w-full h-auto drop-shadow-2xl"
+                  priority
+                />
+              </motion.div>
+
+              {/* Floating stat — top left */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="absolute top-4 -left-4 sm:-left-8 z-20 bg-white dark:bg-card border border-border rounded-2xl px-3 py-2 shadow-lg flex items-center gap-2"
+              >
+                <div className="w-8 h-8 bg-orange-100 rounded-xl flex items-center justify-center">
+                  <Flame className="w-4 h-4 text-orange-500" />
+                </div>
+                <div>
+                  <p className="text-xs text-text-muted leading-none">Calories</p>
+                  <p className="text-sm font-bold text-foreground leading-tight">320 kcal</p>
                 </div>
               </motion.div>
+
+              {/* Floating stat — bottom right */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.7 }}
+                className="absolute bottom-8 -right-4 sm:-right-8 z-20 bg-white dark:bg-card border border-border rounded-2xl px-3 py-2 shadow-lg flex items-center gap-2"
+              >
+                <div className="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center">
+                  <Dumbbell className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <p className="text-xs text-text-muted leading-none">Workouts</p>
+                  <p className="text-sm font-bold text-foreground leading-tight">12 done</p>
+                </div>
+              </motion.div>
+
+              {/* Floating stat — bottom left */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.9 }}
+                className="absolute bottom-4 left-0 sm:-left-4 z-20 bg-primary rounded-2xl px-3 py-2 shadow-lg flex items-center gap-2"
+              >
+                <Play className="w-4 h-4 text-white fill-white" />
+                <p className="text-xs font-semibold text-white whitespace-nowrap">Today&apos;s Session</p>
+              </motion.div>
+
             </div>
           </motion.div>
         </div>
