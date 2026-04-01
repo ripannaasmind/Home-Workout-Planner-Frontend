@@ -92,7 +92,7 @@ export function Hero() {
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="order-1 lg:order-2 relative min-h-64 sm:min-h-80 self-stretch"
+            className="order-1 hidden lg:block lg:order-2 relative min-h-64 self-stretch"
           >
             <Image
               src="/hero-image.png"
