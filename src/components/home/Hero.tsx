@@ -81,7 +81,7 @@ export function Hero() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="relative flex justify-center lg:justify-end order-1 lg:order-2"
           >
-            <div className="relative w-full max-w-75 sm:max-w-90 lg:max-w-105">
+            <div className="relative w-full max-w-96 sm:max-w-lg lg:max-w-2xl">
 
               {/* Glow background blob */}
               <div className="absolute inset-0 bg-linear-to-br from-primary/20 via-primary/10 to-transparent rounded-full blur-3xl scale-110 pointer-events-none" />
@@ -95,8 +95,8 @@ export function Hero() {
                 <Image
                   src="/hero.png"
                   alt="FitHome Workout"
-                  width={600}
-                  height={600}
+                  width={800}
+                  height={800}
                   unoptimized
                   className="w-full h-auto drop-shadow-2xl"
                   priority
