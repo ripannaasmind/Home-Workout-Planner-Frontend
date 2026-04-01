@@ -9,7 +9,7 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden hero-bg">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="relative min-h-130 lg:min-h-155 grid grid-cols-1 lg:grid-cols-2 items-center">
+        <div className="relative min-h-130 lg:min-h-155 grid grid-cols-1 lg:grid-cols-2">
 
           {/* ── Left: Text Content ── */}
           <motion.div
@@ -87,26 +87,40 @@ export function Hero() {
             </div>
           </motion.div>
 
-          {/* ── Right: Hero Image ── */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative order-1 lg:order-2 flex items-end justify-center"
-          >
+          {/* ── Mobile image (above text on small screens) ── */}
+          <div className="order-1 lg:hidden flex items-end justify-center pt-8">
             <Image
               src="/hero.png"
               alt="FitHome Workout"
-              width={620}
-              height={680}
+              width={400}
+              height={440}
               unoptimized
               priority
-              className="w-full max-w-xs sm:max-w-sm lg:max-w-full h-auto object-contain object-bottom"
+              className="w-full max-w-xs sm:max-w-sm h-auto object-contain object-bottom"
             />
-          </motion.div>
+          </div>
 
         </div>
       </div>
+
+      {/* ── Desktop image: absolute right-bottom, no padding, full bleed ── */}
+      <motion.div
+        initial={{ opacity: 0, x: 60 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="hidden lg:block absolute right-0 bottom-0 w-1/2 pointer-events-none"
+      >
+        <Image
+          src="/hero.png"
+          alt="FitHome Workout"
+          width={800}
+          height={860}
+          unoptimized
+          priority
+          className="w-full h-auto object-contain object-bottom"
+        />
+      </motion.div>
+
     </section>
   );
 }
