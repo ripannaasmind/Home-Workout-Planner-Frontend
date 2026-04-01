@@ -326,6 +326,8 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: inline;
+  color: transparent;
 }
 .text-gradient-gold {
   background: linear-gradient(135deg, #e8b006, #ffc107, #ffd559);
@@ -338,6 +340,14 @@ body {
 .gym-pattern {
   background-image: radial-gradient(circle at 25px 25px, rgba(76,175,80,0.04) 2px, transparent 0);
   background-size: 50px 50px;
+}
+
+/* Hero section background with dark mode */
+.hero-bg {
+  background-color: #c8f0d8;
+}
+.dark .hero-bg {
+  background-color: #0a1f10;
 }
 
 /* Green glow button effect */
