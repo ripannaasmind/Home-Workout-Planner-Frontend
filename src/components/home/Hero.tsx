@@ -92,16 +92,15 @@ export function Hero() {
             initial={{ opacity: 0, x: 40 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="order-1 lg:order-2 flex items-end justify-center pt-8 lg:pt-0"
+            className="order-1 lg:order-2 relative min-h-64 sm:min-h-80 self-stretch"
           >
             <Image
               src="/hero.png"
               alt="FitHome Workout"
-              width={700}
-              height={760}
+              fill
               unoptimized
               priority
-              className="w-full max-w-xs sm:max-w-sm lg:max-w-full h-auto object-contain object-bottom"
+              className="object-contain object-bottom"
             />
           </motion.div>
 
