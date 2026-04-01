@@ -93,7 +93,7 @@ export function Hero() {
                 className="relative z-10"
               >
                 <Image
-                  src="/workout.webp"
+                  src="/hero.png"
                   alt="FitHome Workout"
                   width={420}
                   height={420}

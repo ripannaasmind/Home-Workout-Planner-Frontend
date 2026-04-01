@@ -9,7 +9,6 @@ import { UpcomingWorkout } from "@/components/dashboard/UpcomingWorkout";
 import { UserProfileCard } from "@/components/dashboard/UserProfileCard";
 import { RecentActivity } from "@/components/dashboard/RecentActivity";
 import { RecentOrdersTable } from "@/components/dashboard/RecentOrdersTable";
-import { RecommendedForYouList } from "@/components/dashboard/RecommendedForYouList";
 import { RecentOrdersGrid } from "@/components/dashboard/RecentOrdersGrid";
 import { RecommendedForYouGrid } from "@/components/dashboard/RecommendedForYouGrid";
 
@@ -105,7 +104,6 @@ export default function DashboardPage() {
       <div className="hidden lg:flex flex-col w-72 shrink-0 space-y-4">
         <UserProfileCard />
         <RecentActivity />
-        <RecommendedForYouList products={recommendedProducts.slice(0, 2).map(p => ({ ...p, type: "cart" as const }))} />
       </div>
     </div>
   );
