@@ -449,7 +449,7 @@ export default function SettingsPage() {
             <p className="text-gray-800 dark:text-gray-400 text-sm font-medium">Delete Account</p>
             <p className="text-gray-500 dark:text-gray-400 text-xs">Permanently delete your account and all associated data</p>
           </div>
-          <Button variant="destructive bg-red-600 hover:bg-red-700" size="sm" onClick={() => setDeleteOpen(true)}>
+          <Button variant="destructive" size="sm" className="bg-red-500 " onClick={() => setDeleteOpen(true)}>
             Delete Account
           </Button>          
         </div>
