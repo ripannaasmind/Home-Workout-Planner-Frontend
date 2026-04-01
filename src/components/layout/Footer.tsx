@@ -113,7 +113,7 @@ export function Footer() {
       ];
 
   return (
-    <footer className="bg-gray-950 text-gray-300">
+    <footer className="bg-gray-950 text-gray-300 px-5">
       {/* Main grid */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-8">
@@ -149,7 +149,7 @@ export function Footer() {
                   <a
                     key={i}
                     href={app.url}
-                    className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-2 transition-colors"
+                    className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10  rounded-lg px-3 py-2 transition-colors"
                   >
                     {app.logo ? (
                       <Image src={app.logo} alt={app.name} width={22} height={22} className="rounded" />
@@ -162,14 +162,14 @@ export function Footer() {
               </div>
             ) : (
               <div className="flex flex-col xs:flex-row gap-2 mt-1">
-                <a href="#" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-2 transition-colors">
+                <a href="#" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10  rounded-lg px-3 py-2 transition-colors">
                   <Image src="/Images/App_Store_(iOS).svg.png" alt="App Store" width={22} height={22} className="rounded" />
                   <div>
                     <div className="text-[9px] text-gray-400 leading-none">Download on the</div>
                     <div className="text-xs font-semibold text-white leading-tight mt-0.5">App Store</div>
                   </div>
                 </a>
-                <a href="#" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg px-3 py-2 transition-colors">
+                <a href="#" className="inline-flex items-center gap-2 bg-white/5 hover:bg-white/10  rounded-lg px-3 py-2 transition-colors">
                   <Image src="/Images/google_play.png" alt="Google Play" width={22} height={22} className="rounded" />
                   <div>
                     <div className="text-[9px] text-gray-400 leading-none">GET IT ON</div>
@@ -244,7 +244,7 @@ export function Footer() {
                   <Button
                     type="submit"
                     size="sm"
-                    className="bg-primary hover:bg-primary/90 text-white text-sm h-9"
+                    className="bg-primary hover:bg-primary/90 text-white text-sm mt-5 h-9"
                   >
                     Subscribe
                   </Button>
@@ -264,8 +264,8 @@ export function Footer() {
             </p>
 
             <div className="flex items-center gap-4">
-              <Link href="/privacy" className="text-xs text-gray-500 hover:text-primary transition-colors">Privacy</Link>
-              <Link href="/terms" className="text-xs text-gray-500 hover:text-primary transition-colors">Terms</Link>
+              {/* <Link href="/privacy" className="text-xs text-gray-500 hover:text-primary transition-colors">Privacy</Link>
+              <Link href="/terms" className="text-xs text-gray-500 hover:text-primary transition-colors">Terms</Link> */}
 
               <div className="flex items-center gap-1.5">
                 {config.socialMediaLinks.length > 0 ? (

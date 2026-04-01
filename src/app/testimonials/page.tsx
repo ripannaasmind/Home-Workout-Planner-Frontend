@@ -74,7 +74,7 @@ export default function TestimonialsPage() {
       <Header />
       <main className="flex-1">
         {}
-        <section className="relative overflow-hidden bg-linear-to-br from-background via-background to-primary/5 py-10 sm:py-14 lg:py-16">
+        <section className="relative overflow-hidden bg-linear-to-br from-background via-background to-primary/5 py-5 sm:py-8 lg:py-8">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div 
               className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center"
@@ -167,7 +167,7 @@ export default function TestimonialsPage() {
                 </div>
 
                 {}
-                <div className="sm:hidden space-y-4">
+                {/* <div className="sm:hidden space-y-4">
                   {testimonialList.length > 0 && (
                     <motion.div
                       key={testimonialList[mobileIndex]?._id || String(testimonialList[mobileIndex]?.id) || String(mobileIndex)}
@@ -178,22 +178,10 @@ export default function TestimonialsPage() {
                       <TestimonialCard testimonial={testimonialList[mobileIndex]} />
                     </motion.div>
                   )}
-                </div>
+                </div> */}
               </>
             )}
 
-            {}
-            <div className="flex justify-center gap-2 mt-8">
-              {(testimonialList.length ? testimonialList : [null]).map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setMobileIndex(i)}
-                  className={`w-2 h-2 rounded-full transition-all ${
-                    i === mobileIndex ? "bg-primary w-4" : "bg-gray-300"
-                  }`}
-                />
-              ))}
-            </div>
           </div>
         </section>
 

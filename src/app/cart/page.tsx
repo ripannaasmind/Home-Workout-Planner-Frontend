@@ -438,9 +438,7 @@ export default function CartPage() {
                     </Button>
 
                     {}
-                    <p className="text-xs text-text-secondary text-center mt-3">
-                      🔒 Secure checkout powered by Stripe
-                    </p>
+
                   </CardContent>
                 </Card>
               </div>
