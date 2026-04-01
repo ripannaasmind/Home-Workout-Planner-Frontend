@@ -95,7 +95,7 @@ export function Hero() {
             className="order-1 lg:order-2 relative min-h-64 sm:min-h-80 self-stretch"
           >
             <Image
-              src="/hero.png"
+              src="/hero-image.png"
               alt="FitHome Workout"
               fill
               unoptimized
