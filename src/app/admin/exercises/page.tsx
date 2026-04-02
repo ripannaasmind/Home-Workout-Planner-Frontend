@@ -323,9 +323,9 @@ export default function AdminExercisesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={saving || !form.name || !form.muscleGroup} className="bg-primary text-white">
-              {saving && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-              {editTarget ? "Save Changes" : "Create"}
+            <Button onClick={handleSave} disabled={saving || uploadingImage || !form.name || !form.muscleGroup} className="bg-primary text-white">
+              {(saving || uploadingImage) && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+              {uploadingImage ? "Uploading..." : editTarget ? "Save Changes" : "Create"}
             </Button>
           </DialogFooter>
         </DialogContent>
