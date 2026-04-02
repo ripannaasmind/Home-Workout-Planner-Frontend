@@ -24,7 +24,7 @@ export function Hero() {
             </h1>
 
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-sm">
-              Your personal fitness companion—get fit at your pace with customized workouts that fit your lifestyle.
+              Your personal fitness companion get fit at your pace with customized workouts that fit your lifestyle.
             </p>
 
             {/* Buttons */}
