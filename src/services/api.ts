@@ -1205,4 +1205,165 @@ export const featuresApi = {
     }),
 };
 
+// ======================== AI Workout API ========================
+
+export interface AIWorkoutExercise {
+  name: string;
+  sets: number;
+  reps: number;
+  duration: number;
+  restTime: number;
+  muscleGroup: string;
+  instructions: string;
+  tips: string;
+}
+
+export interface AIWorkoutResult {
+  name: string;
+  description: string;
+  category: string;
+  difficulty: string;
+  estimatedDuration: number;
+  estimatedCalories: number;
+  warmup: { duration: number; exercises: { name: string; duration: number; instructions: string }[] };
+  exercises: AIWorkoutExercise[];
+  cooldown: { duration: number; exercises: { name: string; duration: number; instructions: string }[] };
+  notes: string;
+}
+
+export interface AISettings {
+  provider: string;
+  apiKey: string;
+  enabled: boolean;
+}
+
+export const aiApi = {
+  getStatus: () =>
+    apiRequest<{ success: boolean; data: { enabled: boolean } }>("/ai/status"),
+
+  generateWorkout: (data: { goal: string; fitnessLevel: string; duration: number; equipment?: string[]; targetMuscles?: string[]; preferences?: string }, token: string) =>
+    apiRequest<{ success: boolean; data: AIWorkoutResult }>("/ai/generate", { method: "POST", body: data, token }),
+
+  getSettings: (token: string) =>
+    apiRequest<{ success: boolean; data: AISettings }>("/admin/ai-settings", { token }),
+
+  updateSettings: (data: Partial<AISettings>, token: string) =>
+    apiRequest<{ success: boolean; data: AISettings }>("/admin/ai-settings", { method: "PUT", body: data, token }),
+};
+
+// ======================== Challenges API ========================
+
+export interface ChallengeParticipant {
+  user: { _id: string; name: string; avatar?: string };
+  joinedAt: string;
+  progress: number;
+  isCompleted: boolean;
+  completedAt?: string;
+}
+
+export interface Challenge {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  type: string;
+  category: string;
+  targetValue: number;
+  targetUnit: string;
+  startDate: string;
+  endDate: string;
+  participants: ChallengeParticipant[];
+  participantCount: number;
+  maxParticipants: number;
+  createdBy: { _id: string; name: string; avatar?: string };
+  isActive: boolean;
+  isPublic: boolean;
+  difficulty: string;
+  rewards: { xpPoints: number; badge: string };
+  createdAt: string;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  user: { _id: string; name: string; avatar?: string };
+  progress: number;
+  isCompleted: boolean;
+  completedAt?: string;
+  percentage: number;
+}
+
+export const challengesApi = {
+  getAll: (params?: { category?: string; difficulty?: string; status?: string; page?: number; limit?: number }) => {
+    const q = new URLSearchParams();
+    if (params?.category) q.set("category", params.category);
+    if (params?.difficulty) q.set("difficulty", params.difficulty);
+    if (params?.status) q.set("status", params.status);
+    if (params?.page) q.set("page", String(params.page));
+    if (params?.limit) q.set("limit", String(params.limit));
+    return apiRequest<{ success: boolean; data: Challenge[]; pagination: { page: number; limit: number; total: number; pages: number } }>(`/challenges?${q.toString()}`);
+  },
+
+  getById: (id: string) =>
+    apiRequest<{ success: boolean; data: Challenge }>(`/challenges/${id}`),
+
+  join: (id: string, token: string) =>
+    apiRequest<{ success: boolean; data: Challenge }>(`/challenges/${id}/join`, { method: "POST", token }),
+
+  leave: (id: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/challenges/${id}/leave`, { method: "POST", token }),
+
+  updateProgress: (id: string, progress: number, token: string) =>
+    apiRequest<{ success: boolean; data: Challenge }>(`/challenges/${id}/progress`, { method: "PUT", body: { progress }, token }),
+
+  getLeaderboard: (id: string) =>
+    apiRequest<{ success: boolean; data: LeaderboardEntry[] }>(`/challenges/${id}/leaderboard`),
+
+  create: (data: Partial<Challenge>, token: string) =>
+    apiRequest<{ success: boolean; data: Challenge }>("/admin/challenges", { method: "POST", body: data, token }),
+
+  update: (id: string, data: Partial<Challenge>, token: string) =>
+    apiRequest<{ success: boolean; data: Challenge }>(`/admin/challenges/${id}`, { method: "PUT", body: data, token }),
+
+  delete: (id: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/admin/challenges/${id}`, { method: "DELETE", token }),
+};
+
+// ======================== Calendar API ========================
+
+export interface WorkoutSchedule {
+  _id: string;
+  user: string;
+  workout?: { _id: string; name: string; category: string; difficulty: string; duration: number };
+  title: string;
+  description: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  isCompleted: boolean;
+  completedAt?: string;
+  color: string;
+  recurrence: string;
+  reminder: boolean;
+  reminderMinutes: number;
+  notes: string;
+  createdAt: string;
+}
+
+export const calendarApi = {
+  getSchedule: (startDate: string, endDate: string, token: string) =>
+    apiRequest<{ success: boolean; data: WorkoutSchedule[] }>(`/calendar?startDate=${startDate}&endDate=${endDate}`, { token }),
+
+  create: (data: Partial<WorkoutSchedule>, token: string) =>
+    apiRequest<{ success: boolean; data: WorkoutSchedule }>("/calendar", { method: "POST", body: data, token }),
+
+  update: (id: string, data: Partial<WorkoutSchedule>, token: string) =>
+    apiRequest<{ success: boolean; data: WorkoutSchedule }>(`/calendar/${id}`, { method: "PUT", body: data, token }),
+
+  delete: (id: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/calendar/${id}`, { method: "DELETE", token }),
+
+  markComplete: (id: string, token: string) =>
+    apiRequest<{ success: boolean; data: WorkoutSchedule }>(`/calendar/${id}/complete`, { method: "PUT", token }),
+};
+
 export default apiRequest;

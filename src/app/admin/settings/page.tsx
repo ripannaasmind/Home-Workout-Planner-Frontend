@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
 import { useTheme } from "@/context/ThemeContext";
-import { adminApi, SiteConfig, EmailSettings } from "@/services/api";
+import { adminApi, aiApi, SiteConfig, EmailSettings } from "@/services/api";
 import { toast } from "sonner";
 import Image from "next/image";
 import {
@@ -36,6 +36,7 @@ import {
   Key,
   Mail,
   Send,
+  Brain,
 } from "lucide-react";
 import { ALL_CURRENCIES, CURRENCY_SYMBOLS } from "@/context/ThemeContext";
 
@@ -90,6 +91,7 @@ const sections = [
   { id: "business", label: "Business", icon: Settings },
   { id: "email", label: "Email", icon: Mail },
   { id: "payment", label: "Payment", icon: CreditCard },
+  { id: "ai", label: "AI Settings", icon: Brain },
   { id: "api-keys", label: "API Keys", icon: Key },
   { id: "currency", label: "Currency", icon: DollarSign },
   { id: "language", label: "Language", icon: Globe },
@@ -173,6 +175,13 @@ export default function AdminSettingsPage() {
   const [flutterwaveOpen, setFlutterwaveOpen] = useState(false);
   const [showFlwSecret, setShowFlwSecret] = useState(false);
   const [showFlwEncryption, setShowFlwEncryption] = useState(false);
+
+  // AI Settings state
+  const [aiEnabled, setAiEnabled] = useState(false);
+  const [aiProvider, setAiProvider] = useState("deepseek");
+  const [aiApiKey, setAiApiKey] = useState("");
+  const [showAiKey, setShowAiKey] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
 
   const [taxRate, setTaxRate] = useState(8);
   const [shippingStandard, setShippingStandard] = useState(5);
@@ -279,6 +288,16 @@ export default function AdminSettingsPage() {
           setSiteConfig((prev) => ({ ...prev, ...siteRes.data }));
           if (siteRes.data.imgbbApiKey) setImgbbApiKey(siteRes.data.imgbbApiKey);
         }
+
+        // Load AI settings
+        try {
+          const aiRes = await aiApi.getSettings(token);
+          if (aiRes.data) {
+            setAiEnabled(aiRes.data.enabled || false);
+            setAiProvider(aiRes.data.provider || "deepseek");
+            setAiApiKey(aiRes.data.apiKey || "");
+          }
+        } catch { /* AI settings may not exist yet */ }
       } catch {
         toast.error("Failed to load settings");
       } finally {
@@ -357,6 +376,10 @@ export default function AdminSettingsPage() {
 
       if (activeSection === "api-keys") {
         promises.push(adminApi.updateSiteConfig({ imgbbApiKey }, token));
+      }
+
+      if (activeSection === "ai") {
+        promises.push(aiApi.updateSettings({ provider: aiProvider, apiKey: aiApiKey, enabled: aiEnabled }, token));
       }
 
       await Promise.all(promises);
@@ -1550,6 +1573,78 @@ export default function AdminSettingsPage() {
             </>
           )}
 
+
+          {/* ==================== AI SETTINGS SECTION ==================== */}
+          {activeSection === "ai" && (
+            <>
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-purple-50 dark:bg-purple-500/10 flex items-center justify-center">
+                        <Brain className="h-4 w-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">AI Workout Generator</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Configure AI-powered workout generation for your users</p>
+                      </div>
+                    </div>
+                    <Switch checked={aiEnabled} onCheckedChange={setAiEnabled} />
+                  </div>
+                </CardHeader>
+                <Separator />
+                <CardContent className="pt-4 space-y-4">
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">AI Provider</Label>
+                    <div className="flex gap-2">
+                      {[{ v: "deepseek", l: "DeepSeek" }, { v: "openai", l: "OpenAI" }].map((p) => (
+                        <button
+                          key={p.v}
+                          onClick={() => setAiProvider(p.v)}
+                          className={`flex-1 py-2.5 px-4 rounded-lg border text-sm font-medium transition-all ${
+                            aiProvider === p.v
+                              ? "border-purple-500 bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300"
+                              : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                          }`}
+                        >
+                          {p.l}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">API Key</Label>
+                    <div className="relative">
+                      <Input
+                        type={showAiKey ? "text" : "password"}
+                        placeholder={`Enter your ${aiProvider === "deepseek" ? "DeepSeek" : "OpenAI"} API key...`}
+                        value={aiApiKey}
+                        onChange={(e) => setAiApiKey(e.target.value)}
+                        className="pr-10 font-mono text-sm"
+                      />
+                      <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                        onClick={() => setShowAiKey((v) => !v)}
+                      >
+                        {showAiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                    {aiApiKey && !showAiKey && (
+                      <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(aiApiKey)}</p>
+                    )}
+                  </div>
+                  <div className="p-3 bg-purple-50 dark:bg-purple-500/10 rounded-lg border border-purple-100 dark:border-purple-500/20">
+                    <p className="text-xs text-purple-700 dark:text-purple-400">
+                      {aiProvider === "deepseek"
+                        ? "Get your API key from platform.deepseek.com → API Keys"
+                        : "Get your API key from platform.openai.com → API Keys"}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
 
           {/* ==================== API KEYS SECTION ==================== */}
           {activeSection === "api-keys" && (

@@ -18,6 +18,10 @@ import {
   HelpCircle,
   Menu,
   X,
+  Brain,
+  Trophy,
+  Calculator,
+  CalendarDays,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -26,7 +30,11 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell },
+  { href: "/dashboard/ai-workout", label: "AI Workout", icon: Brain },
+  { href: "/dashboard/calendar", label: "Calendar", icon: CalendarDays },
   { href: "/dashboard/sessions", label: "My Sessions", icon: Activity },
+  { href: "/dashboard/challenges", label: "Challenges", icon: Trophy },
+  { href: "/dashboard/calculators", label: "Calculators", icon: Calculator },
   { href: "/dashboard/shop", label: "Shop", icon: ShoppingBag },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
   { href: "/dashboard/coupons", label: "Coupons", icon: Ticket },
