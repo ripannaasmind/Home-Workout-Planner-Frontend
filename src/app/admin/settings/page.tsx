@@ -1597,7 +1597,7 @@ export default function AdminSettingsPage() {
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">AI Provider</Label>
                     <div className="flex gap-2">
-                      {[{ v: "deepseek", l: "DeepSeek" }, { v: "openai", l: "OpenAI" }].map((p) => (
+                      {[{ v: "deepseek", l: "DeepSeek" }, { v: "openai", l: "OpenAI" }, { v: "gemini", l: "Google Gemini" }].map((p) => (
                         <button
                           key={p.v}
                           onClick={() => setAiProvider(p.v)}
@@ -1617,7 +1617,7 @@ export default function AdminSettingsPage() {
                     <div className="relative">
                       <Input
                         type={showAiKey ? "text" : "password"}
-                        placeholder={`Enter your ${aiProvider === "deepseek" ? "DeepSeek" : "OpenAI"} API key...`}
+                        placeholder={`Enter your ${aiProvider === "gemini" ? "Google Gemini" : aiProvider === "deepseek" ? "DeepSeek" : "OpenAI"} API key...`}
                         value={aiApiKey}
                         onChange={(e) => setAiApiKey(e.target.value)}
                         className="pr-10 font-mono text-sm"
@@ -1636,7 +1636,9 @@ export default function AdminSettingsPage() {
                   </div>
                   <div className="p-3 bg-purple-50 dark:bg-purple-500/10 rounded-lg border border-purple-100 dark:border-purple-500/20">
                     <p className="text-xs text-purple-700 dark:text-purple-400">
-                      {aiProvider === "deepseek"
+                      {aiProvider === "gemini"
+                        ? "Get your API key from aistudio.google.com → Get API Key"
+                        : aiProvider === "deepseek"
                         ? "Get your API key from platform.deepseek.com → API Keys"
                         : "Get your API key from platform.openai.com → API Keys"}
                     </p>
