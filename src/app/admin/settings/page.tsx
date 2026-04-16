@@ -147,6 +147,33 @@ export default function AdminSettingsPage() {
   const [paystackOpen, setPaystackOpen] = useState(false);
   const [showPaystackSecret, setShowPaystackSecret] = useState(false);
   const [showPaystackPublic, setShowPaystackPublic] = useState(false);
+
+  // SSLCommerz state
+  const [sslcommerzEnabled, setSslcommerzEnabled] = useState(false);
+  const [sslcommerzStoreId, setSslcommerzStoreId] = useState("");
+  const [sslcommerzStorePassword, setSslcommerzStorePassword] = useState("");
+  const [sslcommerzIsLive, setSslcommerzIsLive] = useState(false);
+  const [sslcommerzOpen, setSslcommerzOpen] = useState(false);
+  const [showSslcommerzPassword, setShowSslcommerzPassword] = useState(false);
+
+  // AamarPay state
+  const [aamarpayEnabled, setAamarpayEnabled] = useState(false);
+  const [aamarpayStoreId, setAamarpayStoreId] = useState("");
+  const [aamarpaySignatureKey, setAamarpaySignatureKey] = useState("");
+  const [aamarpayIsLive, setAamarpayIsLive] = useState(false);
+  const [aamarpayOpen, setAamarpayOpen] = useState(false);
+  const [showAamarpayKey, setShowAamarpayKey] = useState(false);
+
+  // Flutterwave state
+  const [flutterwaveEnabled, setFlutterwaveEnabled] = useState(false);
+  const [flutterwavePublicKey, setFlutterwavePublicKey] = useState("");
+  const [flutterwaveSecretKey, setFlutterwaveSecretKey] = useState("");
+  const [flutterwaveEncryptionKey, setFlutterwaveEncryptionKey] = useState("");
+  const [flutterwaveIsLive, setFlutterwaveIsLive] = useState(false);
+  const [flutterwaveOpen, setFlutterwaveOpen] = useState(false);
+  const [showFlwSecret, setShowFlwSecret] = useState(false);
+  const [showFlwEncryption, setShowFlwEncryption] = useState(false);
+
   const [taxRate, setTaxRate] = useState(8);
   const [shippingStandard, setShippingStandard] = useState(5);
   const [shippingExpress, setShippingExpress] = useState(15);
@@ -222,6 +249,25 @@ export default function AdminSettingsPage() {
           setPaystackSecretKey(d.paystack.secretKey || "");
           setPaystackPublicKey(d.paystack.publicKey || "");
         }
+        if (d.sslcommerz) {
+          setSslcommerzEnabled(d.sslcommerz.enabled);
+          setSslcommerzStoreId(d.sslcommerz.storeId || "");
+          setSslcommerzStorePassword(d.sslcommerz.storePassword || "");
+          setSslcommerzIsLive(d.sslcommerz.isLive || false);
+        }
+        if (d.aamarpay) {
+          setAamarpayEnabled(d.aamarpay.enabled);
+          setAamarpayStoreId(d.aamarpay.storeId || "");
+          setAamarpaySignatureKey(d.aamarpay.signatureKey || "");
+          setAamarpayIsLive(d.aamarpay.isLive || false);
+        }
+        if (d.flutterwave) {
+          setFlutterwaveEnabled(d.flutterwave.enabled);
+          setFlutterwavePublicKey(d.flutterwave.publicKey || "");
+          setFlutterwaveSecretKey(d.flutterwave.secretKey || "");
+          setFlutterwaveEncryptionKey(d.flutterwave.encryptionKey || "");
+          setFlutterwaveIsLive(d.flutterwave.isLive || false);
+        }
         if (d.taxRate !== undefined) setTaxRate(d.taxRate);
         if (d.shipping) {
           if (d.shipping.standardCost !== undefined) setShippingStandard(d.shipping.standardCost);
@@ -290,6 +336,9 @@ export default function AdminSettingsPage() {
               paypal: { enabled: paypalEnabled, clientId: paypalClientId, secret: paypalSecret },
               cashOnDelivery: { enabled: codEnabled },
               paystack: { enabled: paystackEnabled, secretKey: paystackSecretKey, publicKey: paystackPublicKey },
+              sslcommerz: { enabled: sslcommerzEnabled, storeId: sslcommerzStoreId, storePassword: sslcommerzStorePassword, isLive: sslcommerzIsLive },
+              aamarpay: { enabled: aamarpayEnabled, storeId: aamarpayStoreId, signatureKey: aamarpaySignatureKey, isLive: aamarpayIsLive },
+              flutterwave: { enabled: flutterwaveEnabled, publicKey: flutterwavePublicKey, secretKey: flutterwaveSecretKey, encryptionKey: flutterwaveEncryptionKey, isLive: flutterwaveIsLive },
               taxRate,
               shipping: {
                 standardCost: shippingStandard,
@@ -793,6 +842,188 @@ export default function AdminSettingsPage() {
                           </div>
                           <div className="p-3 bg-teal-50 dark:bg-teal-500/10 rounded-lg border border-teal-100 dark:border-teal-500/20">
                             <p className="text-xs text-teal-700 dark:text-teal-400">Find your keys in the <span className="font-semibold">Paystack Dashboard → Settings → API Keys & Webhooks</span></p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </>
+                )}
+              </Card>
+
+              {/* SSLCommerz */}
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center">
+                        <CreditCard className="h-4 w-4 text-emerald-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">SSLCommerz</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Popular payment gateway for Bangladesh</p>
+                      </div>
+                    </div>
+                    <Switch checked={sslcommerzEnabled} onCheckedChange={setSslcommerzEnabled} />
+                  </div>
+                </CardHeader>
+                {sslcommerzEnabled && (
+                  <>
+                    <Separator />
+                    <CardContent className="pt-4">
+                      <button
+                        className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-4"
+                        onClick={() => setSslcommerzOpen((o) => !o)}
+                      >
+                        {sslcommerzOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {sslcommerzOpen ? "Hide" : "Configure"} API Keys
+                      </button>
+                      {sslcommerzOpen && (
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Store ID</Label>
+                            <Input type="text" placeholder="your_store_id" value={sslcommerzStoreId} onChange={(e) => setSslcommerzStoreId(e.target.value)} className="font-mono text-sm" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Store Password (API/Secret Key)</Label>
+                            <div className="relative">
+                              <Input type={showSslcommerzPassword ? "text" : "password"} placeholder="your_store_password" value={sslcommerzStorePassword} onChange={(e) => setSslcommerzStorePassword(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setShowSslcommerzPassword((v) => !v)}>
+                                {showSslcommerzPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {sslcommerzStorePassword && !showSslcommerzPassword && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(sslcommerzStorePassword)}</p>}
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Switch checked={sslcommerzIsLive} onCheckedChange={setSslcommerzIsLive} />
+                            <Label className="text-sm text-gray-700 dark:text-gray-300">Live Mode {sslcommerzIsLive ? <span className="text-green-600 font-semibold">(Production)</span> : <span className="text-yellow-600 font-semibold">(Sandbox)</span>}</Label>
+                          </div>
+                          <div className="p-3 bg-emerald-50 dark:bg-emerald-500/10 rounded-lg border border-emerald-100 dark:border-emerald-500/20">
+                            <p className="text-xs text-emerald-700 dark:text-emerald-400">Find your credentials at <span className="font-semibold">manager.sslcommerz.com → Settings → Store Details</span></p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </>
+                )}
+              </Card>
+
+              {/* AamarPay */}
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center">
+                        <CreditCard className="h-4 w-4 text-sky-600" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">AamarPay</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Bangladesh payment gateway (aamarpay.com)</p>
+                      </div>
+                    </div>
+                    <Switch checked={aamarpayEnabled} onCheckedChange={setAamarpayEnabled} />
+                  </div>
+                </CardHeader>
+                {aamarpayEnabled && (
+                  <>
+                    <Separator />
+                    <CardContent className="pt-4">
+                      <button
+                        className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-4"
+                        onClick={() => setAamarpayOpen((o) => !o)}
+                      >
+                        {aamarpayOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {aamarpayOpen ? "Hide" : "Configure"} API Keys
+                      </button>
+                      {aamarpayOpen && (
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Store ID</Label>
+                            <Input type="text" placeholder="aamarpay_store_id" value={aamarpayStoreId} onChange={(e) => setAamarpayStoreId(e.target.value)} className="font-mono text-sm" />
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Signature Key</Label>
+                            <div className="relative">
+                              <Input type={showAamarpayKey ? "text" : "password"} placeholder="signature_key..." value={aamarpaySignatureKey} onChange={(e) => setAamarpaySignatureKey(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setShowAamarpayKey((v) => !v)}>
+                                {showAamarpayKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {aamarpaySignatureKey && !showAamarpayKey && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(aamarpaySignatureKey)}</p>}
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Switch checked={aamarpayIsLive} onCheckedChange={setAamarpayIsLive} />
+                            <Label className="text-sm text-gray-700 dark:text-gray-300">Live Mode {aamarpayIsLive ? <span className="text-green-600 font-semibold">(Production)</span> : <span className="text-yellow-600 font-semibold">(Sandbox)</span>}</Label>
+                          </div>
+                          <div className="p-3 bg-sky-50 dark:bg-sky-500/10 rounded-lg border border-sky-100 dark:border-sky-500/20">
+                            <p className="text-xs text-sky-700 dark:text-sky-400">Test gateway: <span className="font-semibold">paymentdemo.aamarpay.com</span> — Live: <span className="font-semibold">secure.aamarpay.com</span></p>
+                          </div>
+                        </div>
+                      )}
+                    </CardContent>
+                  </>
+                )}
+              </Card>
+
+              {/* Flutterwave */}
+              <Card className="border border-gray-200 dark:border-gray-800 shadow-sm">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-9 w-9 rounded-lg bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center">
+                        <CreditCard className="h-4 w-4 text-orange-500" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-semibold text-gray-800 dark:text-gray-100">Flutterwave</CardTitle>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pan-Africa & global payment gateway</p>
+                      </div>
+                    </div>
+                    <Switch checked={flutterwaveEnabled} onCheckedChange={setFlutterwaveEnabled} />
+                  </div>
+                </CardHeader>
+                {flutterwaveEnabled && (
+                  <>
+                    <Separator />
+                    <CardContent className="pt-4">
+                      <button
+                        className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors mb-4"
+                        onClick={() => setFlutterwaveOpen((o) => !o)}
+                      >
+                        {flutterwaveOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {flutterwaveOpen ? "Hide" : "Configure"} API Keys
+                      </button>
+                      {flutterwaveOpen && (
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Public Key</Label>
+                            <Input type="text" placeholder="FLWPUBK_TEST-..." value={flutterwavePublicKey} onChange={(e) => setFlutterwavePublicKey(e.target.value)} className="font-mono text-sm" />
+                            {flutterwavePublicKey && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(flutterwavePublicKey)}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Secret Key</Label>
+                            <div className="relative">
+                              <Input type={showFlwSecret ? "text" : "password"} placeholder="FLWSECK_TEST-..." value={flutterwaveSecretKey} onChange={(e) => setFlutterwaveSecretKey(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setShowFlwSecret((v) => !v)}>
+                                {showFlwSecret ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {flutterwaveSecretKey && !showFlwSecret && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(flutterwaveSecretKey)}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium text-gray-700 dark:text-gray-300">Encryption Key</Label>
+                            <div className="relative">
+                              <Input type={showFlwEncryption ? "text" : "password"} placeholder="FLWSECK_TEST..." value={flutterwaveEncryptionKey} onChange={(e) => setFlutterwaveEncryptionKey(e.target.value)} className="pr-10 font-mono text-sm" />
+                              <button type="button" className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" onClick={() => setShowFlwEncryption((v) => !v)}>
+                                {showFlwEncryption ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                              </button>
+                            </div>
+                            {flutterwaveEncryptionKey && !showFlwEncryption && <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(flutterwaveEncryptionKey)}</p>}
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Switch checked={flutterwaveIsLive} onCheckedChange={setFlutterwaveIsLive} />
+                            <Label className="text-sm text-gray-700 dark:text-gray-300">Live Mode {flutterwaveIsLive ? <span className="text-green-600 font-semibold">(Production)</span> : <span className="text-yellow-600 font-semibold">(Test)</span>}</Label>
+                          </div>
+                          <div className="p-3 bg-orange-50 dark:bg-orange-500/10 rounded-lg border border-orange-100 dark:border-orange-500/20">
+                            <p className="text-xs text-orange-700 dark:text-orange-400">Find your keys in the <span className="font-semibold">Flutterwave Dashboard → Settings → API</span></p>
                           </div>
                         </div>
                       )}

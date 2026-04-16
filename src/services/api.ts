@@ -926,6 +926,9 @@ export interface PaymentSettings {
   paypal: { enabled: boolean; clientId: string; secret: string };
   cashOnDelivery: { enabled: boolean };
   paystack?: { enabled: boolean; secretKey: string; publicKey: string };
+  sslcommerz?: { enabled: boolean; storeId: string; storePassword: string; isLive: boolean };
+  aamarpay?: { enabled: boolean; storeId: string; signatureKey: string; isLive: boolean };
+  flutterwave?: { enabled: boolean; publicKey: string; secretKey: string; encryptionKey: string; isLive: boolean };
   taxRate?: number;
   shipping?: {
     standardCost: number;
