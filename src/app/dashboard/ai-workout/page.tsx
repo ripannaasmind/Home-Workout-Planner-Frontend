@@ -131,7 +131,7 @@ export default function AIWorkoutPage() {
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+        <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center">
           <Brain className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -185,7 +185,7 @@ export default function AIWorkoutPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
-            <Sparkles className="h-5 w-5 text-purple-500" />
+            <Sparkles className="h-5 w-5 text-primary" />
             Customize Your Workout
           </CardTitle>
         </CardHeader>
@@ -200,8 +200,8 @@ export default function AIWorkoutPage() {
                   onClick={() => setGoal(g.value)}
                   className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-all ${
                     goal === g.value
-                      ? "border-purple-500 bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300"
-                      : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                      ? "border-primary bg-primary/5 dark:bg-primary/10 text-primary-dark dark:text-primary"
+                      : "border-gray-200 dark:border-gray-700 hover:border-primary/50"
                   }`}
                 >
                   <g.Icon className="h-4 w-4" />
@@ -221,8 +221,8 @@ export default function AIWorkoutPage() {
                   onClick={() => setFitnessLevel(level)}
                   className={`flex-1 py-2.5 px-4 rounded-lg border text-sm font-medium capitalize transition-all ${
                     fitnessLevel === level
-                      ? "border-purple-500 bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300"
-                      : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                      ? "border-primary bg-primary/5 dark:bg-primary/10 text-primary-dark dark:text-primary"
+                      : "border-gray-200 dark:border-gray-700 hover:border-primary/50"
                   }`}
                 >
                   {level}
@@ -241,8 +241,8 @@ export default function AIWorkoutPage() {
                   onClick={() => setDuration(d)}
                   className={`py-2 px-4 rounded-lg border text-sm font-medium transition-all ${
                     duration === d
-                      ? "border-purple-500 bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300"
-                      : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                      ? "border-primary bg-primary/5 dark:bg-primary/10 text-primary-dark dark:text-primary"
+                      : "border-gray-200 dark:border-gray-700 hover:border-primary/50"
                   }`}
                 >
                   {d}m
@@ -261,8 +261,8 @@ export default function AIWorkoutPage() {
                   onClick={() => toggleEquipment(eq)}
                   className={`py-1.5 px-3 rounded-full border text-xs font-medium capitalize transition-all ${
                     equipment.includes(eq)
-                      ? "border-purple-500 bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300"
-                      : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                      ? "border-primary bg-primary/10 dark:bg-primary/20 text-primary-dark dark:text-primary"
+                      : "border-gray-200 dark:border-gray-700 hover:border-primary/50"
                   }`}
                 >
                   {eq.replace(/_/g, " ")}
@@ -281,8 +281,8 @@ export default function AIWorkoutPage() {
                   onClick={() => toggleMuscle(muscle)}
                   className={`py-1.5 px-3 rounded-full border text-xs font-medium capitalize transition-all ${
                     targetMuscles.includes(muscle)
-                      ? "border-purple-500 bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300"
-                      : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                      ? "border-primary bg-primary/10 dark:bg-primary/20 text-primary-dark dark:text-primary"
+                      : "border-gray-200 dark:border-gray-700 hover:border-primary/50"
                   }`}
                 >
                   {muscle.replace(/_/g, " ")}
@@ -306,7 +306,7 @@ export default function AIWorkoutPage() {
           <Button
             onClick={handleGenerate}
             disabled={loading || !goal || !fitnessLevel}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+            className="w-full bg-primary hover:bg-primary-dark text-white"
             size="lg"
           >
             {loading ? (
@@ -327,7 +327,7 @@ export default function AIWorkoutPage() {
       {/* Result */}
       {result && (
         <div className="space-y-4">
-          <Card className="border-purple-200 dark:border-purple-800">
+          <Card className="border-primary/20 dark:border-primary/30">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div>
@@ -395,17 +395,17 @@ export default function AIWorkoutPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Dumbbell className="h-5 w-5 text-purple-500" />
+                <Dumbbell className="h-5 w-5 text-primary" />
                 Exercises
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {result.exercises?.map((ex, i) => (
-                <div key={i} className="p-4 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-purple-200 dark:hover:border-purple-800 transition-colors">
+                <div key={i} className="p-4 rounded-lg border border-gray-100 dark:border-gray-800 hover:border-primary/30 dark:hover:border-primary/30 transition-colors">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="h-8 w-8 rounded-lg bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center shrink-0">
-                        <span className="text-sm font-bold text-purple-600">{i + 1}</span>
+                      <div className="h-8 w-8 rounded-lg bg-primary/10 dark:bg-primary/20 flex items-center justify-center shrink-0">
+                        <span className="text-sm font-bold text-primary-dark">{i + 1}</span>
                       </div>
                       <div>
                         <p className="font-semibold text-sm">{ex.name}</p>
@@ -419,7 +419,7 @@ export default function AIWorkoutPage() {
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">{ex.instructions}</p>
-                  {ex.tips && <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 flex items-start gap-1"><Lightbulb className="h-3 w-3 shrink-0 mt-0.5" />{ex.tips}</p>}
+                  {ex.tips && <p className="text-xs text-primary mt-1 flex items-start gap-1"><Lightbulb className="h-3 w-3 shrink-0 mt-0.5" />{ex.tips}</p>}
                   {ex.restTime > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">Rest: {ex.restTime}s</p>
                   )}
@@ -464,10 +464,10 @@ export default function AIWorkoutPage() {
 
           {/* Notes */}
           {result.notes && (
-            <Card className="bg-purple-50 dark:bg-purple-500/5 border-purple-200 dark:border-purple-800">
+            <Card className="bg-primary/5 dark:bg-primary/5 border-primary/20 dark:border-primary/20">
               <CardContent className="p-4">
-                <p className="text-sm font-medium text-purple-700 dark:text-purple-300 flex items-center gap-1.5"><Lightbulb className="h-4 w-4" />Trainer Notes</p>
-                <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">{result.notes}</p>
+                <p className="text-sm font-medium text-primary-dark dark:text-primary flex items-center gap-1.5"><Lightbulb className="h-4 w-4" />Trainer Notes</p>
+                <p className="text-sm text-primary dark:text-primary/80 mt-1">{result.notes}</p>
               </CardContent>
             </Card>
           )}
