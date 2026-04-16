@@ -236,10 +236,10 @@ export default function FeaturesPage() {
                 { value: "50K+", label: "Active Users" },
                 { value: "2M+", label: "Workouts Logged" },
                 { value: "500M+", label: "Calories Burned" },
-                { value: "4.9★", label: "Average Rating" },
+                { value: "4.9", label: "Average Rating", star: true },
               ].map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">{stat.value}</p>
+                  <p className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary flex items-center justify-center gap-1">{stat.value}{(stat as { star?: boolean }).star && <Star className="h-6 w-6 fill-current" />}</p>
                   <p className="text-sm text-text-secondary mt-1">{stat.label}</p>
                 </div>
               ))}

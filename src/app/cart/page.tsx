@@ -19,6 +19,7 @@ import {
   CreditCard,
   Tag,
   Star,
+  CheckCircle2,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
@@ -377,7 +378,7 @@ export default function CartPage() {
                       </div>
                       {promoApplied && promoData && (
                         <p className="text-xs text-accent mt-1">
-                          ✓ &ldquo;{promoData.code}&rdquo; applied! -{promoData.discountType === "percentage" ? `${promoData.discountValue}%` : formatPrice(promoData.discountValue)} off (-{formatPrice(promoData.discount)})
+                          <CheckCircle2 className="inline h-3.5 w-3.5 mr-1 align-text-bottom" />&ldquo;{promoData.code}&rdquo; applied! -{promoData.discountType === "percentage" ? `${promoData.discountValue}%` : formatPrice(promoData.discountValue)} off (-{formatPrice(promoData.discount)})
                         </p>
                       )}
                     </div>

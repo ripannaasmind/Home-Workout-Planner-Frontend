@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { loadStripe, type Stripe as StripeType } from "@stripe/stripe-js";
 import { Elements, CardCvcElement, CardExpiryElement, CardNumberElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { CheckCircle2, CreditCard, Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { CheckCircle2, CreditCard, Loader2, AlertCircle, RefreshCw, Banknote } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -388,7 +388,7 @@ export default function BillingPage() {
               )}
               {paymentMethods.cashOnDelivery.enabled && (
                 <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                  <span className="text-gray-500 text-base">💵</span>
+                  <Banknote className="h-5 w-5 text-gray-500" />
                   <div>
                     <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Cash on Delivery</p>
                     <p className="text-gray-500 dark:text-gray-400 text-xs">Available for store orders</p>

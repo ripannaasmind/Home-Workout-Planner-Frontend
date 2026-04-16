@@ -37,6 +37,7 @@ import {
   Dumbbell,
   AlertCircle,
   Loader2,
+  ShieldCheck,
 } from "lucide-react";
 
 // ------- Stripe Card Element component (must live inside <Elements>) -------
@@ -697,7 +698,7 @@ function CheckoutContent() {
                   </Button>
 
                   <p className="text-xs text-text-secondary text-center mt-3">
-                    🔒 Your payment information is secure
+                    <ShieldCheck className="inline h-3.5 w-3.5 mr-1 align-text-bottom" />Your payment information is secure
                   </p>
                 </CardContent>
               </Card>

@@ -22,6 +22,8 @@ import {
   EyeOff, 
   Loader2,
   AlertCircle,
+  User,
+  KeyRound,
 } from "lucide-react";
 
 
@@ -264,7 +266,7 @@ export default function LoginPage() {
                 className="h-10 text-xs font-medium border-primary/30 hover:bg-primary/5 hover:border-primary/50 transition-colors"
                 onClick={() => { setEmail("user@demo.com"); setPassword("user123"); }}
               >
-                <span className="mr-1.5">👤</span> Demo User
+                <User className="mr-1.5 h-4 w-4" /> Demo User
               </Button>
               <Button
                 type="button"
@@ -272,7 +274,7 @@ export default function LoginPage() {
                 className="h-10 text-xs font-medium border-accent/30 hover:bg-accent/5 hover:border-accent/50 transition-colors"
                 onClick={() => { setEmail("admin@demo.com"); setPassword("admin123"); }}
               >
-                <span className="mr-1.5">🔑</span> Demo Admin
+                <KeyRound className="mr-1.5 h-4 w-4" /> Demo Admin
               </Button>
             </div>
           </div>

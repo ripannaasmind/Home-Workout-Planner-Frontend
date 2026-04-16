@@ -23,15 +23,19 @@ import {
   Zap,
   Settings,
   Lock,
+  Activity,
+  Leaf,
+  Stethoscope,
+  Lightbulb,
 } from "lucide-react";
 
 const GOALS = [
-  { value: "lose_weight", label: "Lose Weight", icon: "🔥" },
-  { value: "build_muscle", label: "Build Muscle", icon: "💪" },
-  { value: "stay_fit", label: "Stay Fit", icon: "🏃" },
-  { value: "increase_flexibility", label: "Flexibility", icon: "🧘" },
-  { value: "increase_stamina", label: "Stamina", icon: "⚡" },
-  { value: "rehabilitation", label: "Rehabilitation", icon: "🩺" },
+  { value: "lose_weight", label: "Lose Weight", Icon: Flame },
+  { value: "build_muscle", label: "Build Muscle", Icon: Dumbbell },
+  { value: "stay_fit", label: "Stay Fit", Icon: Activity },
+  { value: "increase_flexibility", label: "Flexibility", Icon: Leaf },
+  { value: "increase_stamina", label: "Stamina", Icon: Zap },
+  { value: "rehabilitation", label: "Rehabilitation", Icon: Stethoscope },
 ];
 
 const FITNESS_LEVELS = ["beginner", "intermediate", "advanced"] as const;
@@ -200,7 +204,7 @@ export default function AIWorkoutPage() {
                       : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
                   }`}
                 >
-                  <span>{g.icon}</span>
+                  <g.Icon className="h-4 w-4" />
                   {g.label}
                 </button>
               ))}
@@ -415,7 +419,7 @@ export default function AIWorkoutPage() {
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-2">{ex.instructions}</p>
-                  {ex.tips && <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">💡 {ex.tips}</p>}
+                  {ex.tips && <p className="text-xs text-purple-600 dark:text-purple-400 mt-1 flex items-start gap-1"><Lightbulb className="h-3 w-3 shrink-0 mt-0.5" />{ex.tips}</p>}
                   {ex.restTime > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">Rest: {ex.restTime}s</p>
                   )}
@@ -462,7 +466,7 @@ export default function AIWorkoutPage() {
           {result.notes && (
             <Card className="bg-purple-50 dark:bg-purple-500/5 border-purple-200 dark:border-purple-800">
               <CardContent className="p-4">
-                <p className="text-sm font-medium text-purple-700 dark:text-purple-300">💡 Trainer Notes</p>
+                <p className="text-sm font-medium text-purple-700 dark:text-purple-300 flex items-center gap-1.5"><Lightbulb className="h-4 w-4" />Trainer Notes</p>
                 <p className="text-sm text-purple-600 dark:text-purple-400 mt-1">{result.notes}</p>
               </CardContent>
             </Card>

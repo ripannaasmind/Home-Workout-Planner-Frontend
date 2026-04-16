@@ -18,6 +18,7 @@ import {
   ArrowLeft,
   Loader2,
   Swords,
+  CheckCircle2,
 } from "lucide-react";
 
 type ViewMode = "list" | "detail";
@@ -137,7 +138,7 @@ export default function ChallengesPage() {
               </Button>
             ) : (
               <div className="flex gap-2">
-                <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300">✓ Joined</Badge>
+                <Badge className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300 flex items-center gap-1"><CheckCircle2 className="h-3 w-3" />Joined</Badge>
                 <Button variant="ghost" size="sm" onClick={handleLeave} className="text-red-500">Leave</Button>
               </div>
             )}

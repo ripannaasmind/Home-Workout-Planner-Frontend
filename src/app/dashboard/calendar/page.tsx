@@ -177,7 +177,7 @@ export default function CalendarPage() {
                           style={{ backgroundColor: s.color || "#6366f1" }}
                           onClick={(e) => { e.stopPropagation(); }}
                         >
-                          {s.isCompleted && "✓ "}{s.title}
+                          {s.isCompleted && <Check className="h-2.5 w-2.5 inline mr-0.5 align-middle" />}{s.title}
                         </div>
                       ))}
                       {daySchedules.length > 2 && <p className="text-[10px] text-muted-foreground px-1">+{daySchedules.length - 2} more</p>}

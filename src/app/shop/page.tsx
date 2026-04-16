@@ -464,7 +464,7 @@ export default function ShopPage() {
                 </div>
               ) : (
                 <div className="text-center py-12 sm:py-16">
-                  <div className="text-4xl sm:text-5xl mb-4">🔍</div>
+                  <div className="flex justify-center mb-4"><Search className="h-12 w-12 sm:h-16 sm:w-16 text-muted-foreground" /></div>
                   <h3 className="text-lg sm:text-xl font-semibold text-foreground mb-2">
                     No products found
                   </h3>
