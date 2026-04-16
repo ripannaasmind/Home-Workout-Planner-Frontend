@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { aiApi, type AIWorkoutResult } from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,6 +21,8 @@ import {
   Target,
   Clock,
   Zap,
+  Settings,
+  Lock,
 } from "lucide-react";
 
 const GOALS = [
@@ -56,7 +59,8 @@ const MUSCLE_GROUPS = [
 ];
 
 export default function AIWorkoutPage() {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
+  const [aiStatus, setAiStatus] = useState<boolean | null>(null);
   const [goal, setGoal] = useState("");
   const [fitnessLevel, setFitnessLevel] = useState<string>("beginner");
   const [duration, setDuration] = useState(30);
@@ -68,6 +72,13 @@ export default function AIWorkoutPage() {
   const [error, setError] = useState("");
   const [showWarmup, setShowWarmup] = useState(false);
   const [showCooldown, setShowCooldown] = useState(false);
+
+  useEffect(() => {
+    aiApi
+      .getStatus()
+      .then((res) => setAiStatus(res.data?.enabled === true))
+      .catch(() => setAiStatus(false));
+  }, []);
 
   const toggleEquipment = (item: string) => {
     setEquipment((prev) =>
@@ -124,6 +135,47 @@ export default function AIWorkoutPage() {
           <p className="text-sm text-muted-foreground">Get a personalized workout plan powered by AI</p>
         </div>
       </div>
+
+      {/* Status: checking */}
+      {aiStatus === null && (
+        <Card>
+          <CardContent className="flex items-center justify-center py-12 gap-3 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span>Checking AI availability…</span>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Status: not configured */}
+      {aiStatus === false && (
+        <Card className="border-dashed border-2 border-orange-300 bg-orange-50 dark:bg-orange-950/20 dark:border-orange-800">
+          <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
+            <div className="h-16 w-16 rounded-full bg-orange-100 dark:bg-orange-900/40 flex items-center justify-center">
+              <Lock className="h-8 w-8 text-orange-500" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold text-foreground mb-1">AI Workout Generator Not Configured</h2>
+              <p className="text-muted-foreground max-w-md">
+                The AI feature has not been enabled yet. An administrator needs to add the AI API key and enable it from the admin settings.
+              </p>
+            </div>
+            {(user as { role?: string })?.role === "admin" && (
+              <Button asChild className="gap-2">
+                <Link href="/admin/settings">
+                  <Settings className="h-4 w-4" />
+                  Go to Admin Settings
+                </Link>
+              </Button>
+            )}
+            {(user as { role?: string })?.role !== "admin" && (
+              <p className="text-sm text-muted-foreground">Please contact your administrator to enable this feature.</p>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Main content — only shown when AI is configured */}
+      {aiStatus === true && (<>
 
       {/* Form */}
       <Card>
@@ -417,6 +469,7 @@ export default function AIWorkoutPage() {
           )}
         </div>
       )}
+      </>)}
     </div>
   );
 }
