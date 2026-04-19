@@ -19,10 +19,10 @@ const difficultyColor: Record<string, string> = {
   advanced: "bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400",
 };
 
-const difficultyBar: Record<string, string> = {
-  beginner: "bg-linear-to-r from-green-400 to-emerald-500",
-  intermediate: "bg-linear-to-r from-yellow-400 to-amber-500",
-  advanced: "bg-linear-to-r from-red-400 to-rose-500",
+const difficultyAccent: Record<string, string> = {
+  beginner: "bg-green-400",
+  intermediate: "bg-yellow-400",
+  advanced: "bg-red-400",
 };
 
 function formatTime(seconds: number) {
@@ -333,47 +333,55 @@ export default function WorkoutsPage() {
               key={workout._id}
               className="group relative rounded-2xl glass shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 overflow-hidden flex flex-col"
             >
-              {/* Difficulty gradient top bar */}
-              <div className={cn("h-1.5 w-full", difficultyBar[workout.difficulty] ?? "bg-gray-200")} />
+              {/* Difficulty accent — left border strip */}
+              <div className={cn("absolute left-0 top-4 bottom-4 w-1 rounded-full", difficultyAccent[workout.difficulty] ?? "bg-gray-300")} />
 
-              <div className="p-5 flex flex-col gap-3 flex-1">
+              <div className="p-5 pl-6 flex flex-col gap-3 flex-1">
+                {/* Header */}
                 <div className="flex items-start justify-between">
                   <div className="h-11 w-11 rounded-xl bg-linear-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
                     <Dumbbell className="h-5 w-5 text-primary" />
                   </div>
-                  <Badge className={`border-0 text-xs ${difficultyColor[workout.difficulty] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200"}`}>
+                  <Badge className={`border-0 text-xs ${difficultyColor[workout.difficulty] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700"}`}>
                     {workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1)}
                   </Badge>
                 </div>
 
+                {/* Title */}
                 <div>
-                  <h3 className="font-bold text-sm text-gray-800 dark:text-gray-100 leading-snug">{workout.name}</h3>
+                  <h3 className="font-bold text-sm text-foreground leading-snug">{workout.name}</h3>
                   <p className="text-xs text-muted-foreground mt-0.5 capitalize">{workout.category}</p>
                 </div>
 
-                <div className="flex gap-4 text-xs text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3 text-primary" />
-                    <span>{workout.duration} min</span>
+                {/* Stats mini boxes */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-white/5 rounded-lg px-2.5 py-2">
+                    <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span className="text-xs font-semibold text-foreground">{workout.duration} min</span>
                   </div>
-                  {workout.estimatedCalories ? (
-                    <div className="flex items-center gap-1">
-                      <Flame className="h-3 w-3 text-orange-400" />
-                      <span>~{workout.estimatedCalories} kcal</span>
-                    </div>
-                  ) : null}
+                  <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-white/5 rounded-lg px-2.5 py-2">
+                    <Flame className="h-3.5 w-3.5 text-orange-400 shrink-0" />
+                    <span className="text-xs font-semibold text-foreground">
+                      {workout.estimatedCalories ? `~${workout.estimatedCalories} kcal` : "N/A"}
+                    </span>
+                  </div>
                 </div>
 
-                <div className="space-y-1">
-                  <span className="text-xs text-muted-foreground">{workout.exercises?.length ?? 0} exercises</span>
-                  <div className="h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                {/* Exercise count + progress */}
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Exercises</span>
+                    <span className="font-bold text-foreground">{workout.exercises?.length ?? 0}</span>
+                  </div>
+                  <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-linear-to-r from-primary to-primary/60 rounded-full"
-                      style={{ width: `${Math.min(100, ((workout.exercises?.length ?? 0) / 15) * 100)}%` }}
+                      className="h-full bg-linear-to-r from-primary to-primary/60 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, ((workout.exercises?.length ?? 0) / 12) * 100)}%` }}
                     />
                   </div>
                 </div>
 
+                {/* Start button */}
                 <div className="pt-1 mt-auto">
                   <Button
                     className="w-full gap-2 bg-linear-to-r from-primary to-primary/80 text-white shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30 transition-all"

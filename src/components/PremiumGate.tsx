@@ -16,7 +16,7 @@ export function PremiumGate({ children, feature = "this feature" }: PremiumGateP
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[300px]">
+      <div className="flex items-center justify-center min-h-75">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
@@ -26,11 +26,11 @@ export function PremiumGate({ children, feature = "this feature" }: PremiumGateP
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      <Card className="border-2 border-dashed border-amber-300 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 dark:border-amber-700">
+      <Card className="border-2 border-dashed border-amber-300 bg-linear-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 dark:border-amber-700">
         <CardContent className="flex flex-col items-center gap-6 py-16 text-center">
           {/* Icon */}
           <div className="relative">
-            <div className="h-20 w-20 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
+            <div className="h-20 w-20 rounded-full bg-linear-to-br from-amber-400 to-orange-500 flex items-center justify-center shadow-lg">
               <Crown className="h-10 w-10 text-white" />
             </div>
             <div className="absolute -top-1 -right-1 h-7 w-7 rounded-full bg-white dark:bg-gray-900 border-2 border-amber-400 flex items-center justify-center">
@@ -73,7 +73,7 @@ export function PremiumGate({ children, feature = "this feature" }: PremiumGateP
             <Button
               asChild
               size="lg"
-              className="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold px-8 gap-2"
+              className="bg-linear-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold px-8 gap-2"
             >
               <Link href="/dashboard/billing">
                 <Sparkles className="h-4 w-4" />

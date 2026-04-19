@@ -144,18 +144,18 @@ export default function SessionsPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-fade">
       <DashboardHeader
         title="Workout Sessions"
         description="Track your workout history and performance"
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 stagger-grid">
         {statCards.map((card) => {
           const Icon = card.icon;
           return (
-            <div key={card.label} className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm p-4 flex items-center gap-3">
+            <div key={card.label} className="glass rounded-2xl shadow-sm p-4 flex items-center gap-3">
               <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0", card.color)}>
                 <Icon className="h-5 w-5" />
               </div>
@@ -201,7 +201,7 @@ export default function SessionsPage() {
       </div>
 
       {/* Sessions List */}
-      <div className="bg-white dark:bg-card rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden">
+      <div className="glass rounded-2xl shadow-sm overflow-hidden">
         {loading ? (
           <div className="flex justify-center py-16">
             <Loader2 className="w-7 h-7 animate-spin text-primary" />
