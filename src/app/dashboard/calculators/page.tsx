@@ -376,12 +376,13 @@ function SuggestionCard({ title = "Suggestions & Tips", items, ctaLabel, ctaHref
 }
 
 function BMICalc({ token, onSaved }: { token: string; onSaved: () => void }) {
-  const [weight, setWeight] = useState(""); const [height, setHeight] = useState(""); const [result, setResult] = useState<{ bmi: number; category: string } | null>(null);
+  const [gender, setGender] = useState("male"); const [weight, setWeight] = useState(""); const [height, setHeight] = useState(""); const [result, setResult] = useState<{ bmi: number; category: string } | null>(null);
 
   const calculate = () => {
     const w = parseFloat(weight); const h = parseFloat(height) / 100;
     if (!w || !h) return;
     const bmi = w / (h * h);
+    // WHO BMI categories are the same for both genders
     let category = "Normal";
     if (bmi < 18.5) category = "Underweight";
     else if (bmi < 25) category = "Normal";
@@ -389,13 +390,14 @@ function BMICalc({ token, onSaved }: { token: string; onSaved: () => void }) {
     else category = "Obese";
     const r = { bmi: Math.round(bmi * 10) / 10, category };
     setResult(r);
-    if (token) calculatorApi.save({ type: "bmi", label: "BMI Calculator", inputs: { weight: w, height: parseFloat(height) }, results: { BMI: r.bmi, Category: r.category } }, token).then(onSaved).catch(() => {});
+    if (token) calculatorApi.save({ type: "bmi", label: "BMI Calculator", inputs: { gender, weight: w, height: parseFloat(height) }, results: { BMI: r.bmi, Category: r.category } }, token).then(onSaved).catch(() => {});
   };
 
   return (
     <Card>
       <CardHeader><CardTitle className="flex items-center gap-2"><Scale className="h-5 w-5 text-blue-500" />BMI Calculator</CardTitle></CardHeader>
       <CardContent className="space-y-4">
+        <GenderToggle gender={gender} setGender={setGender} />
         <div className="grid grid-cols-2 gap-4">
           <div><Label>Weight (kg)</Label><Input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="70" /></div>
           <div><Label>Height (cm)</Label><Input type="number" value={height} onChange={(e) => setHeight(e.target.value)} placeholder="175" /></div>
