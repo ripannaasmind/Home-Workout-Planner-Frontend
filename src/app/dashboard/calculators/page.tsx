@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { PremiumGate } from "@/components/PremiumGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,12 @@ import {
   Apple,
   ChevronRight,
   ArrowLeft,
+  History,
+  Trash2,
+  Loader2,
 } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { calculatorApi, type CalculatorHistoryEntry } from "@/services/api";
 
 type CalcType = "bmi" | "bmr" | "tdee" | "one-rep-max" | "body-fat" | "water" | "calorie-burn" | "macro" | null;
 
@@ -34,7 +39,25 @@ const CALCULATORS = [
 ];
 
 export default function CalculatorsPage() {
+  const { token } = useAuth();
   const [activeCalc, setActiveCalc] = useState<CalcType>(null);
+  const [tab, setTab] = useState<"calculators" | "history">("calculators");
+  const [history, setHistory] = useState<CalculatorHistoryEntry[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const loadHistory = useCallback(async () => {
+    if (!token) return;
+    setHistoryLoading(true);
+    try {
+      const res = await calculatorApi.getHistory(token);
+      setHistory(res.data);
+    } catch { /* ignore */ }
+    setHistoryLoading(false);
+  }, [token]);
+
+  useEffect(() => {
+    if (tab === "history") loadHistory();
+  }, [tab, loadHistory]);
 
   if (activeCalc) {
     return (
@@ -43,18 +66,24 @@ export default function CalculatorsPage() {
         <Button variant="ghost" size="sm" onClick={() => setActiveCalc(null)}>
           <ArrowLeft className="h-4 w-4 mr-1" /> All Calculators
         </Button>
-        {activeCalc === "bmi" && <BMICalc />}
-        {activeCalc === "bmr" && <BMRCalc />}
-        {activeCalc === "tdee" && <TDEECalc />}
-        {activeCalc === "one-rep-max" && <OneRepMaxCalc />}
-        {activeCalc === "body-fat" && <BodyFatCalc />}
-        {activeCalc === "water" && <WaterCalc />}
-        {activeCalc === "calorie-burn" && <CalorieBurnCalc />}
-        {activeCalc === "macro" && <MacroCalc />}
+        {activeCalc === "bmi" && <BMICalc token={token || ""} onSaved={loadHistory} />}
+        {activeCalc === "bmr" && <BMRCalc token={token || ""} onSaved={loadHistory} />}
+        {activeCalc === "tdee" && <TDEECalc token={token || ""} onSaved={loadHistory} />}
+        {activeCalc === "one-rep-max" && <OneRepMaxCalc token={token || ""} onSaved={loadHistory} />}
+        {activeCalc === "body-fat" && <BodyFatCalc token={token || ""} onSaved={loadHistory} />}
+        {activeCalc === "water" && <WaterCalc token={token || ""} onSaved={loadHistory} />}
+        {activeCalc === "calorie-burn" && <CalorieBurnCalc token={token || ""} onSaved={loadHistory} />}
+        {activeCalc === "macro" && <MacroCalc token={token || ""} onSaved={loadHistory} />}
       </div>
       </PremiumGate>
     );
   }
+
+  const deleteEntry = async (id: string) => {
+    if (!token) return;
+    try { await calculatorApi.deleteEntry(id, token); } catch { /* ignore */ }
+    setHistory((prev) => prev.filter((h) => h._id !== id));
+  };
 
   return (
     <PremiumGate feature="Fitness Calculators">
@@ -69,24 +98,69 @@ export default function CalculatorsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {CALCULATORS.map((calc) => (
-          <Card
-            key={calc.id}
-            className="cursor-pointer hover:border-primary/50 transition-all hover:shadow-md group"
-            onClick={() => setActiveCalc(calc.id)}
-          >
-            <CardContent className="p-5">
-              <div className={`h-10 w-10 ${calc.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                <calc.icon className="h-5 w-5 text-white" />
-              </div>
-              <h3 className="font-semibold text-sm">{calc.name}</h3>
-              <p className="text-xs text-muted-foreground mt-1">{calc.desc}</p>
-              <ChevronRight className="h-4 w-4 text-muted-foreground mt-3 group-hover:translate-x-1 transition-transform" />
-            </CardContent>
-          </Card>
+      {/* Tab Switcher */}
+      <div className="flex gap-1 border-b border-gray-200 dark:border-gray-800">
+        {(["calculators", "history"] as const).map((t) => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-all capitalize ${
+              tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}>
+            {t === "calculators" ? <Calculator className="h-4 w-4" /> : <History className="h-4 w-4" />}
+            {t === "calculators" ? "Calculators" : "History"}
+          </button>
         ))}
       </div>
+
+      {tab === "calculators" && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {CALCULATORS.map((calc) => (
+            <Card key={calc.id} className="cursor-pointer hover:border-primary/50 transition-all hover:shadow-md group" onClick={() => setActiveCalc(calc.id)}>
+              <CardContent className="p-5">
+                <div className={`h-10 w-10 ${calc.color} rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                  <calc.icon className="h-5 w-5 text-white" />
+                </div>
+                <h3 className="font-semibold text-sm">{calc.name}</h3>
+                <p className="text-xs text-muted-foreground mt-1">{calc.desc}</p>
+                <ChevronRight className="h-4 w-4 text-muted-foreground mt-3 group-hover:translate-x-1 transition-transform" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {tab === "history" && (
+        <div className="space-y-3">
+          {historyLoading ? (
+            <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+          ) : history.length === 0 ? (
+            <div className="bg-white dark:bg-card rounded-2xl border p-12 text-center">
+              <History className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="font-semibold">No calculator history yet</p>
+              <p className="text-sm text-muted-foreground mt-1">Use a calculator to see your results saved here.</p>
+            </div>
+          ) : (
+            history.map((entry) => (
+              <div key={entry._id} className="bg-white dark:bg-card rounded-xl border p-4 flex items-start gap-4">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Calculator className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm">{entry.label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{new Date(entry.createdAt).toLocaleString()}</p>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {Object.entries(entry.results).map(([k, v]) => (
+                      <Badge key={k} variant="secondary" className="text-xs">{k}: {String(v)}</Badge>
+                    ))}
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => deleteEntry(entry._id)}>
+                  <Trash2 className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
     </PremiumGate>
   );
@@ -117,7 +191,7 @@ function GenderToggle({ gender, setGender }: { gender: string; setGender: (v: st
   );
 }
 
-function BMICalc() {
+function BMICalc({ token, onSaved }: { token: string; onSaved: () => void }) {
   const [weight, setWeight] = useState(""); const [height, setHeight] = useState(""); const [result, setResult] = useState<{ bmi: number; category: string } | null>(null);
 
   const calculate = () => {
@@ -129,7 +203,9 @@ function BMICalc() {
     else if (bmi < 25) category = "Normal";
     else if (bmi < 30) category = "Overweight";
     else category = "Obese";
-    setResult({ bmi: Math.round(bmi * 10) / 10, category });
+    const r = { bmi: Math.round(bmi * 10) / 10, category };
+    setResult(r);
+    if (token) calculatorApi.save({ type: "bmi", label: "BMI Calculator", inputs: { weight: w, height: parseFloat(height) }, results: { BMI: r.bmi, Category: r.category } }, token).then(onSaved).catch(() => {});
   };
 
   return (
@@ -152,14 +228,16 @@ function BMICalc() {
   );
 }
 
-function BMRCalc() {
+function BMRCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
   const [gender, setGender] = useState("male"); const [weight, setWeight] = useState(""); const [height, setHeight] = useState(""); const [age, setAge] = useState(""); const [result, setResult] = useState<number | null>(null);
 
   const calculate = () => {
     const w = parseFloat(weight); const h = parseFloat(height); const a = parseFloat(age);
     if (!w || !h || !a) return;
     const bmr = gender === "male" ? 10 * w + 6.25 * h - 5 * a + 5 : 10 * w + 6.25 * h - 5 * a - 161;
-    setResult(Math.round(bmr));
+    const r = Math.round(bmr);
+    setResult(r);
+    if (token) calculatorApi.save({ type: "bmr", label: "BMR Calculator", inputs: { gender, weight: w, height: h, age: a }, results: { "BMR (cal/day)": r } }, token).then(onSaved).catch(() => {});
   };
 
   return (
@@ -179,7 +257,7 @@ function BMRCalc() {
   );
 }
 
-function TDEECalc() {
+function TDEECalc({ token, onSaved }: { token: string; onSaved: () => void }) {
   const [gender, setGender] = useState("male"); const [weight, setWeight] = useState(""); const [height, setHeight] = useState(""); const [age, setAge] = useState(""); const [activity, setActivity] = useState("1.55"); const [result, setResult] = useState<number | null>(null);
 
   const ACTIVITIES = [
@@ -192,7 +270,10 @@ function TDEECalc() {
     const w = parseFloat(weight); const h = parseFloat(height); const a = parseFloat(age);
     if (!w || !h || !a) return;
     const bmr = gender === "male" ? 10 * w + 6.25 * h - 5 * a + 5 : 10 * w + 6.25 * h - 5 * a - 161;
-    setResult(Math.round(bmr * parseFloat(activity)));
+    const r = Math.round(bmr * parseFloat(activity));
+    setResult(r);
+    const actLabel = ACTIVITIES.find(ac => ac.value === activity)?.label || activity;
+    if (token) calculatorApi.save({ type: "tdee", label: "TDEE Calculator", inputs: { gender, weight: w, height: h, age: a, activity: actLabel }, results: { "TDEE (cal/day)": r } }, token).then(onSaved).catch(() => {});
   };
 
   return (
@@ -221,14 +302,16 @@ function TDEECalc() {
   );
 }
 
-function OneRepMaxCalc() {
+function OneRepMaxCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
   const [weight, setWeight] = useState(""); const [reps, setReps] = useState(""); const [result, setResult] = useState<number | null>(null);
 
   const calculate = () => {
     const w = parseFloat(weight); const r = parseFloat(reps);
     if (!w || !r || r < 1 || r > 30) return;
-    const orm = w * (1 + r / 30); // Epley formula
-    setResult(Math.round(orm * 10) / 10);
+    const orm = w * (1 + r / 30);
+    const val = Math.round(orm * 10) / 10;
+    setResult(val);
+    if (token) calculatorApi.save({ type: "one-rep-max", label: "One-Rep Max Calculator", inputs: { weight: w, reps: r }, results: { "1RM (kg)": val } }, token).then(onSaved).catch(() => {});
   };
 
   return (
@@ -260,7 +343,7 @@ function OneRepMaxCalc() {
   );
 }
 
-function BodyFatCalc() {
+function BodyFatCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
   const [gender, setGender] = useState("male"); const [waist, setWaist] = useState(""); const [neck, setNeck] = useState(""); const [height, setHeight] = useState(""); const [hip, setHip] = useState(""); const [result, setResult] = useState<number | null>(null);
 
   const calculate = () => {
@@ -274,7 +357,9 @@ function BodyFatCalc() {
       if (!hp) return;
       bf = 495 / (1.29579 - 0.35004 * Math.log10(w + hp - n) + 0.22100 * Math.log10(h)) - 450;
     }
-    setResult(Math.round(bf * 10) / 10);
+    const val = Math.round(bf * 10) / 10;
+    setResult(val);
+    if (token) calculatorApi.save({ type: "body-fat", label: "Body Fat Estimator", inputs: { gender, waist: w, neck: n, height: h, ...(gender === "female" ? { hip: parseFloat(hip) } : {}) }, results: { "Body Fat (%)": val } }, token).then(onSaved).catch(() => {});
   };
 
   return (
@@ -295,7 +380,7 @@ function BodyFatCalc() {
   );
 }
 
-function WaterCalc() {
+function WaterCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
   const [weight, setWeight] = useState(""); const [activity, setActivity] = useState("moderate"); const [result, setResult] = useState<number | null>(null);
 
   const calculate = () => {
@@ -305,7 +390,9 @@ function WaterCalc() {
     if (activity === "light") multiplier = 0.03;
     else if (activity === "active") multiplier = 0.04;
     else if (activity === "very-active") multiplier = 0.045;
-    setResult(Math.round(w * multiplier * 10) / 10);
+    const val = Math.round(w * multiplier * 10) / 10;
+    setResult(val);
+    if (token) calculatorApi.save({ type: "water", label: "Water Intake Calculator", inputs: { weight: w, activity }, results: { "Water (L/day)": val, "Glasses (250ml)": Math.ceil(val * 4) } }, token).then(onSaved).catch(() => {});
   };
 
   return (
@@ -334,7 +421,7 @@ function WaterCalc() {
   );
 }
 
-function CalorieBurnCalc() {
+function CalorieBurnCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
   const [weight, setWeight] = useState(""); const [activityType, setActivityType] = useState("running"); const [durationMin, setDurationMin] = useState(""); const [result, setResult] = useState<number | null>(null);
 
   const MET_VALUES: Record<string, number> = {
@@ -346,7 +433,9 @@ function CalorieBurnCalc() {
     const w = parseFloat(weight); const d = parseFloat(durationMin);
     if (!w || !d) return;
     const met = MET_VALUES[activityType] || 5;
-    setResult(Math.round(met * 3.5 * w / 200 * d));
+    const val = Math.round(met * 3.5 * w / 200 * d);
+    setResult(val);
+    if (token) calculatorApi.save({ type: "calorie-burn", label: "Calorie Burn Calculator", inputs: { weight: w, activity: activityType, duration_min: d }, results: { "Calories Burned": val } }, token).then(onSaved).catch(() => {});
   };
 
   return (
@@ -373,7 +462,7 @@ function CalorieBurnCalc() {
   );
 }
 
-function MacroCalc() {
+function MacroCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
   const [weight, setWeight] = useState(""); const [goalType, setGoalType] = useState("maintain"); const [tdee, setTdee] = useState(""); const [result, setResult] = useState<{ protein: number; carbs: number; fats: number; calories: number } | null>(null);
 
   const calculate = () => {
@@ -381,18 +470,19 @@ function MacroCalc() {
     if (!cal) {
       const w = parseFloat(weight);
       if (!w) return;
-      cal = w * 33; // rough estimate
+      cal = w * 33;
     }
     if (goalType === "lose") cal -= 500;
     else if (goalType === "gain") cal += 500;
 
     const w = parseFloat(weight) || 70;
-    const protein = Math.round(w * 2); // 2g/kg
+    const protein = Math.round(w * 2);
     const fats = Math.round(cal * 0.25 / 9);
     const carbCal = cal - (protein * 4) - (fats * 9);
     const carbs = Math.round(carbCal / 4);
-
-    setResult({ protein, carbs, fats, calories: Math.round(cal) });
+    const r = { protein, carbs, fats, calories: Math.round(cal) };
+    setResult(r);
+    if (token) calculatorApi.save({ type: "macro", label: "Macro Calculator", inputs: { weight: w, goal: goalType }, results: { "Calories": r.calories, "Protein (g)": r.protein, "Carbs (g)": r.carbs, "Fats (g)": r.fats } }, token).then(onSaved).catch(() => {});
   };
 
   return (

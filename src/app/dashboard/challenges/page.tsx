@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { PremiumGate } from "@/components/PremiumGate";
-import { challengesApi, type Challenge, type LeaderboardEntry } from "@/services/api";
+import { challengesApi, type Challenge, type LeaderboardEntry, type MyChallengeHistory } from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,7 @@ import {
   Loader2,
   Swords,
   CheckCircle2,
+  History,
 } from "lucide-react";
 
 type ViewMode = "list" | "detail";
@@ -33,6 +34,9 @@ export default function ChallengesPage() {
   const [joining, setJoining] = useState(false);
   const [view, setView] = useState<ViewMode>("list");
   const [statusFilter, setStatusFilter] = useState("active");
+  const [myHistoryTab, setMyHistoryTab] = useState<"browse" | "history">("browse");
+  const [myHistory, setMyHistory] = useState<MyChallengeHistory[]>([]);
+  const [myHistoryLoading, setMyHistoryLoading] = useState(false);
 
   const loadChallenges = useCallback(async () => {
     setLoading(true);
@@ -49,6 +53,20 @@ export default function ChallengesPage() {
   useEffect(() => {
     loadChallenges();
   }, [loadChallenges]);
+
+  const loadMyHistory = useCallback(async () => {
+    if (!token) return;
+    setMyHistoryLoading(true);
+    try {
+      const res = await challengesApi.getMyHistory(token);
+      setMyHistory(res.data);
+    } catch { /* ignore */ }
+    setMyHistoryLoading(false);
+  }, [token]);
+
+  useEffect(() => {
+    if (myHistoryTab === "history") loadMyHistory();
+  }, [myHistoryTab, loadMyHistory]);
 
   const openDetail = async (challenge: Challenge) => {
     setSelected(challenge);
@@ -208,6 +226,64 @@ export default function ChallengesPage() {
         </div>
       </div>
 
+      {/* Tab Switcher */}
+      <div className="flex gap-1 border-b border-gray-200 dark:border-gray-800">
+        {(["browse", "history"] as const).map((t) => (
+          <button key={t} onClick={() => setMyHistoryTab(t)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-all ${
+              myHistoryTab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}>
+            {t === "browse" ? <Swords className="h-4 w-4" /> : <History className="h-4 w-4" />}
+            {t === "browse" ? "Browse Challenges" : "My History"}
+          </button>
+        ))}
+      </div>
+
+      {myHistoryTab === "history" && (
+        <div className="space-y-3">
+          {myHistoryLoading ? (
+            <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+          ) : myHistory.length === 0 ? (
+            <div className="bg-white dark:bg-card rounded-2xl border p-12 text-center">
+              <History className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="font-semibold">No challenges joined yet</p>
+              <p className="text-sm text-muted-foreground mt-1">Join a challenge to track your progress here.</p>
+            </div>
+          ) : (
+            myHistory.map((c) => (
+              <div key={c._id} className="bg-white dark:bg-card rounded-xl border p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-sm">{c.title}</p>
+                      {c.myIsCompleted
+                        ? <CheckCircle2 className="h-4 w-4 text-green-500" />
+                        : <span className="text-xs text-muted-foreground">In Progress</span>}
+                    </div>
+                    <p className="text-xs text-muted-foreground capitalize mt-0.5">{c.difficulty} · {c.category}</p>
+                    <div className="mt-2">
+                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                        <span>Progress: {c.myProgress} / {c.targetValue} {c.targetUnit}</span>
+                        <span>{Math.min(100, Math.round((c.myProgress / c.targetValue) * 100))}%</span>
+                      </div>
+                      <div className="h-2 rounded-full bg-gray-100 dark:bg-gray-800 overflow-hidden">
+                        <div className="h-full bg-orange-500 rounded-full transition-all" style={{ width: `${Math.min(100, Math.round((c.myProgress / c.targetValue) * 100))}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="text-xs text-muted-foreground">Joined {new Date(c.myJoinedAt).toLocaleDateString()}</p>
+                    {c.myCompletedAt && <p className="text-xs text-green-600 mt-0.5">Done {new Date(c.myCompletedAt).toLocaleDateString()}</p>}
+                    <p className="text-xs font-medium text-orange-600 mt-1">{c.rewards.xpPoints} XP</p>
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {myHistoryTab === "browse" && (<>
       {/* Filters */}
       <div className="flex gap-2">
         {["active", "upcoming", "ended"].map((s) => (
@@ -263,6 +339,7 @@ export default function ChallengesPage() {
           ))}
         </div>
       )}
+      </>)}
     </div>
     </PremiumGate>
   );

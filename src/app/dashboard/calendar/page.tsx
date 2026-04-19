@@ -20,6 +20,7 @@ import {
   Clock,
   Dumbbell,
   Loader2,
+  History,
 } from "lucide-react";
 
 const COLORS = ["#6366f1", "#f59e0b", "#10b981", "#ef4444", "#8b5cf6", "#ec4899", "#06b6d4", "#f97316"];
@@ -37,6 +38,9 @@ export default function CalendarPage() {
   const [showForm, setShowForm] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [formData, setFormData] = useState({ title: "", description: "", startTime: "09:00", endTime: "10:00", color: "#6366f1", workout: "", notes: "" });
+  const [tab, setTab] = useState<"calendar" | "history">("calendar");
+  const [historyData, setHistoryData] = useState<WorkoutSchedule[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -54,6 +58,20 @@ export default function CalendarPage() {
   }, [token, year, month]);
 
   useEffect(() => { loadSchedules(); }, [loadSchedules]);
+
+  const loadHistory = useCallback(async () => {
+    if (!token) return;
+    setHistoryLoading(true);
+    try {
+      const res = await calendarApi.getCompleted(token);
+      setHistoryData(res.data);
+    } catch { /* ignore */ }
+    setHistoryLoading(false);
+  }, [token]);
+
+  useEffect(() => {
+    if (tab === "history") loadHistory();
+  }, [tab, loadHistory]);
 
   useEffect(() => {
     if (!token) return;
@@ -132,6 +150,53 @@ export default function CalendarPage() {
           <p className="text-sm text-muted-foreground">Plan and schedule your workouts</p>
         </div>
       </div>
+
+      {/* Tab Switcher */}
+      <div className="flex gap-1 border-b border-gray-200 dark:border-gray-800">
+        {(["calendar", "history"] as const).map((t) => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-all capitalize ${
+              tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}>
+            {t === "calendar" ? <CalendarDays className="h-4 w-4" /> : <History className="h-4 w-4" />}
+            {t === "calendar" ? "Calendar" : "Completed History"}
+          </button>
+        ))}
+      </div>
+
+      {tab === "history" && (
+        <div className="space-y-3">
+          {historyLoading ? (
+            <div className="flex justify-center py-12"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
+          ) : historyData.length === 0 ? (
+            <div className="bg-white dark:bg-card rounded-2xl border p-12 text-center">
+              <History className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="font-semibold">No completed workouts yet</p>
+              <p className="text-sm text-muted-foreground mt-1">Mark scheduled workouts as complete to see them here.</p>
+            </div>
+          ) : (
+            historyData.map((s) => (
+              <div key={s._id} className="bg-white dark:bg-card rounded-xl border p-4 flex items-start gap-4"
+                style={{ borderLeftWidth: 4, borderLeftColor: s.color || "#6366f1" }}>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-green-500 shrink-0" />
+                    <p className="font-semibold text-sm">{s.title}</p>
+                  </div>
+                  {s.description && <p className="text-xs text-muted-foreground mt-0.5 ml-6">{s.description}</p>}
+                  <div className="flex gap-3 mt-1 ml-6 text-xs text-muted-foreground">
+                    <span><CalendarDays className="inline h-3 w-3 mr-0.5" />{new Date(s.date).toLocaleDateString()}</span>
+                    <span><Clock className="inline h-3 w-3 mr-0.5" />{s.startTime} – {s.endTime}</span>
+                    {s.completedAt && <span>Done: {new Date(s.completedAt).toLocaleDateString()}</span>}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {tab === "calendar" && (<>
 
       {/* Calendar Nav */}
       <Card>
@@ -276,6 +341,7 @@ export default function CalendarPage() {
           </Card>
         </div>
       )}
+      </>)}
     </div>
     </PremiumGate>
   );

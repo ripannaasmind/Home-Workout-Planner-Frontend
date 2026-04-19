@@ -1258,6 +1258,24 @@ export const aiApi = {
 
 // ======================== Challenges API ========================
 
+export interface MyChallengeHistory {
+  _id: string;
+  title: string;
+  description: string;
+  type: string;
+  category: string;
+  targetValue: number;
+  targetUnit: string;
+  startDate: string;
+  endDate: string;
+  difficulty: string;
+  rewards: { xpPoints: number; badge: string };
+  myProgress: number;
+  myIsCompleted: boolean;
+  myCompletedAt?: string;
+  myJoinedAt: string;
+}
+
 export interface ChallengeParticipant {
   user: { _id: string; name: string; avatar?: string };
   joinedAt: string;
@@ -1331,6 +1349,9 @@ export const challengesApi = {
 
   delete: (id: string, token: string) =>
     apiRequest<{ success: boolean; message: string }>(`/admin/challenges/${id}`, { method: "DELETE", token }),
+
+  getMyHistory: (token: string) =>
+    apiRequest<{ success: boolean; data: MyChallengeHistory[] }>("/challenges/my-history", { token }),
 };
 
 // ======================== Calendar API ========================
@@ -1369,6 +1390,36 @@ export const calendarApi = {
 
   markComplete: (id: string, token: string) =>
     apiRequest<{ success: boolean; data: WorkoutSchedule }>(`/calendar/${id}/complete`, { method: "PUT", token }),
+
+  getCompleted: (token: string, limit = 50) =>
+    apiRequest<{ success: boolean; data: WorkoutSchedule[] }>(`/calendar/completed?limit=${limit}`, { token }),
+};
+
+// ======================== Calculator History API ========================
+
+export interface CalculatorHistoryEntry {
+  _id: string;
+  type: string;
+  label: string;
+  inputs: Record<string, unknown>;
+  results: Record<string, unknown>;
+  createdAt: string;
+}
+
+export const calculatorApi = {
+  save: (data: { type: string; label: string; inputs: Record<string, unknown>; results: Record<string, unknown> }, token: string) =>
+    apiRequest<{ success: boolean; data: CalculatorHistoryEntry }>("/calculator-history", { method: "POST", body: data, token }),
+
+  getHistory: (token: string, type?: string) => {
+    const q = type ? `?type=${type}` : "";
+    return apiRequest<{ success: boolean; data: CalculatorHistoryEntry[] }>(`/calculator-history${q}`, { token });
+  },
+
+  deleteEntry: (id: string, token: string) =>
+    apiRequest<{ success: boolean; message: string }>(`/calculator-history/${id}`, { method: "DELETE", token }),
+
+  clearAll: (token: string) =>
+    apiRequest<{ success: boolean; message: string }>("/calculator-history/clear", { method: "DELETE", token }),
 };
 
 export default apiRequest;
