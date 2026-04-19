@@ -287,7 +287,7 @@ export default function WorkoutDetailsPage() {
       const calories = workout?.estimatedCalories
         ? Math.round((workout.estimatedCalories / 60) * (elapsed / 60))
         : 0;
-      await sessionsApi.complete(activeSession._id, { caloriesBurned: calories }, token);
+      await sessionsApi.complete(activeSession._id, { caloriesBurned: calories, totalDuration: Math.round(elapsed / 60) }, token);
       toast.success(`Workout complete! ${formatTime(elapsed)}`);
       setTimerOpen(false);
       setActiveSession(null);

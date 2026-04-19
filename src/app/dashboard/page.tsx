@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dumbbell, BookOpen, ShoppingBag, Flame } from "lucide-react";
+import { Dumbbell, Clock, Flame, Trophy, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { dashboardApi, productsApi } from "@/services/api";
 import { StatCards } from "@/components/dashboard/StatCards";
@@ -17,10 +17,10 @@ import { RecommendedForYouGrid } from "@/components/dashboard/RecommendedForYouG
 export default function DashboardPage() {
   const { user, token } = useAuth();
   const [stats, setStats] = useState([
-    { label: "Workouts Completed", value: 0 as number | string, icon: Dumbbell },
-    { label: "Active Minutes", value: 0 as number | string, icon: BookOpen },
-    { label: "Calories Burned", value: 0 as number | string, icon: Flame },
-    { label: "Current Streak", value: 0 as number | string, icon: ShoppingBag },
+    { label: "Workouts Completed", value: "—" as number | string, icon: Dumbbell },
+    { label: "Active Minutes", value: "—" as number | string, icon: Clock },
+    { label: "Calories Burned", value: "—" as number | string, icon: Flame },
+    { label: "Current Streak", value: "—" as number | string, icon: Trophy },
   ]);
   const [quote, setQuote] = useState("");
   const [recommendedProducts, setRecommendedProducts] = useState<Array<{
@@ -41,9 +41,9 @@ export default function DashboardPage() {
       const d = res.data;
       setStats([
         { label: "Workouts Completed", value: d.weeklyProgress.workoutsCompleted, icon: Dumbbell },
-        { label: "Active Minutes", value: d.weeklyProgress.activeMinutes, icon: BookOpen },
-        { label: "Calories Burned", value: d.weeklyProgress.totalCalories, icon: Flame },
-        { label: "Current Streak", value: d.currentStreak, icon: ShoppingBag },
+        { label: "Active Minutes", value: `${d.weeklyProgress.activeMinutes} min`, icon: Clock },
+        { label: "Calories Burned", value: `${d.weeklyProgress.totalCalories} kcal`, icon: Flame },
+        { label: "Current Streak", value: `${d.currentStreak} days`, icon: Trophy },
       ]);
       setQuote(d.quoteOfTheDay);
     }).catch(() => {});

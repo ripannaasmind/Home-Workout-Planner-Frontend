@@ -484,7 +484,7 @@ export const sessionsApi = {
       token,
     }),
 
-  complete: (sessionId: string, data: { caloriesBurned?: number; rating?: number; mood?: string; notes?: string }, token: string) =>
+  complete: (sessionId: string, data: { caloriesBurned?: number; totalDuration?: number; rating?: number; mood?: string; notes?: string }, token: string) =>
     apiRequest<{ success: boolean; data: WorkoutSession; summary: WorkoutCompleteSummary }>(`/sessions/${sessionId}/complete`, {
       method: "POST",
       body: data,

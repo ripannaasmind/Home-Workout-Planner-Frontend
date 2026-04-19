@@ -238,7 +238,7 @@ export default function WorkoutsPage() {
       ? Math.round((activeWorkout.estimatedCalories / 60) * (elapsed / 60))
       : 0;
     try {
-      await sessionsApi.complete(activeSession._id, { caloriesBurned: calories }, token);
+      await sessionsApi.complete(activeSession._id, { caloriesBurned: calories, totalDuration: Math.round(elapsed / 60) }, token);
       toast.success(`Workout complete! ${formatTime(elapsed)} elapsed`);
       setCompletedExercises(new Set());
       setTimerOpen(false);
