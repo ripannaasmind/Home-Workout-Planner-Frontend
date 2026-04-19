@@ -1239,6 +1239,7 @@ export interface AIWorkoutResult {
 export interface AISettings {
   provider: string;
   apiKey: string;
+  model: string;
   enabled: boolean;
 }
 

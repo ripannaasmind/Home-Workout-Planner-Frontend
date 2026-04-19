@@ -180,6 +180,7 @@ export default function AdminSettingsPage() {
   const [aiEnabled, setAiEnabled] = useState(false);
   const [aiProvider, setAiProvider] = useState("deepseek");
   const [aiApiKey, setAiApiKey] = useState("");
+  const [aiModel, setAiModel] = useState("");
   const [showAiKey, setShowAiKey] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
 
@@ -296,6 +297,7 @@ export default function AdminSettingsPage() {
             setAiEnabled(aiRes.data.enabled || false);
             setAiProvider(aiRes.data.provider || "deepseek");
             setAiApiKey(aiRes.data.apiKey || "");
+            setAiModel(aiRes.data.model || "");
           }
         } catch { /* AI settings may not exist yet */ }
       } catch {
@@ -379,7 +381,7 @@ export default function AdminSettingsPage() {
       }
 
       if (activeSection === "ai") {
-        promises.push(aiApi.updateSettings({ provider: aiProvider, apiKey: aiApiKey, enabled: aiEnabled }, token));
+        promises.push(aiApi.updateSettings({ provider: aiProvider, apiKey: aiApiKey, model: aiModel, enabled: aiEnabled }, token));
       }
 
       await Promise.all(promises);
@@ -1634,6 +1636,45 @@ export default function AdminSettingsPage() {
                       <p className="text-xs text-gray-400 dark:text-gray-500 font-mono">{maskKey(aiApiKey)}</p>
                     )}
                   </div>
+
+                  {/* Model selector */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium text-gray-700 dark:text-gray-200">Model <span className="text-gray-400 font-normal">(optional — leave blank for default)</span></Label>
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-1.5">
+                        {(aiProvider === "gemini"
+                          ? ["gemini-flash-lite-latest", "gemini-flash-latest", "gemini-2.5-flash", "gemini-2.5-pro"]
+                          : aiProvider === "deepseek"
+                          ? ["deepseek-chat", "deepseek-reasoner"]
+                          : aiProvider === "openai"
+                          ? ["gpt-4o-mini", "gpt-4o", "gpt-3.5-turbo", "gpt-4"]
+                          : aiProvider === "openrouter"
+                          ? ["openai/gpt-oss-20b:free", "openai/gpt-oss-120b:free", "nvidia/nemotron-3-nano-30b-a3b:free", "google/gemma-3-27b-it:free"]
+                          : ["glm-4.5-flash", "glm-4.5", "glm-4-flashx"]
+                        ).map((m) => (
+                          <button
+                            key={m}
+                            type="button"
+                            onClick={() => setAiModel(aiModel === m ? "" : m)}
+                            className={`px-2.5 py-1 rounded-md border text-xs font-mono transition-all ${
+                              aiModel === m
+                                ? "border-purple-500 bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300"
+                                : "border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-purple-300"
+                            }`}
+                          >
+                            {m}
+                          </button>
+                        ))}
+                      </div>
+                      <Input
+                        placeholder="Or type a custom model name..."
+                        value={aiModel}
+                        onChange={(e) => setAiModel(e.target.value)}
+                        className="font-mono text-sm"
+                      />
+                    </div>
+                  </div>
+
                   <div className="p-3 bg-purple-50 dark:bg-purple-500/10 rounded-lg border border-purple-100 dark:border-purple-500/20">
                     <p className="text-xs text-purple-700 dark:text-purple-400">
                       {aiProvider === "gemini"
