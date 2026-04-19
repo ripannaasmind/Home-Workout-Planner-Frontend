@@ -126,6 +126,7 @@ export default function WorkoutDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLiked, setIsLiked] = useState(false);
+  const [savingWorkout, setSavingWorkout] = useState(false);
 
   // Session tracking
   const [activeSession, setActiveSession] = useState<WorkoutSession | null>(null);
@@ -173,6 +174,47 @@ export default function WorkoutDetailsPage() {
   useEffect(() => {
     syncActiveSession();
   }, [syncActiveSession]);
+
+  // Load save state from API
+  useEffect(() => {
+    if (!token || !params.id) return;
+    workoutsApi.getSaved(token)
+      .then((res) => {
+        const isSaved = res.data.some((w) => w._id === params.id);
+        setIsLiked(isSaved);
+      })
+      .catch(() => {});
+  }, [token, params.id]);
+
+  const handleToggleSave = async () => {
+    if (!token) { toast.error("Please log in to save workouts"); return; }
+    if (savingWorkout) return;
+    setSavingWorkout(true);
+    try {
+      const res = await workoutsApi.toggleSave(params.id as string, token);
+      setIsLiked(res.saved);
+      toast.success(res.saved ? "Workout saved!" : "Removed from saved");
+    } catch {
+      toast.error("Failed to save workout");
+    } finally {
+      setSavingWorkout(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    const title = workout?.name || "Workout";
+    if (navigator.share) {
+      try { await navigator.share({ title, url }); } catch { /* user dismissed */ }
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        toast.success("Link copied to clipboard!");
+      } catch {
+        toast.error("Could not copy link");
+      }
+    }
+  };
 
   const handleStart = useCallback(async () => {
     if (!workout) return;
@@ -430,12 +472,13 @@ export default function WorkoutDetailsPage() {
                     size="lg" 
                     variant="outline" 
                     className="border-white/30 bg-transparent text-white hover:bg-white/10 gap-2"
-                    onClick={() => setIsLiked(!isLiked)}
+                    onClick={handleToggleSave}
+                    disabled={savingWorkout}
                   >
-                    <Heart className={`w-5 h-5  ${isLiked ? "fill-red-500 text-red-500" : ""}`} />
+                    {savingWorkout ? <Loader2 className="w-5 h-5 animate-spin" /> : <Heart className={`w-5 h-5 ${isLiked ? "fill-red-500 text-red-500" : ""}`} />}
                     {isLiked ? "Saved" : "Save"}
                   </Button>
-                  <Button size="lg" variant="outline" className="border-white/30  bg-transparent text-white hover:bg-white/10">
+                  <Button size="lg" variant="outline" className="border-white/30 bg-transparent text-white hover:bg-white/10" onClick={handleShare}>
                     <Share2 className="w-5 h-5" />
                   </Button>
                 </div>

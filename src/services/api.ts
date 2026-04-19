@@ -213,6 +213,15 @@ export const workoutsApi = {
 
   getById: (id: string) =>
     apiRequest<{ success: boolean; data: Workout }>(`/workouts/${id}`),
+
+  getSaved: (token: string) =>
+    apiRequest<{ success: boolean; data: Workout[] }>("/workouts/saved", { token }),
+
+  toggleSave: (id: string, token: string) =>
+    apiRequest<{ success: boolean; saved: boolean }>(`/workouts/library/${id}/save`, {
+      method: "POST",
+      token,
+    }),
 };
 
 

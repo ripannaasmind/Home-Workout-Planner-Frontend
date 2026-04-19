@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Dumbbell, Search, Loader2, Play, Square, Pause, Clock, Flame, Timer, Check } from "lucide-react";
+import { Dumbbell, Search, Loader2, Play, Square, Pause, Clock, Flame, Timer, Check, Heart, BookOpen } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
@@ -33,8 +33,11 @@ export default function WorkoutsPage() {
   const { token } = useAuth();
   const router = useRouter();
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [savedWorkouts, setSavedWorkouts] = useState<Workout[]>([]);
+  const [tab, setTab] = useState<"all" | "saved">("all");
   const [completedTodayIds, setCompletedTodayIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
+  const [savingId, setSavingId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [difficultyFilter, setDifficultyFilter] = useState("all");
@@ -76,6 +79,32 @@ export default function WorkoutsPage() {
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (!token) return;
+    workoutsApi.getSaved(token).then((res) => setSavedWorkouts(res.data)).catch(() => {});
+  }, [token]);
+
+  const handleToggleSave = async (workoutId: string) => {
+    if (!token) { toast.error("Please log in"); return; }
+    if (savingId) return;
+    setSavingId(workoutId);
+    try {
+      const res = await workoutsApi.toggleSave(workoutId, token);
+      if (res.saved) {
+        const w = workouts.find((x) => x._id === workoutId);
+        if (w) setSavedWorkouts((prev) => [w, ...prev.filter((x) => x._id !== workoutId)]);
+        toast.success("Workout saved!");
+      } else {
+        setSavedWorkouts((prev) => prev.filter((x) => x._id !== workoutId));
+        toast.success("Removed from saved");
+      }
+    } catch {
+      toast.error("Failed to update saved workouts");
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   // Fetch today's completed sessions to hide those workouts
   useEffect(() => {
@@ -248,7 +277,73 @@ export default function WorkoutsPage() {
         description="Browse and start workout sessions"
       />
 
-      {}
+      {/* Tab Switcher */}
+      <div className="flex gap-1 border-b border-gray-200 dark:border-gray-800">
+        {([{ id: "all", label: "All Workouts", icon: BookOpen }, { id: "saved", label: `Saved (${savedWorkouts.length})`, icon: Heart }] as const).map((t) => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            className={`flex items-center gap-2 px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-all ${
+              tab === t.id ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+            }`}>
+            <t.icon className="h-4 w-4" />
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "saved" && (
+        <div>
+          {savedWorkouts.length === 0 ? (
+            <div className="bg-white dark:bg-card rounded-2xl border p-12 text-center">
+              <Heart className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="font-semibold">No saved workouts yet</p>
+              <p className="text-sm text-muted-foreground mt-1">Browse workouts and tap Save to add them here.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              {savedWorkouts.map((workout) => (
+                <div key={workout._id} className="group relative rounded-2xl glass shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 overflow-hidden flex flex-col">
+                  <div className="p-5 flex flex-col gap-3 flex-1">
+                    <div className="flex items-start justify-between">
+                      <div className="h-11 w-11 rounded-xl bg-linear-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                        <Dumbbell className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className={`border-0 text-xs ${difficultyColor[workout.difficulty] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700"}`}>
+                          {workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1)}
+                        </Badge>
+                        <button onClick={() => handleToggleSave(workout._id)} disabled={savingId === workout._id} className="text-red-400 hover:text-red-600 transition-colors">
+                          {savingId === workout._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Heart className="h-4 w-4 fill-current" />}
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm text-foreground leading-snug">{workout.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5 capitalize">{workout.category}</p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-white/5 rounded-lg px-2.5 py-2">
+                        <Clock className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span className="text-xs font-semibold">{workout.duration} min</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-white/5 rounded-lg px-2.5 py-2">
+                        <Flame className="h-3.5 w-3.5 text-orange-400 shrink-0" />
+                        <span className="text-xs font-semibold">{workout.estimatedCalories ? `~${workout.estimatedCalories} kcal` : "N/A"}</span>
+                      </div>
+                    </div>
+                    <div className="pt-1 mt-auto flex gap-2">
+                      <Button size="sm" className="flex-1 gap-2 bg-linear-to-r from-primary to-primary/80 text-white shadow-sm shadow-primary/20" onClick={() => handleStart(workout)}>
+                        <Play className="h-3.5 w-3.5 fill-white" /> Start
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {tab === "all" && (
       <div className="space-y-3">
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -357,9 +452,20 @@ export default function WorkoutsPage() {
                   <div className="h-11 w-11 rounded-xl bg-linear-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
                     <Dumbbell className="h-5 w-5 text-primary" />
                   </div>
-                  <Badge className={`border-0 text-xs ${difficultyColor[workout.difficulty] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700"}`}>
-                    {workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1)}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge className={`border-0 text-xs ${difficultyColor[workout.difficulty] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700"}`}>
+                      {workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1)}
+                    </Badge>
+                    <button
+                      onClick={() => handleToggleSave(workout._id)}
+                      disabled={savingId === workout._id}
+                      className={cn("transition-colors", savedWorkouts.some(s => s._id === workout._id) ? "text-red-500" : "text-muted-foreground hover:text-red-400")}
+                    >
+                      {savingId === workout._id
+                        ? <Loader2 className="h-4 w-4 animate-spin" />
+                        : <Heart className={cn("h-4 w-4", savedWorkouts.some(s => s._id === workout._id) && "fill-current")} />}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Title + muscle groups */}
