@@ -294,8 +294,8 @@ export default function CalendarPage() {
 
       {/* Add Schedule Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowForm(false)}>
-          <Card className="w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in" onClick={() => setShowForm(false)}>
+          <Card className="w-full max-w-md animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg flex items-center gap-2"><Plus className="h-5 w-5" />Schedule Workout</CardTitle>
               <Button variant="ghost" size="icon" onClick={() => setShowForm(false)}><X className="h-4 w-4" /></Button>

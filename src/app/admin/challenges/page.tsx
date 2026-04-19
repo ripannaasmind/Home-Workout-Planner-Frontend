@@ -164,8 +164,8 @@ export default function AdminChallengesPage() {
 
       {/* Create/Edit Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto" onClick={() => setShowForm(false)}>
-          <Card className="w-full max-w-lg my-8" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto animate-fade-in" onClick={() => setShowForm(false)}>
+          <Card className="w-full max-w-lg my-8 animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg">{editId ? "Edit" : "Create"} Challenge</CardTitle>
               <Button variant="ghost" size="icon" onClick={() => setShowForm(false)}><X className="h-4 w-4" /></Button>
