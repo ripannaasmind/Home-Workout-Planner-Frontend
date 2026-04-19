@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { aiApi, type AIWorkoutResult } from "@/services/api";
@@ -76,6 +76,13 @@ export default function AIWorkoutPage() {
   const [error, setError] = useState("");
   const [showWarmup, setShowWarmup] = useState(false);
   const [showCooldown, setShowCooldown] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (result && resultRef.current) {
+      resultRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [result]);
 
   useEffect(() => {
     aiApi
@@ -119,9 +126,25 @@ export default function AIWorkoutPage() {
         },
         token
       );
-      setResult(res.data);
+      if (res.data) {
+        setResult(res.data);
+      } else {
+        setError("Workout generated but result was empty. Please try again.");
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to generate workout");
+      const raw = err instanceof Error ? err.message : "Failed to generate workout";
+      // Turn ugly Vercel / API JSON into a readable message
+      let msg = raw;
+      try {
+        const parsed = JSON.parse(raw);
+        msg = parsed?.error?.message || parsed?.message || raw;
+      } catch { /* not JSON */ }
+      if (msg.includes("FUNCTION_INVOCATION_TIMEOUT") || msg.includes("timed out")) {
+        msg = "The server took too long to respond. The server may be waking up — please try again in a moment.";
+      } else if (msg.includes("rate-limit") || msg.includes("429")) {
+        msg = "AI service is temporarily busy. Please try again in a few seconds.";
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -301,7 +324,11 @@ export default function AIWorkoutPage() {
             />
           </div>
 
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && (
+            <div className="rounded-lg border border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800 px-4 py-3">
+              <p className="text-sm font-medium text-red-600 dark:text-red-400">{error}</p>
+            </div>
+          )}
 
           <Button
             onClick={handleGenerate}
@@ -326,7 +353,7 @@ export default function AIWorkoutPage() {
 
       {/* Result */}
       {result && (
-        <div className="space-y-4">
+        <div ref={resultRef} className="space-y-4">
           <Card className="border-primary/20 dark:border-primary/30">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
