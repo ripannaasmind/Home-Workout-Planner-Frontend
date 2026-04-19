@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
 import {
   Calculator,
   Activity,
@@ -21,6 +22,8 @@ import {
   History,
   Trash2,
   Loader2,
+  Lightbulb,
+  ExternalLink,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { calculatorApi, type CalculatorHistoryEntry } from "@/services/api";
@@ -191,6 +194,187 @@ function GenderToggle({ gender, setGender }: { gender: string; setGender: (v: st
   );
 }
 
+/* ──────────── Suggestion Helpers ──────────── */
+function getBMISuggestions(category: string): string[] {
+  if (category === "Underweight") return [
+    "Increase calorie intake with nutrient-dense foods",
+    "Focus on strength training to build muscle mass",
+    "Eat 3 main meals + 2-3 protein-rich snacks daily",
+    "Track calories to ensure you are eating enough",
+  ];
+  if (category === "Normal") return [
+    "You are in a healthy range – keep it up!",
+    "Aim for 150 min of moderate cardio per week",
+    "Mix strength training and cardio for best fitness",
+    "Stay consistent with a balanced diet and exercise routine",
+  ];
+  if (category === "Overweight") return [
+    "Start with low-impact cardio: walking, cycling, swimming",
+    "Aim for a 500 cal/day deficit to lose ~0.5 kg/week",
+    "Do 3-5 workouts per week mixing cardio + strength training",
+    "Reduce processed foods, sugary drinks, and late-night snacking",
+    "Try our AI Workout Planner for a personalized fat-loss routine",
+  ];
+  return [
+    "Begin with 30 min walking daily – great low-impact start",
+    "Try swimming or cycling to minimize joint stress",
+    "Consult a doctor before starting high-intensity exercise",
+    "Aim for a moderate calorie deficit (300-500 cal/day)",
+    "Try our AI Workout Planner for a beginner-friendly plan",
+  ];
+}
+
+function getBMRSuggestions(bmr: number): string[] {
+  return [
+    "Your BMR is the calories your body burns at complete rest",
+    "Never eat below your BMR – it slows your metabolism",
+    bmr < 1400
+      ? "Low BMR: build muscle through strength training to raise it"
+      : bmr < 2000
+        ? "Average BMR: maintain with balanced diet and regular exercise"
+        : "High BMR: your body burns more at rest – fuel it well",
+    "Strength training is the best long-term way to increase BMR",
+  ];
+}
+
+function getTDEESuggestions(tdee: number): string[] {
+  return [
+    `Lose weight: eat ~${tdee - 500} cal/day (0.5 kg/week deficit)`,
+    `Maintain weight: eat ~${tdee} cal/day`,
+    `Gain muscle: eat ~${tdee + 500} cal/day`,
+    "Combine TDEE tracking with resistance training for best results",
+    "Recalculate TDEE every 4-6 weeks as your weight changes",
+  ];
+}
+
+function getOneRMSuggestions(orm: number): string[] {
+  return [
+    `Strength zone: lift ${Math.round(orm * 0.9)}+ kg for 1-3 reps`,
+    `Hypertrophy zone: lift ${Math.round(orm * 0.7)}-${Math.round(orm * 0.85)} kg for 6-12 reps`,
+    `Endurance zone: lift ${Math.round(orm * 0.5)}-${Math.round(orm * 0.65)} kg for 15+ reps`,
+    "Never attempt a true 1RM without a spotter",
+    "Progress gradually – add 2.5-5 kg every 1-2 weeks",
+  ];
+}
+
+function getBodyFatSuggestions(gender: string, bf: number): string[] {
+  const male = gender === "male";
+  if (male ? bf < 6 : bf < 14) return [
+    "You are at essential fat levels – not healthy to go lower",
+    "Increase healthy fat intake: avocado, nuts, olive oil",
+    "Focus on maintenance rather than further fat loss",
+    "Ensure adequate calories to support organ function",
+  ];
+  if (male ? bf < 14 : bf < 21) return [
+    "Athletic range – excellent level, keep it up!",
+    "Maintain with balanced strength + cardio training",
+    "Ensure adequate protein intake (1.6-2.2 g per kg bodyweight)",
+    "Prioritize recovery: 7-9 hours sleep, manage stress",
+  ];
+  if (male ? bf < 18 : bf < 25) return [
+    "Fitness range – you are doing great!",
+    "Continue with regular cardio and strength training",
+    "A slight caloric deficit can help you reach the athletic range",
+    "Focus on compound lifts: squats, deadlifts, bench press",
+  ];
+  if (male ? bf < 25 : bf < 32) return [
+    "Average range – regular exercise is recommended",
+    "Aim for 3-4 cardio sessions + 2-3 strength sessions per week",
+    "Monitor calorie intake and reduce processed foods",
+    "Small consistent improvements compound over time",
+  ];
+  return [
+    "Start with low-impact exercise: walking, swimming, cycling",
+    "Aim for a 300-500 cal/day deficit from diet + exercise",
+    "Strength training helps – more muscle means higher fat burn",
+    "Consider a fitness professional for a personalized plan",
+  ];
+}
+
+function getWaterSuggestions(): string[] {
+  return [
+    "Drink a large glass of water first thing in the morning",
+    "Drink 500 ml water 30 min before workouts",
+    "Replace lost fluids: add ~500 ml per hour of exercise",
+    "Pale yellow urine = good hydration; dark yellow = drink more",
+    "Limit alcohol and excess caffeine – they both dehydrate",
+  ];
+}
+
+function getCalorieBurnSuggestions(activity: string): string[] {
+  const activityTips: Record<string, string> = {
+    running: "Running 3-4×/week is excellent for cardiovascular health",
+    hiit: "HIIT burns 25-30% more calories than steady-state cardio",
+    weight_training: "Strength training boosts metabolism for 24-48 h after the session",
+    swimming: "Swimming is low-impact – great choice for joint health",
+    cycling: "Cycling at moderate intensity burns fat very efficiently",
+    yoga: "Add 1-2 cardio sessions weekly to complement your yoga",
+    walking: "Increase pace or add incline to burn significantly more",
+    jumping_rope: "Jump rope is one of the highest calorie-burn activities per minute",
+    dancing: "Dance cardio is fun and highly sustainable – keep going!",
+    boxing: "Boxing builds both strength and cardiovascular fitness",
+  };
+  return [
+    activityTips[activity] || "Great activity choice – stay consistent!",
+    "Aim for 150-300 min of moderate cardio per week (WHO guideline)",
+    "Combine cardio with strength training for best fat-loss results",
+    "Track your workouts to stay accountable and measure progress",
+  ];
+}
+
+function getMacroSuggestions(goal: string): string[] {
+  const goalTip = goal === "lose"
+    ? "Prioritize protein to preserve muscle while in a caloric deficit"
+    : goal === "gain"
+      ? "Prioritize protein + carbs to fuel muscle growth and recovery"
+      : "Keep macros balanced to maintain your current physique";
+  return [
+    goalTip,
+    "Protein sources: chicken, fish, eggs, Greek yogurt, legumes",
+    "Carb sources: oats, rice, sweet potato, fruits, vegetables",
+    "Fat sources: avocado, nuts, olive oil, fatty fish",
+    "Eat protein within 30-60 min after your workout",
+  ];
+}
+
+function SuggestionCard({ title = "Suggestions & Tips", items, ctaLabel, ctaHref, cta2Label, cta2Href }: {
+  title?: string;
+  items: string[];
+  ctaLabel?: string;
+  ctaHref?: string;
+  cta2Label?: string;
+  cta2Href?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <Lightbulb className="h-4 w-4 text-primary shrink-0" />
+        <p className="text-sm font-semibold text-primary">{title}</p>
+      </div>
+      <ul className="space-y-1.5">
+        {items.map((tip, i) => (
+          <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
+            <span className="text-primary mt-0.5 shrink-0">•</span>
+            <span>{tip}</span>
+          </li>
+        ))}
+      </ul>
+      {(ctaLabel && ctaHref) && (
+        <div className="flex gap-2">
+          <Link href={ctaHref} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 text-xs font-medium rounded-lg border border-primary text-primary hover:bg-primary hover:text-white transition-all">
+            {ctaLabel} <ExternalLink className="h-3 w-3" />
+          </Link>
+          {cta2Label && cta2Href && (
+            <Link href={cta2Href} className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 text-xs font-medium rounded-lg border border-primary/50 text-primary hover:bg-primary/10 transition-all">
+              {cta2Label} <ExternalLink className="h-3 w-3" />
+            </Link>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BMICalc({ token, onSaved }: { token: string; onSaved: () => void }) {
   const [weight, setWeight] = useState(""); const [height, setHeight] = useState(""); const [result, setResult] = useState<{ bmi: number; category: string } | null>(null);
 
@@ -218,10 +402,19 @@ function BMICalc({ token, onSaved }: { token: string; onSaved: () => void }) {
         </div>
         <Button onClick={calculate} className="w-full">Calculate BMI</Button>
         {result && (
-          <div className="grid grid-cols-2 gap-4">
-            <ResultCard label="Your BMI" value={result.bmi} />
-            <ResultCard label="Category" value={result.category} color={result.category === "Normal" ? "text-green-600" : "text-orange-600"} />
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <ResultCard label="Your BMI" value={result.bmi} />
+              <ResultCard label="Category" value={result.category} color={result.category === "Normal" ? "text-green-600" : result.category === "Underweight" ? "text-blue-600" : "text-orange-600"} />
+            </div>
+            <SuggestionCard
+              items={getBMISuggestions(result.category)}
+              ctaLabel="Browse Workouts"
+              ctaHref="/dashboard/workouts"
+              cta2Label={["Overweight", "Obese"].includes(result.category) ? "AI Workout Plan" : undefined}
+              cta2Href={["Overweight", "Obese"].includes(result.category) ? "/dashboard/ai-workout" : undefined}
+            />
+          </>
         )}
       </CardContent>
     </Card>
@@ -251,7 +444,12 @@ function BMRCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
           <div><Label>Age</Label><Input type="number" value={age} onChange={(e) => setAge(e.target.value)} placeholder="25" /></div>
         </div>
         <Button onClick={calculate} className="w-full">Calculate BMR</Button>
-        {result && <ResultCard label="Basal Metabolic Rate" value={result} unit="cal/day" />}
+        {result && (
+          <>
+            <ResultCard label="Basal Metabolic Rate" value={result} unit="cal/day" />
+            <SuggestionCard items={getBMRSuggestions(result)} ctaLabel="Start a Workout" ctaHref="/dashboard/workouts" />
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -296,7 +494,12 @@ function TDEECalc({ token, onSaved }: { token: string; onSaved: () => void }) {
           </div>
         </div>
         <Button onClick={calculate} className="w-full">Calculate TDEE</Button>
-        {result && <ResultCard label="Total Daily Energy Expenditure" value={result} unit="cal/day" />}
+        {result && (
+          <>
+            <ResultCard label="Total Daily Energy Expenditure" value={result} unit="cal/day" />
+            <SuggestionCard items={getTDEESuggestions(result)} ctaLabel="Start a Workout" ctaHref="/dashboard/workouts" />
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -336,6 +539,7 @@ function OneRepMaxCalc({ token, onSaved }: { token: string; onSaved: () => void 
                 </div>
               ))}
             </div>
+            <SuggestionCard items={getOneRMSuggestions(result)} ctaLabel="Browse Workouts" ctaHref="/dashboard/workouts" />
           </div>
         )}
       </CardContent>
@@ -374,7 +578,12 @@ function BodyFatCalc({ token, onSaved }: { token: string; onSaved: () => void })
           {gender === "female" && <div><Label>Hip (cm)</Label><Input type="number" value={hip} onChange={(e) => setHip(e.target.value)} placeholder="95" /></div>}
         </div>
         <Button onClick={calculate} className="w-full">Estimate Body Fat</Button>
-        {result && <ResultCard label="Estimated Body Fat" value={result} unit="%" color={result < 20 ? "text-green-600" : result < 30 ? "text-orange-600" : "text-red-600"} />}
+        {result && (
+          <>
+            <ResultCard label="Estimated Body Fat" value={result} unit="%" color={result < 20 ? "text-green-600" : result < 30 ? "text-orange-600" : "text-red-600"} />
+            <SuggestionCard items={getBodyFatSuggestions(gender, result)} ctaLabel="Browse Workouts" ctaHref="/dashboard/workouts" />
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -413,10 +622,13 @@ function WaterCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
         </div>
         <Button onClick={calculate} className="w-full">Calculate Water Intake</Button>
         {result && (
-          <div className="grid grid-cols-2 gap-4">
-            <ResultCard label="Daily Water Intake" value={result} unit="L" color="text-cyan-600" />
-            <ResultCard label="Glasses (250ml)" value={Math.ceil(result * 4)} unit="glasses" color="text-cyan-600" />
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-4">
+              <ResultCard label="Daily Water Intake" value={result} unit="L" color="text-cyan-600" />
+              <ResultCard label="Glasses (250ml)" value={Math.ceil(result * 4)} unit="glasses" color="text-cyan-600" />
+            </div>
+            <SuggestionCard items={getWaterSuggestions()} ctaLabel="Start a Workout" ctaHref="/dashboard/workouts" />
+          </>
         )}
       </CardContent>
     </Card>
@@ -461,7 +673,12 @@ function CalorieBurnCalc({ token, onSaved }: { token: string; onSaved: () => voi
           </div>
         </div>
         <Button onClick={calculate} className="w-full">Calculate Calories Burned</Button>
-        {result && <ResultCard label="Estimated Calories Burned" value={result} unit="cal" color="text-amber-600" />}
+        {result && (
+          <>
+            <ResultCard label="Estimated Calories Burned" value={result} unit="cal" color="text-amber-600" />
+            <SuggestionCard items={getCalorieBurnSuggestions(activityType)} ctaLabel="Browse Workouts" ctaHref="/dashboard/workouts" />
+          </>
+        )}
       </CardContent>
     </Card>
   );
@@ -512,12 +729,15 @@ function MacroCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
         </div>
         <Button onClick={calculate} className="w-full">Calculate Macros</Button>
         {result && (
-          <div className="grid grid-cols-2 gap-3">
-            <ResultCard label="Daily Calories" value={result.calories} unit="cal" />
-            <ResultCard label="Protein" value={result.protein} unit="g" color="text-red-500" />
-            <ResultCard label="Carbs" value={result.carbs} unit="g" color="text-amber-500" />
-            <ResultCard label="Fats" value={result.fats} unit="g" color="text-green-500" />
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-3">
+              <ResultCard label="Daily Calories" value={result.calories} unit="cal" />
+              <ResultCard label="Protein" value={result.protein} unit="g" color="text-red-500" />
+              <ResultCard label="Carbs" value={result.carbs} unit="g" color="text-amber-500" />
+              <ResultCard label="Fats" value={result.fats} unit="g" color="text-green-500" />
+            </div>
+            <SuggestionCard items={getMacroSuggestions(goalType)} ctaLabel="Browse Workouts" ctaHref="/dashboard/workouts" />
+          </>
         )}
       </CardContent>
     </Card>
