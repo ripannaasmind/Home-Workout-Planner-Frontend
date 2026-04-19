@@ -87,9 +87,9 @@ export default function CalculatorsPage() {
 
   return (
     <PremiumGate feature="Fitness Calculators">
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto page-fade">
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
+        <div className="h-10 w-10 bg-linear-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
           <Calculator className="h-5 w-5 text-white" />
         </div>
         <div>

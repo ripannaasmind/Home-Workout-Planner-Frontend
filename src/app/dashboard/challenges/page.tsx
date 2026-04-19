@@ -152,7 +152,7 @@ export default function ChallengesPage() {
           </CardHeader>
           <CardContent>
             {!isJoined ? (
-              <Button onClick={handleJoin} disabled={joining} className="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
+              <Button onClick={handleJoin} disabled={joining} className="bg-linear-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white">
                 {joining ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Swords className="h-4 w-4 mr-2" />}
                 Join Challenge
               </Button>
@@ -214,10 +214,10 @@ export default function ChallengesPage() {
 
   return (
     <PremiumGate feature="Challenges">
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto page-fade">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
+        <div className="h-10 w-10 bg-linear-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
           <Trophy className="h-5 w-5 text-white" />
         </div>
         <div>

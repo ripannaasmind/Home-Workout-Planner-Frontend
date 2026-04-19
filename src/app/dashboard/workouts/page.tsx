@@ -14,9 +14,15 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 const difficultyColor: Record<string, string> = {
-  beginner: "bg-green-100 text-green-700",
-  intermediate: "bg-yellow-100 text-yellow-700",
-  advanced: "bg-red-100 text-red-600",
+  beginner: "bg-green-100 text-green-700 dark:bg-green-500/15 dark:text-green-400",
+  intermediate: "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/15 dark:text-yellow-400",
+  advanced: "bg-red-100 text-red-600 dark:bg-red-500/15 dark:text-red-400",
+};
+
+const difficultyBar: Record<string, string> = {
+  beginner: "bg-linear-to-r from-green-400 to-emerald-500",
+  intermediate: "bg-linear-to-r from-yellow-400 to-amber-500",
+  advanced: "bg-linear-to-r from-red-400 to-rose-500",
 };
 
 function formatTime(seconds: number) {
@@ -238,7 +244,7 @@ export default function WorkoutsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 page-fade">
       <DashboardHeader
         title="My Workouts"
         description="Browse and start workout sessions"
@@ -300,19 +306,19 @@ export default function WorkoutsPage() {
       {}
       {activeSession && !timerOpen && (
         <div
-          className="rounded-xl bg-primary/10 border border-primary/20 px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-primary/15 transition-colors"
+          className="rounded-2xl glass border-primary/20 px-4 py-3 flex items-center justify-between cursor-pointer hover:shadow-md transition-all duration-200"
           onClick={() => setTimerOpen(true)}
         >
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
+            <div className="h-9 w-9 rounded-xl bg-linear-to-br from-primary to-primary/70 flex items-center justify-center shadow-sm shadow-primary/30 animate-pulse">
               <Clock className="h-4 w-4 text-white" />
             </div>
             <div>
               <p className="text-sm font-semibold text-primary">Session in progress</p>
-              <p className="text-xs text-gray-600 dark:text-gray-300">{activeWorkout?.name ?? "Workout"} — {formatTime(elapsed)}</p>
+              <p className="text-xs text-muted-foreground">{activeWorkout?.name ?? "Workout"} — {formatTime(elapsed)}</p>
             </div>
           </div>
-          <Button size="sm" className="bg-primary text-white h-7 px-3">Resume</Button>
+          <Button size="sm" className="bg-linear-to-r from-primary to-primary/80 text-white h-8 px-4 shadow-sm shadow-primary/25">Resume</Button>
         </div>
       )}
 
@@ -321,48 +327,73 @@ export default function WorkoutsPage() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 stagger-grid">
           {filtered.map((workout) => (
             <div
               key={workout._id}
-              className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5 flex flex-col gap-3 hover:shadow-md transition-shadow"
+              className="group relative rounded-2xl glass shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5 overflow-hidden flex flex-col"
             >
-              <div className="flex items-start justify-between">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Dumbbell className="h-5 w-5 text-primary" />
+              {/* Difficulty gradient top bar */}
+              <div className={cn("h-1.5 w-full", difficultyBar[workout.difficulty] ?? "bg-gray-200")} />
+
+              <div className="p-5 flex flex-col gap-3 flex-1">
+                <div className="flex items-start justify-between">
+                  <div className="h-11 w-11 rounded-xl bg-linear-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+                    <Dumbbell className="h-5 w-5 text-primary" />
+                  </div>
+                  <Badge className={`border-0 text-xs ${difficultyColor[workout.difficulty] ?? "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200"}`}>
+                    {workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1)}
+                  </Badge>
                 </div>
-                <Badge className={`border-0 ${difficultyColor[workout.difficulty] || "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200"}`}>
-                  {workout.difficulty.charAt(0).toUpperCase() + workout.difficulty.slice(1)}
-                </Badge>
-              </div>
-              <div>
-                <h3 className="text-gray-800 dark:text-gray-100 font-semibold">{workout.name}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">{workout.category}</p>
-              </div>
-              <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
-                <span>{workout.duration} min</span>
-                {workout.estimatedCalories ? <span>~{workout.estimatedCalories} kcal</span> : null}
-              </div>
-              <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
-                <span className="text-xs text-gray-400">{workout.exercises?.length ?? 0} exercises</span>
-                <Button
-                  size="sm"
-                  className="bg-primary/80 hover:bg-primary text-white h-7 px-3 gap-1.5"
-                  onClick={() => handleStart(workout)}
-                  disabled={starting === workout._id}
-                >
-                  {starting === workout._id ? (
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <Play className="h-3.5 w-3.5 fill-white" />
-                  )}
-                  Start
-                </Button>
+
+                <div>
+                  <h3 className="font-bold text-sm text-gray-800 dark:text-gray-100 leading-snug">{workout.name}</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5 capitalize">{workout.category}</p>
+                </div>
+
+                <div className="flex gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1">
+                    <Clock className="h-3 w-3 text-primary" />
+                    <span>{workout.duration} min</span>
+                  </div>
+                  {workout.estimatedCalories ? (
+                    <div className="flex items-center gap-1">
+                      <Flame className="h-3 w-3 text-orange-400" />
+                      <span>~{workout.estimatedCalories} kcal</span>
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-xs text-muted-foreground">{workout.exercises?.length ?? 0} exercises</span>
+                  <div className="h-1 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-linear-to-r from-primary to-primary/60 rounded-full"
+                      style={{ width: `${Math.min(100, ((workout.exercises?.length ?? 0) / 15) * 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                <div className="pt-1 mt-auto">
+                  <Button
+                    className="w-full gap-2 bg-linear-to-r from-primary to-primary/80 text-white shadow-sm shadow-primary/20 hover:shadow-md hover:shadow-primary/30 transition-all"
+                    size="sm"
+                    onClick={() => handleStart(workout)}
+                    disabled={starting === workout._id}
+                  >
+                    {starting === workout._id ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Play className="h-3.5 w-3.5 fill-white group-hover:scale-110 transition-transform" />
+                    )}
+                    Start Workout
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="col-span-full text-center py-10 text-gray-400">No workouts found.</div>
+            <div className="col-span-full text-center py-10 text-muted-foreground">No workouts found.</div>
           )}
         </div>
       )}

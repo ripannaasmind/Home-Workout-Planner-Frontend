@@ -22,26 +22,48 @@ import {
   Trophy,
   Calculator,
   CalendarDays,
+  Crown,
+  Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell },
-  { href: "/dashboard/ai-workout", label: "AI Workout", icon: Brain },
-  { href: "/dashboard/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/dashboard/sessions", label: "My Sessions", icon: Activity },
-  { href: "/dashboard/challenges", label: "Challenges", icon: Trophy },
-  { href: "/dashboard/calculators", label: "Calculators", icon: Calculator },
-  { href: "/dashboard/shop", label: "Shop", icon: ShoppingBag },
-  { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart },
-  { href: "/dashboard/coupons", label: "Coupons", icon: Ticket },
-  { href: "/dashboard/billing", label: "Billing", icon: CreditCard },
-  { href: "/dashboard/support", label: "Support", icon: HelpCircle },
-  { href: "/dashboard/profile", label: "Profile", icon: User },
-  { href: "/dashboard/settings", label: "Settings", icon: Settings },
+const navGroups = [
+  {
+    label: null,
+    items: [
+      { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, premium: false },
+    ],
+  },
+  {
+    label: "Fitness",
+    items: [
+      { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell, premium: false },
+      { href: "/dashboard/ai-workout", label: "AI Workout", icon: Brain, premium: true },
+      { href: "/dashboard/sessions", label: "My Sessions", icon: Activity, premium: false },
+      { href: "/dashboard/calendar", label: "Calendar", icon: CalendarDays, premium: true },
+      { href: "/dashboard/challenges", label: "Challenges", icon: Trophy, premium: true },
+      { href: "/dashboard/calculators", label: "Calculators", icon: Calculator, premium: true },
+    ],
+  },
+  {
+    label: "Store",
+    items: [
+      { href: "/dashboard/shop", label: "Shop", icon: ShoppingBag, premium: false },
+      { href: "/dashboard/orders", label: "Orders", icon: ShoppingCart, premium: false },
+      { href: "/dashboard/coupons", label: "Coupons", icon: Ticket, premium: false },
+      { href: "/dashboard/billing", label: "Billing", icon: CreditCard, premium: false },
+    ],
+  },
+  {
+    label: "Account",
+    items: [
+      { href: "/dashboard/support", label: "Support", icon: HelpCircle, premium: false },
+      { href: "/dashboard/profile", label: "Profile", icon: User, premium: false },
+      { href: "/dashboard/settings", label: "Settings", icon: Settings, premium: false },
+    ],
+  },
 ];
 
 export function DashboardSidebar() {
@@ -91,10 +113,10 @@ export function DashboardSidebar() {
       {onNavigate && (
         <div className="flex items-center justify-between px-4 h-14 border-b border-gray-100 dark:border-gray-800 shrink-0">
           <div className="flex items-center gap-2">
-            <div className="h-7 w-7 bg-primary rounded-lg flex items-center justify-center">
-              <Dumbbell className="h-4 w-4 text-white" />
+            <div className="h-7 w-7 bg-linear-to-br from-primary to-primary/70 rounded-lg flex items-center justify-center shadow-sm shadow-primary/30">
+              <Dumbbell className="h-3.5 w-3.5 text-white" />
             </div>
-            <span className="font-bold text-sm text-foreground">FitHome</span>
+            <span className="font-bold text-sm bg-linear-to-r from-primary to-primary/70 bg-clip-text text-transparent">FitHome</span>
           </div>
           <button
             onClick={onNavigate}
@@ -104,38 +126,77 @@ export function DashboardSidebar() {
           </button>
         </div>
       )}
-      <nav className="flex-1 px-3 space-y-0.5 py-2">
-        {navItems.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            onClick={onNavigate}
-            className={cn(
-              "relative flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group overflow-hidden",
-              isActive(href)
-                ? "bg-primary text-white"
-                : "text-gray-600 dark:text-gray-400 hover:bg-primary/10 hover:text-primary hover:translate-x-1"
+
+      <nav className="flex-1 px-2.5 py-3 overflow-y-auto space-y-4">
+        {navGroups.map((group, gi) => (
+          <div key={gi}>
+            {group.label && (
+              <p className="px-3 mb-1 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-600">
+                {group.label}
+              </p>
             )}
-          >
-            <span className={cn(
-              "absolute left-0 top-0 w-0.75 rounded-r-full transition-all duration-300",
-              isActive(href) ? "h-full bg-white/50" : "h-0 group-hover:h-full bg-primary"
-            )} />
-            <Icon className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
-            {label}
-          </Link>
+            <div className="space-y-0.5">
+              {group.items.map(({ href, label, icon: Icon, premium }) => {
+                const active = isActive(href);
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={onNavigate}
+                    className={cn(
+                      "relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group overflow-hidden",
+                      active
+                        ? premium
+                          ? "bg-linear-to-r from-violet-500 to-purple-600 text-white shadow-md shadow-violet-500/30"
+                          : "bg-linear-to-r from-primary to-primary/80 text-white shadow-md shadow-primary/30"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 hover:translate-x-0.5"
+                    )}
+                  >
+                    {/* Active left-edge glow */}
+                    {active && (
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-white/40" />
+                    )}
+
+                    <div className={cn(
+                      "h-7 w-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200",
+                      active
+                        ? "bg-white/20"
+                        : premium
+                          ? "bg-violet-50 dark:bg-violet-500/10 group-hover:bg-violet-100 dark:group-hover:bg-violet-500/20"
+                          : "bg-gray-100 dark:bg-white/5 group-hover:bg-primary/10"
+                    )}>
+                      <Icon className={cn(
+                        "h-3.5 w-3.5 transition-transform duration-200 group-hover:scale-110",
+                        active ? "text-white" : premium ? "text-violet-500" : "text-gray-500 dark:text-gray-400 group-hover:text-primary"
+                      )} />
+                    </div>
+
+                    <span className="flex-1 truncate">{label}</span>
+
+                    {premium && !active && (
+                      <Crown className="h-3 w-3 text-amber-400 shrink-0" />
+                    )}
+                    {active && premium && (
+                      <Sparkles className="h-3 w-3 text-white/70 shrink-0" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
         ))}
       </nav>
 
-      <div className="px-3 mt-2 border-t border-gray-100 dark:border-gray-800 pt-2">
+      <div className="px-2.5 pb-3 border-t border-gray-100 dark:border-gray-800 pt-3 space-y-0.5 shrink-0">
         {user?.role === "admin" && (
           <Link
             href="/admin"
             onClick={onNavigate}
-            className="relative flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 hover:translate-x-1 transition-all duration-200 mb-1 group overflow-hidden"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-primary hover:bg-primary/10 hover:translate-x-0.5 transition-all duration-200 group"
           >
-            <span className="absolute left-0 top-0 w-0.75 rounded-r-full h-0 group-hover:h-full bg-primary transition-all duration-300" />
-            <Shield className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+            <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Shield className="h-3.5 w-3.5 text-primary group-hover:scale-110 transition-transform" />
+            </div>
             Admin Panel
           </Link>
         )}
@@ -145,10 +206,11 @@ export function DashboardSidebar() {
             logout();
             router.replace("/login");
           }}
-          className="relative flex w-full items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 hover:translate-x-1 transition-all duration-200 group overflow-hidden"
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 hover:translate-x-0.5 transition-all duration-200 group"
         >
-          <span className="absolute left-0 top-0 w-0.75 rounded-r-full h-0 group-hover:h-full bg-red-400 transition-all duration-300" />
-          <LogOut className="h-4 w-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
+          <div className="h-7 w-7 rounded-lg bg-gray-100 dark:bg-white/5 flex items-center justify-center group-hover:bg-red-50 dark:group-hover:bg-red-500/10 transition-colors">
+            <LogOut className="h-3.5 w-3.5 group-hover:scale-110 transition-transform group-hover:text-red-500" />
+          </div>
           Log Out
         </button>
       </div>
@@ -157,12 +219,12 @@ export function DashboardSidebar() {
 
   return (
     <>
-      {/* Mobile hamburger trigger + Sheet drawer */}
+      {/* Mobile hamburger trigger */}
       <button
         type="button"
         onClick={() => setMobileOpen(true)}
         aria-label="Open sidebar menu"
-        className="lg:hidden fixed top-14 sm:top-16 left-0 z-50 flex items-center gap-1.5 h-9 px-3 bg-primary hover:bg-primary/90 text-white text-xs font-semibold shadow-md rounded-br-lg"
+        className="lg:hidden fixed top-14 sm:top-16 left-0 z-50 flex items-center gap-1.5 h-9 px-3 bg-primary hover:bg-primary/90 text-white text-xs font-semibold shadow-md rounded-br-xl transition-all"
       >
         <Menu className="h-4 w-4 shrink-0" />
         <span>Menu</span>
@@ -176,9 +238,12 @@ export function DashboardSidebar() {
       </Sheet>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex flex-col w-52 shrink-0 bg-white dark:bg-card border-r border-gray-200 dark:border-gray-800 sticky top-16 h-[calc(100vh-80px)] overflow-y-auto py-4">
+      <aside className="hidden lg:flex flex-col w-56 shrink-0 bg-white/90 dark:bg-card border-r border-gray-200/80 dark:border-gray-800 sticky top-16 h-[calc(100vh-64px)] overflow-hidden py-0 backdrop-blur-sm">
         {navContent()}
       </aside>
     </>
   );
 }
+
+
+

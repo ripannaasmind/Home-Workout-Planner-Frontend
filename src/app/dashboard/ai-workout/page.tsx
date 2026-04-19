@@ -172,9 +172,9 @@ export default function AIWorkoutPage() {
 
   return (
     <PremiumGate feature="AI Workout Generator">
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto page-fade">
       <div className="flex items-center gap-3">
-        <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center">
+        <div className="h-10 w-10 bg-linear-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-sm shadow-violet-500/30">
           <Brain className="h-5 w-5 text-white" />
         </div>
         <div>
@@ -458,7 +458,7 @@ export default function AIWorkoutPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <Card className="w-full max-w-sm shadow-2xl">
             <CardContent className="p-6 flex flex-col items-center gap-4 text-center">
-              <div className="h-16 w-16 rounded-full bg-gradient-to-br from-primary to-green-400 flex items-center justify-center">
+              <div className="h-16 w-16 rounded-full bg-linear-to-br from-primary to-green-400 flex items-center justify-center">
                 <Trophy className="h-8 w-8 text-white" />
               </div>
               <div>
