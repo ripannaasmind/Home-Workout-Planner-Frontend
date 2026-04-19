@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { PremiumGate } from "@/components/PremiumGate";
 import { calendarApi, workoutsApi, type WorkoutSchedule } from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -120,6 +121,7 @@ export default function CalendarPage() {
   for (let d = 1; d <= daysInMonth; d++) calendarCells.push(d);
 
   return (
+    <PremiumGate feature="Workout Calendar">
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 bg-gradient-to-br from-indigo-500 to-violet-500 rounded-xl flex items-center justify-center">
@@ -275,5 +277,6 @@ export default function CalendarPage() {
         </div>
       )}
     </div>
+    </PremiumGate>
   );
 }

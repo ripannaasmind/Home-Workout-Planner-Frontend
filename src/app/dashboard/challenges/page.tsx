@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { PremiumGate } from "@/components/PremiumGate";
 import { challengesApi, type Challenge, type LeaderboardEntry } from "@/services/api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -105,6 +106,7 @@ export default function ChallengesPage() {
 
   if (view === "detail" && selected) {
     return (
+      <PremiumGate feature="Challenges">
       <div className="space-y-6 max-w-4xl mx-auto">
         <Button variant="ghost" size="sm" onClick={() => setView("list")}>
           <ArrowLeft className="h-4 w-4 mr-1" /> Back to Challenges
@@ -188,10 +190,12 @@ export default function ChallengesPage() {
           </CardContent>
         </Card>
       </div>
+      </PremiumGate>
     );
   }
 
   return (
+    <PremiumGate feature="Challenges">
     <div className="space-y-6 max-w-4xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3">
@@ -260,5 +264,6 @@ export default function ChallengesPage() {
         </div>
       )}
     </div>
+    </PremiumGate>
   );
 }

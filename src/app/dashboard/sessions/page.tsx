@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Dumbbell, Clock, Flame, TrendingUp, Activity, Loader2, CheckCircle, XCircle, PauseCircle, PlayCircle } from "lucide-react";
+import { Dumbbell, Clock, Flame, TrendingUp, Activity, Loader2, CheckCircle, XCircle, PauseCircle, PlayCircle, Brain, Trash2 } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { sessionsApi, WorkoutSession, Workout } from "@/services/api";
 import { cn } from "@/lib/utils";
+import type { AIWorkoutLog } from "@/app/dashboard/ai-workout/page";
 
 interface SessionStats {
   totalSessions: number;
@@ -87,14 +89,31 @@ const statusConfig: Record<string, { label: string; color: string; Icon: React.E
   cancelled: { label: "Cancelled", color: "bg-gray-100 text-gray-500", Icon: XCircle },
 };
 
+function fmtTimeSec(secs: number) {
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  const s = secs % 60;
+  if (h > 0) return `${h}h ${m}m`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+
 export default function SessionsPage() {
   const { token } = useAuth();
   const [sessions, setSessions] = useState<WorkoutSession[] | null>(null);
   const [stats, setStats] = useState<SessionStats | null>(null);
   const [filter, setFilter] = useState<string>("all");
+  const [tab, setTab] = useState<"sessions" | "ai">("sessions");
+  const [aiLogs, setAiLogs] = useState<AIWorkoutLog[]>([]);
 
-  // Derive loading from sessions being null (not yet fetched) when token exists
   const loading = !!token && sessions === null;
+
+  useEffect(() => {
+    try {
+      const stored: AIWorkoutLog[] = JSON.parse(localStorage.getItem("ai_workout_logs") || "[]");
+      setAiLogs(stored);
+    } catch { setAiLogs([]); }
+  }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -149,7 +168,21 @@ export default function SessionsPage() {
         })}
       </div>
 
-      {/* Filter */}
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-gray-200 dark:border-gray-800">
+        <button onClick={() => setTab("sessions")}
+          className={cn("px-4 py-2 text-sm font-medium border-b-2 transition-colors", tab === "sessions" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>
+          <Dumbbell className="inline h-4 w-4 mr-1.5 align-middle" />Workout Sessions
+        </button>
+        <button onClick={() => setTab("ai")}
+          className={cn("px-4 py-2 text-sm font-medium border-b-2 transition-colors", tab === "ai" ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground")}>
+          <Brain className="inline h-4 w-4 mr-1.5 align-middle" />AI Workout History
+          {aiLogs.length > 0 && <Badge className="ml-1.5 h-4 text-[10px] bg-primary/20 text-primary border-0">{aiLogs.length}</Badge>}
+        </button>
+      </div>
+
+      {/* Sessions tab */}
+      {tab === "sessions" && (<>
       <div className="flex flex-wrap gap-2">
         {statuses.map((s) => (
           <button
@@ -275,6 +308,44 @@ export default function SessionsPage() {
           </>
         )}
       </div>
+      </>)}
+
+      {/* AI Workout History tab */}
+      {tab === "ai" && (
+        <div className="space-y-3">
+          {aiLogs.length === 0 ? (
+            <div className="bg-white dark:bg-card rounded-2xl border p-12 text-center">
+              <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+              <p className="font-semibold">No AI workouts yet</p>
+              <p className="text-sm text-muted-foreground mt-1">Complete an AI-generated workout to see your history here.</p>
+            </div>
+          ) : (
+            aiLogs.map((log) => (
+              <div key={log.id} className="bg-white dark:bg-card rounded-2xl border p-4 flex items-start gap-4">
+                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Brain className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-semibold text-sm">{log.name}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{log.difficulty} • {log.category}</p>
+                  <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
+                    <span><Clock className="inline h-3 w-3 mr-0.5" />{fmtTimeSec(log.actualDuration)}</span>
+                    <span><Flame className="inline h-3 w-3 mr-0.5" />~{log.estimatedCalories} cal</span>
+                    <span>{new Date(log.completedAt).toLocaleDateString()}</span>
+                  </div>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => {
+                  const updated = aiLogs.filter(l => l.id !== log.id);
+                  setAiLogs(updated);
+                  localStorage.setItem("ai_workout_logs", JSON.stringify(updated));
+                }}>
+                  <Trash2 className="h-4 w-4 text-muted-foreground" />
+                </Button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 }

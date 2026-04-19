@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PremiumGate } from "@/components/PremiumGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,6 +38,7 @@ export default function CalculatorsPage() {
 
   if (activeCalc) {
     return (
+      <PremiumGate feature="Fitness Calculators">
       <div className="space-y-6 max-w-2xl mx-auto">
         <Button variant="ghost" size="sm" onClick={() => setActiveCalc(null)}>
           <ArrowLeft className="h-4 w-4 mr-1" /> All Calculators
@@ -50,10 +52,12 @@ export default function CalculatorsPage() {
         {activeCalc === "calorie-burn" && <CalorieBurnCalc />}
         {activeCalc === "macro" && <MacroCalc />}
       </div>
+      </PremiumGate>
     );
   }
 
   return (
+    <PremiumGate feature="Fitness Calculators">
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex items-center gap-3">
         <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -84,6 +88,7 @@ export default function CalculatorsPage() {
         ))}
       </div>
     </div>
+    </PremiumGate>
   );
 }
 
