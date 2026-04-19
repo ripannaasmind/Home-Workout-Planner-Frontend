@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { aiApi, type AIWorkoutResult } from "@/services/api";
 import { PremiumGate } from "@/components/PremiumGate";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -455,10 +456,13 @@ export default function AIWorkoutPage() {
       </>)}
 
       {showFinish && result && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <Card className="w-full max-w-sm shadow-2xl">
-            <CardContent className="p-6 flex flex-col items-center gap-4 text-center">
-              <div className="h-16 w-16 rounded-full bg-linear-to-br from-primary to-green-400 flex items-center justify-center">
+        <Dialog open={showFinish} onOpenChange={(v) => { if (!v) setShowFinish(false); }}>
+          <DialogContent className="sm:max-w-sm" onInteractOutside={(e) => e.preventDefault()}>
+            <DialogHeader className="sr-only">
+              <DialogTitle>Workout Complete</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col items-center gap-4 py-2 text-center">
+              <div className="h-16 w-16 rounded-full bg-linear-to-br from-primary to-primary/70 flex items-center justify-center shadow-lg shadow-primary/25">
                 <Trophy className="h-8 w-8 text-white" />
               </div>
               <div>
@@ -466,28 +470,28 @@ export default function AIWorkoutPage() {
                 <p className="text-sm text-muted-foreground mt-1">Amazing work — you crushed it!</p>
               </div>
               <div className="grid grid-cols-3 gap-3 w-full">
-                <div className="rounded-xl border bg-gray-50 dark:bg-gray-800 p-3">
+                <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3">
                   <p className="text-lg font-bold text-primary">{fmtTime(elapsed)}</p>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Time</p>
                 </div>
-                <div className="rounded-xl border bg-gray-50 dark:bg-gray-800 p-3">
-                  <p className="text-lg font-bold text-orange-500">{completedCount}<span className="text-xs text-muted-foreground">/{totalExercises}</span></p>
+                <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3">
+                  <p className="text-lg font-bold text-foreground">{completedCount}<span className="text-xs text-muted-foreground">/{totalExercises}</span></p>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Done</p>
                 </div>
-                <div className="rounded-xl border bg-gray-50 dark:bg-gray-800 p-3">
-                  <p className="text-lg font-bold text-amber-500">~{Math.round((result.estimatedCalories || 0) * (elapsed / ((result.estimatedDuration || 30) * 60)))}</p>
+                <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3">
+                  <p className="text-lg font-bold text-orange-500">~{Math.round((result.estimatedCalories || 0) * (elapsed / ((result.estimatedDuration || 30) * 60)))}</p>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Cal</p>
                 </div>
               </div>
               <div className="flex flex-col gap-2 w-full">
-                <Button onClick={handleFinishConfirm} className="w-full bg-primary hover:bg-primary-dark text-white gap-2">
+                <Button onClick={handleFinishConfirm} className="w-full bg-linear-to-r from-primary to-primary/80 text-white shadow-sm shadow-primary/20 gap-2">
                   <CheckCircle2 className="h-4 w-4" />Save & Finish
                 </Button>
                 <Button variant="ghost" size="sm" onClick={() => setShowFinish(false)} className="text-muted-foreground">Keep going</Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
     </PremiumGate>

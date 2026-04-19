@@ -146,9 +146,7 @@ export function DashboardSidebar() {
                     className={cn(
                       "relative flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group overflow-hidden",
                       active
-                        ? premium
-                          ? "bg-linear-to-r from-violet-500 to-purple-600 text-white shadow-md shadow-violet-500/30"
-                          : "bg-linear-to-r from-primary to-primary/80 text-white shadow-md shadow-primary/30"
+                        ? "bg-linear-to-r from-primary to-primary/80 text-white shadow-md shadow-primary/30"
                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-gray-100 hover:translate-x-0.5"
                     )}
                   >
@@ -161,13 +159,11 @@ export function DashboardSidebar() {
                       "h-7 w-7 rounded-lg flex items-center justify-center shrink-0 transition-all duration-200",
                       active
                         ? "bg-white/20"
-                        : premium
-                          ? "bg-violet-50 dark:bg-violet-500/10 group-hover:bg-violet-100 dark:group-hover:bg-violet-500/20"
-                          : "bg-gray-100 dark:bg-white/5 group-hover:bg-primary/10"
+                        : "bg-gray-100 dark:bg-white/5 group-hover:bg-primary/10"
                     )}>
                       <Icon className={cn(
                         "h-3.5 w-3.5 transition-transform duration-200 group-hover:scale-110",
-                        active ? "text-white" : premium ? "text-violet-500" : "text-gray-500 dark:text-gray-400 group-hover:text-primary"
+                        active ? "text-white" : "text-gray-500 dark:text-gray-400 group-hover:text-primary"
                       )} />
                     </div>
 
