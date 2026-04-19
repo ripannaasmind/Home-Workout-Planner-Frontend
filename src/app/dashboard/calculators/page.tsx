@@ -381,24 +381,26 @@ function BodyFatCalc({ token, onSaved }: { token: string; onSaved: () => void })
 }
 
 function WaterCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
-  const [weight, setWeight] = useState(""); const [activity, setActivity] = useState("moderate"); const [result, setResult] = useState<number | null>(null);
+  const [gender, setGender] = useState("male"); const [weight, setWeight] = useState(""); const [activity, setActivity] = useState("moderate"); const [result, setResult] = useState<number | null>(null);
 
   const calculate = () => {
     const w = parseFloat(weight);
     if (!w) return;
-    let multiplier = 0.033;
-    if (activity === "light") multiplier = 0.03;
-    else if (activity === "active") multiplier = 0.04;
-    else if (activity === "very-active") multiplier = 0.045;
+    // Males need ~35ml/kg, females ~31ml/kg at moderate activity
+    const base = gender === "male"
+      ? { light: 0.031, moderate: 0.035, active: 0.040, "very-active": 0.045 }
+      : { light: 0.027, moderate: 0.031, active: 0.035, "very-active": 0.040 };
+    const multiplier = base[activity as keyof typeof base] ?? 0.033;
     const val = Math.round(w * multiplier * 10) / 10;
     setResult(val);
-    if (token) calculatorApi.save({ type: "water", label: "Water Intake Calculator", inputs: { weight: w, activity }, results: { "Water (L/day)": val, "Glasses (250ml)": Math.ceil(val * 4) } }, token).then(onSaved).catch(() => {});
+    if (token) calculatorApi.save({ type: "water", label: "Water Intake Calculator", inputs: { gender, weight: w, activity }, results: { "Water (L/day)": val, "Glasses (250ml)": Math.ceil(val * 4) } }, token).then(onSaved).catch(() => {});
   };
 
   return (
     <Card>
       <CardHeader><CardTitle className="flex items-center gap-2"><Droplets className="h-5 w-5 text-cyan-500" />Water Intake Calculator</CardTitle></CardHeader>
       <CardContent className="space-y-4">
+        <GenderToggle gender={gender} setGender={setGender} />
         <div><Label>Weight (kg)</Label><Input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="70" /></div>
         <div className="space-y-2">
           <Label>Activity Level</Label>
@@ -422,7 +424,7 @@ function WaterCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
 }
 
 function CalorieBurnCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
-  const [weight, setWeight] = useState(""); const [activityType, setActivityType] = useState("running"); const [durationMin, setDurationMin] = useState(""); const [result, setResult] = useState<number | null>(null);
+  const [gender, setGender] = useState("male"); const [weight, setWeight] = useState(""); const [activityType, setActivityType] = useState("running"); const [durationMin, setDurationMin] = useState(""); const [result, setResult] = useState<number | null>(null);
 
   const MET_VALUES: Record<string, number> = {
     running: 9.8, walking: 3.8, cycling: 7.5, swimming: 8.0, hiit: 12.0, yoga: 3.0,
@@ -433,15 +435,18 @@ function CalorieBurnCalc({ token, onSaved }: { token: string; onSaved: () => voi
     const w = parseFloat(weight); const d = parseFloat(durationMin);
     if (!w || !d) return;
     const met = MET_VALUES[activityType] || 5;
-    const val = Math.round(met * 3.5 * w / 200 * d);
+    // Males burn ~10% more than females due to higher muscle mass
+    const factor = gender === "male" ? 3.5 : 3.15;
+    const val = Math.round(met * factor * w / 200 * d);
     setResult(val);
-    if (token) calculatorApi.save({ type: "calorie-burn", label: "Calorie Burn Calculator", inputs: { weight: w, activity: activityType, duration_min: d }, results: { "Calories Burned": val } }, token).then(onSaved).catch(() => {});
+    if (token) calculatorApi.save({ type: "calorie-burn", label: "Calorie Burn Calculator", inputs: { gender, weight: w, activity: activityType, duration_min: d }, results: { "Calories Burned": val } }, token).then(onSaved).catch(() => {});
   };
 
   return (
     <Card>
       <CardHeader><CardTitle className="flex items-center gap-2"><Flame className="h-5 w-5 text-amber-500" />Calorie Burn Calculator</CardTitle></CardHeader>
       <CardContent className="space-y-4">
+        <GenderToggle gender={gender} setGender={setGender} />
         <div className="grid grid-cols-2 gap-4">
           <div><Label>Weight (kg)</Label><Input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="70" /></div>
           <div><Label>Duration (min)</Label><Input type="number" value={durationMin} onChange={(e) => setDurationMin(e.target.value)} placeholder="30" /></div>
@@ -463,32 +468,35 @@ function CalorieBurnCalc({ token, onSaved }: { token: string; onSaved: () => voi
 }
 
 function MacroCalc({ token, onSaved }: { token: string; onSaved: () => void }) {
-  const [weight, setWeight] = useState(""); const [goalType, setGoalType] = useState("maintain"); const [tdee, setTdee] = useState(""); const [result, setResult] = useState<{ protein: number; carbs: number; fats: number; calories: number } | null>(null);
+  const [gender, setGender] = useState("male"); const [weight, setWeight] = useState(""); const [goalType, setGoalType] = useState("maintain"); const [tdee, setTdee] = useState(""); const [result, setResult] = useState<{ protein: number; carbs: number; fats: number; calories: number } | null>(null);
 
   const calculate = () => {
     let cal = parseFloat(tdee);
     if (!cal) {
       const w = parseFloat(weight);
       if (!w) return;
-      cal = w * 33;
+      // Male base: ~35 cal/kg, Female base: ~30 cal/kg
+      cal = w * (gender === "male" ? 35 : 30);
     }
     if (goalType === "lose") cal -= 500;
     else if (goalType === "gain") cal += 500;
 
     const w = parseFloat(weight) || 70;
-    const protein = Math.round(w * 2);
+    // Male protein: 2.0g/kg, Female protein: 1.7g/kg
+    const protein = Math.round(w * (gender === "male" ? 2.0 : 1.7));
     const fats = Math.round(cal * 0.25 / 9);
     const carbCal = cal - (protein * 4) - (fats * 9);
     const carbs = Math.round(carbCal / 4);
     const r = { protein, carbs, fats, calories: Math.round(cal) };
     setResult(r);
-    if (token) calculatorApi.save({ type: "macro", label: "Macro Calculator", inputs: { weight: w, goal: goalType }, results: { "Calories": r.calories, "Protein (g)": r.protein, "Carbs (g)": r.carbs, "Fats (g)": r.fats } }, token).then(onSaved).catch(() => {});
+    if (token) calculatorApi.save({ type: "macro", label: "Macro Calculator", inputs: { gender, weight: w, goal: goalType }, results: { "Calories": r.calories, "Protein (g)": r.protein, "Carbs (g)": r.carbs, "Fats (g)": r.fats } }, token).then(onSaved).catch(() => {});
   };
 
   return (
     <Card>
       <CardHeader><CardTitle className="flex items-center gap-2"><Apple className="h-5 w-5 text-emerald-500" />Macro Calculator</CardTitle></CardHeader>
       <CardContent className="space-y-4">
+        <GenderToggle gender={gender} setGender={setGender} />
         <div className="grid grid-cols-2 gap-4">
           <div><Label>Weight (kg)</Label><Input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="70" /></div>
           <div><Label>TDEE (cal/day, optional)</Label><Input type="number" value={tdee} onChange={(e) => setTdee(e.target.value)} placeholder="2200" /></div>
