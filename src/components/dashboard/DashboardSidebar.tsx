@@ -39,8 +39,8 @@ const navGroups = [
   {
     label: "Fitness",
     items: [
-      { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell, premium: false },
       { href: "/dashboard/ai-workout", label: "AI Workout", icon: Brain, premium: true },
+      { href: "/dashboard/workouts", label: "Workouts", icon: Dumbbell, premium: false },
       { href: "/dashboard/sessions", label: "My Sessions", icon: Activity, premium: false },
       { href: "/dashboard/calendar", label: "Calendar", icon: CalendarDays, premium: true },
       { href: "/dashboard/challenges", label: "Challenges", icon: Trophy, premium: true },
