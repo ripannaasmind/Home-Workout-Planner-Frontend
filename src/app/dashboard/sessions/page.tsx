@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Dumbbell, Clock, Flame, TrendingUp, Activity, Loader2, CheckCircle, XCircle, PauseCircle, PlayCircle, Brain, Trash2 } from "lucide-react";
+import { Dumbbell, Clock, Flame, TrendingUp, Activity, Loader2, CheckCircle, XCircle, PauseCircle, PlayCircle, Brain, Trash2, Trophy, Calendar, Zap } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/context/AuthContext";
 import { sessionsApi, WorkoutSession, Workout } from "@/services/api";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,28 @@ interface SessionStats {
   totalCalories: number;
   averageDuration: number;
   currentStreak: number;
+}
+
+function calcStreak(sessions: WorkoutSession[]): number {
+  const dates = sessions
+    .filter((s) => s.status === "completed")
+    .map((s) => {
+      const d = new Date(s.startTime);
+      d.setHours(0, 0, 0, 0);
+      return d.getTime();
+    })
+    .filter((t, i, arr) => arr.indexOf(t) === i)
+    .sort((a, b) => b - a);
+  if (!dates.length) return 0;
+  let streak = 0;
+  let cursor = new Date();
+  cursor.setHours(0, 0, 0, 0);
+  for (const ts of dates) {
+    const diff = Math.floor((cursor.getTime() - ts) / 86400000);
+    if (diff <= 1) { streak++; cursor = new Date(ts); }
+    else break;
+  }
+  return streak;
 }
 
 function getWorkoutName(workout: string | Workout | undefined): string {
@@ -98,33 +121,148 @@ function fmtTimeSec(secs: number) {
   return `${s}s`;
 }
 
+function SessionDetailModal({ session, onClose }: { session: WorkoutSession; onClose: () => void }) {
+  const cfg = statusConfig[session.status] || statusConfig.cancelled;
+  const StatusIcon = cfg.Icon;
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Dumbbell className="h-4 w-4 text-primary" />
+            </div>
+            {getWorkoutName(session.workout as string | Workout)}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 pt-1">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">Status</span>
+            <Badge className={cn("border-0 text-xs gap-1 rounded-md", cfg.color)}>
+              <StatusIcon className="h-3 w-3" />{cfg.label}
+            </Badge>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3 text-center">
+              <Clock className="h-4 w-4 text-primary mx-auto mb-1" />
+              <p className="text-sm font-bold text-foreground">{getSessionDuration(session)}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mt-0.5">Duration</p>
+            </div>
+            <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3 text-center">
+              <Flame className="h-4 w-4 text-orange-500 mx-auto mb-1" />
+              <p className="text-sm font-bold text-foreground">{session.caloriesBurned ? `${session.caloriesBurned}` : "—"}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mt-0.5">kcal</p>
+            </div>
+            <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3 text-center">
+              <Trophy className="h-4 w-4 text-amber-500 mx-auto mb-1" />
+              <p className="text-sm font-bold text-foreground">{session.rating ? `${session.rating}/5` : "—"}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mt-0.5">Rating</p>
+            </div>
+          </div>
+          <div className="space-y-0 text-sm">
+            <div className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-white/5">
+              <span className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />Started</span>
+              <span className="font-medium text-foreground">{formatDate(session.startTime)}</span>
+            </div>
+            {session.endTime && (
+              <div className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-white/5">
+                <span className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />Ended</span>
+                <span className="font-medium text-foreground">{formatDate(session.endTime)}</span>
+              </div>
+            )}
+            {getWorkoutCategory(session.workout as string | Workout) && (
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-muted-foreground flex items-center gap-1.5"><Zap className="h-3.5 w-3.5" />Category</span>
+                <span className="font-medium text-foreground capitalize">{getWorkoutCategory(session.workout as string | Workout)}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function AILogDetailModal({ log, onClose, onDelete }: { log: AIWorkoutLog; onClose: () => void; onDelete: () => void }) {
+  return (
+    <Dialog open onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md w-[calc(100vw-2rem)]">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2 text-base">
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <Brain className="h-4 w-4 text-primary" />
+            </div>
+            {log.name}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 pt-1">
+          {log.description && (
+            <p className="text-sm text-muted-foreground leading-relaxed">{log.description}</p>
+          )}
+          <div className="grid grid-cols-3 gap-3">
+            <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3 text-center">
+              <Clock className="h-4 w-4 text-primary mx-auto mb-1" />
+              <p className="text-sm font-bold text-foreground">{fmtTimeSec(log.actualDuration)}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mt-0.5">Time</p>
+            </div>
+            <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3 text-center">
+              <Flame className="h-4 w-4 text-orange-500 mx-auto mb-1" />
+              <p className="text-sm font-bold text-foreground">~{log.estimatedCalories}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mt-0.5">Cal</p>
+            </div>
+            <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3 text-center">
+              <Dumbbell className="h-4 w-4 text-blue-500 mx-auto mb-1" />
+              <p className="text-sm font-bold text-foreground">{log.exerciseCount}</p>
+              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mt-0.5">Exercises</p>
+            </div>
+          </div>
+          <div className="space-y-0 text-sm">
+            <div className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-white/5">
+              <span className="text-muted-foreground">Difficulty</span>
+              <span className="font-medium capitalize text-foreground">{log.difficulty}</span>
+            </div>
+            <div className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-white/5">
+              <span className="text-muted-foreground">Category</span>
+              <span className="font-medium capitalize text-foreground">{log.category}</span>
+            </div>
+            {log.goal && (
+              <div className="flex items-center justify-between py-2.5 border-b border-gray-100 dark:border-white/5">
+                <span className="text-muted-foreground">Goal</span>
+                <span className="font-medium text-foreground">{log.goal}</span>
+              </div>
+            )}
+            <div className="flex items-center justify-between py-2.5">
+              <span className="text-muted-foreground flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />Completed</span>
+              <span className="font-medium text-foreground">{new Date(log.completedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+            </div>
+          </div>
+          <Button variant="outline" size="sm" className="w-full text-red-500 border-red-200 hover:bg-red-50 dark:border-red-900 dark:hover:bg-red-950/30 gap-1.5" onClick={onDelete}>
+            <Trash2 className="h-3.5 w-3.5" />Delete this log
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function SessionsPage() {
   const { token } = useAuth();
   const [sessions, setSessions] = useState<WorkoutSession[] | null>(null);
-  const [stats, setStats] = useState<SessionStats | null>(null);
   const [filter, setFilter] = useState<string>("all");
   const [tab, setTab] = useState<"sessions" | "ai">("sessions");
-  const [aiLogs, setAiLogs] = useState<AIWorkoutLog[]>([]);
+  const [aiLogs, setAiLogs] = useState<AIWorkoutLog[]>(() => {
+    try { return JSON.parse(localStorage.getItem("ai_workout_logs") || "[]"); } catch { return []; }
+  });
+  const [selectedSession, setSelectedSession] = useState<WorkoutSession | null>(null);
+  const [selectedLog, setSelectedLog] = useState<AIWorkoutLog | null>(null);
 
   const loading = !!token && sessions === null;
 
   useEffect(() => {
-    try {
-      const stored: AIWorkoutLog[] = JSON.parse(localStorage.getItem("ai_workout_logs") || "[]");
-      setAiLogs(stored);
-    } catch { setAiLogs([]); }
-  }, []);
-
-  useEffect(() => {
     if (!token) return;
-
-    Promise.all([
-      sessionsApi.getAll(token),
-      sessionsApi.getStats(token),
-    ])
-      .then(([sessRes, statsRes]) => {
-        setSessions(sessRes.success && sessRes.data ? sessRes.data : []);
-        if (statsRes.success && statsRes.data) setStats(statsRes.data);
+    sessionsApi.getAll(token)
+      .then((res) => {
+        setSessions(res.success && res.data ? res.data : []);
       })
       .catch(() => { setSessions([]); });
   }, [token]);
@@ -136,14 +274,27 @@ export default function SessionsPage() {
     ? sessionsList
     : sessionsList.filter((s) => s.status === filter);
 
+  // Compute stats from the full session list (all-time, accurate)
+  const completedSessions = sessionsList.filter((s) => s.status === "completed");
+  const stats: SessionStats = {
+    totalSessions: completedSessions.length,
+    totalDuration: completedSessions.reduce((sum, s) => sum + (s.totalDuration ?? 0), 0),
+    totalCalories: completedSessions.reduce((sum, s) => sum + (s.caloriesBurned ?? 0), 0),
+    averageDuration: completedSessions.length
+      ? Math.round(completedSessions.reduce((sum, s) => sum + (s.totalDuration ?? 0), 0) / completedSessions.length)
+      : 0,
+    currentStreak: calcStreak(sessionsList),
+  };
+
   const statCards = [
-    { label: "Total Sessions", value: stats?.totalSessions ?? 0, icon: Activity, color: "bg-primary/10 text-primary" },
-    { label: "Total Duration", value: formatDuration(stats?.totalDuration), icon: Clock, color: "bg-blue-100 text-blue-600" },
-    { label: "Calories Burned", value: stats?.totalCalories ? `${stats.totalCalories} kcal` : "0 kcal", icon: Flame, color: "bg-orange-100 text-orange-600" },
-    { label: "Current Streak", value: stats?.currentStreak ? `${stats.currentStreak} days` : "0 days", icon: TrendingUp, color: "bg-green-100 text-green-700" },
+    { label: "Total Sessions", value: stats.totalSessions, icon: Activity, color: "bg-primary/10 text-primary" },
+    { label: "Total Duration", value: formatDuration(stats.totalDuration), icon: Clock, color: "bg-blue-100 text-blue-600" },
+    { label: "Calories Burned", value: stats.totalCalories ? `${stats.totalCalories} kcal` : "0 kcal", icon: Flame, color: "bg-orange-100 text-orange-600" },
+    { label: "Current Streak", value: stats.currentStreak ? `${stats.currentStreak} days` : "0 days", icon: TrendingUp, color: "bg-green-100 text-green-700" },
   ];
 
   return (
+    <>
     <div className="space-y-6 page-fade">
       <DashboardHeader
         title="Workout Sessions"
@@ -235,7 +386,7 @@ export default function SessionsPage() {
                     const cfg = statusConfig[session.status] || statusConfig.cancelled;
                     const StatusIcon = cfg.Icon;
                     return (
-                      <tr key={session._id} className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
+                      <tr key={session._id} onClick={() => setSelectedSession(session)} className="hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors cursor-pointer">
                         <td className="px-5 py-3.5">
                           <div className="flex items-center gap-3">
                             <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
@@ -281,7 +432,7 @@ export default function SessionsPage() {
                 const cfg = statusConfig[session.status] || statusConfig.cancelled;
                 const StatusIcon = cfg.Icon;
                 return (
-                  <div key={session._id} className="p-4 flex items-start gap-3">
+                  <div key={session._id} onClick={() => setSelectedSession(session)} className="p-4 flex items-start gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/40 transition-colors">
                     <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                       <Dumbbell className="h-5 w-5 text-primary" />
                     </div>
@@ -321,20 +472,21 @@ export default function SessionsPage() {
             </div>
           ) : (
             aiLogs.map((log) => (
-              <div key={log.id} className="bg-white dark:bg-card rounded-2xl border p-4 flex items-start gap-4">
+              <div key={log.id} onClick={() => setSelectedLog(log)} className="bg-white dark:bg-card rounded-2xl border p-4 flex items-start gap-4 cursor-pointer hover:shadow-md transition-shadow">
                 <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   <Brain className="h-5 w-5 text-primary" />
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="font-semibold text-sm">{log.name}</p>
                   <p className="text-xs text-muted-foreground capitalize">{log.difficulty} • {log.category}</p>
-                  <div className="flex gap-3 mt-1 text-xs text-muted-foreground">
+                  <div className="flex flex-wrap gap-3 mt-1 text-xs text-muted-foreground">
                     <span><Clock className="inline h-3 w-3 mr-0.5" />{fmtTimeSec(log.actualDuration)}</span>
                     <span><Flame className="inline h-3 w-3 mr-0.5" />~{log.estimatedCalories} cal</span>
                     <span>{new Date(log.completedAt).toLocaleDateString()}</span>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => {
+                <Button variant="ghost" size="icon" onClick={(e) => {
+                  e.stopPropagation();
                   const updated = aiLogs.filter(l => l.id !== log.id);
                   setAiLogs(updated);
                   localStorage.setItem("ai_workout_logs", JSON.stringify(updated));
@@ -347,5 +499,23 @@ export default function SessionsPage() {
         </div>
       )}
     </div>
+
+      {selectedSession && (
+        <SessionDetailModal session={selectedSession} onClose={() => setSelectedSession(null)} />
+      )}
+
+      {selectedLog && (
+        <AILogDetailModal
+          log={selectedLog}
+          onClose={() => setSelectedLog(null)}
+          onDelete={() => {
+            const updated = aiLogs.filter(l => l.id !== selectedLog!.id);
+            setAiLogs(updated);
+            localStorage.setItem("ai_workout_logs", JSON.stringify(updated));
+            setSelectedLog(null);
+          }}
+        />
+      )}
+    </>
   );
 }
