@@ -344,6 +344,7 @@ export default function WorkoutsPage() {
       )}
 
       {tab === "all" && (
+      <>
       <div className="space-y-3">
         <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -355,7 +356,6 @@ export default function WorkoutsPage() {
           />
         </div>
 
-        {}
         {!loading && categories.length > 1 && (
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => (
@@ -375,7 +375,6 @@ export default function WorkoutsPage() {
           </div>
         )}
 
-        {}
         {!loading && (
           <div className="flex flex-wrap gap-2">
             {difficulties.map((d) => (
@@ -396,7 +395,6 @@ export default function WorkoutsPage() {
         )}
       </div>
 
-      {}
       {activeSession && !timerOpen && (
         <div
           className={cn(
@@ -560,7 +558,9 @@ export default function WorkoutsPage() {
         </div>
       )}
 
-      {}
+      </>
+      )}
+
       <Dialog open={timerOpen} onOpenChange={(open) => { if (!open) setTimerOpen(false); }}>
         <DialogContent className="sm:max-w-md" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>

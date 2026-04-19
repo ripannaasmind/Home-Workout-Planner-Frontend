@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { aiApi, type AIWorkoutResult } from "@/services/api";
@@ -120,7 +120,7 @@ export default function AIWorkoutPage() {
   const toggleExercise = (index: number) => {
     setDoneExercises((prev) => {
       const next = new Set(prev);
-      next.has(index) ? next.delete(index) : next.add(index);
+      if (next.has(index)) { next.delete(index); } else { next.add(index); }
       return next;
     });
   };
@@ -308,7 +308,7 @@ export default function AIWorkoutPage() {
           <Card className={`border-2 transition-colors ${timerActive ? "border-primary/40 bg-primary/5" : "border-gray-200 dark:border-gray-700"}`}>
             <CardContent className="p-4">
               <div className="flex flex-col sm:flex-row items-center gap-4">
-                <div className="flex flex-col items-center min-w-[100px]">
+                <div className="flex flex-col items-center min-w-25">
                   <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Elapsed</p>
                   <p className={`text-4xl font-mono font-bold tabular-nums ${timerActive && !timerPaused ? "text-primary" : "text-foreground"}`}>{fmtTime(elapsed)}</p>
                 </div>

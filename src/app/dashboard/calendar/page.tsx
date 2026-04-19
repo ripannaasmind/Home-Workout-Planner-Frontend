@@ -221,7 +221,7 @@ export default function CalendarPage() {
               ))}
               {/* Calendar cells */}
               {calendarCells.map((day, i) => {
-                if (day === null) return <div key={`empty-${i}`} className="bg-white dark:bg-gray-900 min-h-[90px] p-1" />;
+                if (day === null) return <div key={`empty-${i}`} className="bg-white dark:bg-gray-900 min-h-22.5 p-1" />;
 
                 const daySchedules = getSchedulesForDate(day);
                 const isToday = today.getFullYear() === year && today.getMonth() === month && today.getDate() === day;
@@ -229,7 +229,7 @@ export default function CalendarPage() {
                 return (
                   <div
                     key={day}
-                    className={`bg-white dark:bg-gray-900 min-h-[90px] p-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${isToday ? "ring-2 ring-inset ring-primary" : ""}`}
+                    className={`bg-white dark:bg-gray-900 min-h-22.5 p-1 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors ${isToday ? "ring-2 ring-inset ring-primary" : ""}`}
                     onClick={() => openForm(day)}
                   >
                     <div className="flex items-center justify-between px-1">

@@ -59,8 +59,13 @@ export default function CalculatorsPage() {
   }, [token]);
 
   useEffect(() => {
-    if (tab === "history") loadHistory();
-  }, [tab, loadHistory]);
+    if (tab !== "history" || !token) return;
+    let active = true;
+    calculatorApi.getHistory(token)
+      .then((res) => { if (active) { setHistory(res.data); setHistoryLoading(false); } })
+      .catch(() => { if (active) setHistoryLoading(false); });
+    return () => { active = false; };
+  }, [tab, token]);
 
   if (activeCalc) {
     return (

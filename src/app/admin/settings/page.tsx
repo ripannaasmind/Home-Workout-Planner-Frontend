@@ -182,7 +182,6 @@ export default function AdminSettingsPage() {
   const [aiApiKey, setAiApiKey] = useState("");
   const [aiModel, setAiModel] = useState("");
   const [showAiKey, setShowAiKey] = useState(false);
-  const [aiOpen, setAiOpen] = useState(false);
 
   const [taxRate, setTaxRate] = useState(8);
   const [shippingStandard, setShippingStandard] = useState(5);
