@@ -157,7 +157,7 @@ export default function CalculatorsPage() {
                   <p className="text-xs text-muted-foreground mt-0.5">{new Date(entry.createdAt).toLocaleString()}</p>
                   <div className="flex flex-wrap gap-2 mt-2">
                     {Object.entries(entry.results).map(([k, v]) => (
-                      <Badge key={k} variant="secondary" className="text-xs">{k}: {String(v)}</Badge>
+                      <Badge key={k} className="text-xs border-0 bg-primary/10 text-primary hover:bg-primary/10">{k}: {String(v)}</Badge>
                     ))}
                   </div>
                 </div>
