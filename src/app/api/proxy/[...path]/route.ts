@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60;
+export const maxDuration = 90;
 
 const DEFAULT_BACKEND_URL = "https://fit-home-workout-planner-backend.onrender.com/api";
 const LOCAL_BACKEND_URL = "http://localhost:5000/api";
