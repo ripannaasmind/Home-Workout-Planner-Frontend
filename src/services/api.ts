@@ -6,6 +6,8 @@ interface ApiOptions {
   method?: string;
   body?: unknown;
   token?: string;
+  skipProxy?: boolean;
+  timeoutMs?: number;
 }
 
 export interface ApiError extends Error {
@@ -39,7 +41,7 @@ export interface AuthResponse {
 }
 
 async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
-  const { method = "GET", body, token } = options;
+  const { method = "GET", body, token, skipProxy = false, timeoutMs = API_TIMEOUT_MS } = options;
 
   const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
 
@@ -60,22 +62,24 @@ async function apiRequest<T>(endpoint: string, options: ApiOptions = {}): Promis
   // Try proxy first (fast path ~8s), then fall back to direct backend call
   let response: Response | null = null;
 
-  try {
-    const ctrl = new AbortController();
-    const tid = setTimeout(() => ctrl.abort(), 8000);
-    response = await fetch(`${API_PROXY_BASE}${endpoint}`, {
-      method, headers, body: requestBody, signal: ctrl.signal,
-    });
-    clearTimeout(tid);
-    // If proxy returned 502 (backend unreachable), fall through to direct
-    if (response.status === 502) response = null;
-  } catch {
-    // proxy timed out or failed — fall through
+  if (!skipProxy) {
+    try {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 8000);
+      response = await fetch(`${API_PROXY_BASE}${endpoint}`, {
+        method, headers, body: requestBody, signal: ctrl.signal,
+      });
+      clearTimeout(tid);
+      // If proxy returned 502 (backend unreachable), fall through to direct
+      if (response.status === 502) response = null;
+    } catch {
+      // proxy timed out or failed — fall through
+    }
   }
 
   if (!response) {
     const ctrl = new AbortController();
-    const tid = setTimeout(() => ctrl.abort(), API_TIMEOUT_MS);
+    const tid = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
       response = await fetch(`${BACKEND_DIRECT}${endpoint}`, {
         method, headers, body: requestBody, signal: ctrl.signal,
@@ -1242,7 +1246,7 @@ export const aiApi = {
     apiRequest<{ success: boolean; data: { enabled: boolean } }>("/ai/status"),
 
   generateWorkout: (data: { goal: string; fitnessLevel: string; duration: number; equipment?: string[]; targetMuscles?: string[]; preferences?: string }, token: string) =>
-    apiRequest<{ success: boolean; data: AIWorkoutResult }>("/ai/generate", { method: "POST", body: data, token }),
+    apiRequest<{ success: boolean; data: AIWorkoutResult }>("/ai/generate", { method: "POST", body: data, token, skipProxy: true, timeoutMs: 90000 }),
 
   getSettings: (token: string) =>
     apiRequest<{ success: boolean; data: AISettings }>("/admin/ai-settings", { token }),

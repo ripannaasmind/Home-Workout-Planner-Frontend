@@ -312,7 +312,7 @@ export default function AIWorkoutPage() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                Generating Your Workout...
+                Generating… This may take up to 30 seconds
               </>
             ) : (
               <>
