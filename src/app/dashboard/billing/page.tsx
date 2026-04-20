@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { loadStripe, type Stripe as StripeType } from "@stripe/stripe-js";
 import { Elements, CardCvcElement, CardExpiryElement, CardNumberElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { CheckCircle2, CreditCard, Loader2, AlertCircle, RefreshCw, Banknote } from "lucide-react";
+import { CheckCircle2, CreditCard, Loader2, AlertCircle, RefreshCw } from "lucide-react";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -38,10 +38,11 @@ interface PaymentIntentData {
 interface StripeCardFormProps {
   clientSecret: string;
   disabled: boolean;
+  isDark: boolean;
   onConfirmed: (paymentIntentId: string) => Promise<void>;
 }
 
-function StripeCardForm({ clientSecret, disabled, onConfirmed }: StripeCardFormProps) {
+function StripeCardForm({ clientSecret, disabled, isDark, onConfirmed }: StripeCardFormProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [submitting, setSubmitting] = useState(false);
@@ -49,10 +50,10 @@ function StripeCardForm({ clientSecret, disabled, onConfirmed }: StripeCardFormP
   const elementStyle = {
     style: {
       base: {
-        color: "#111827",
+        color: isDark ? "#f9fafb" : "#111827",
         fontSize: "15px",
         fontFamily: "system-ui, -apple-system, Segoe UI, Roboto, sans-serif",
-        "::placeholder": { color: "#9ca3af" },
+        "::placeholder": { color: isDark ? "#6b7280" : "#9ca3af" },
       },
       invalid: { color: "#dc2626" },
     },
@@ -124,19 +125,23 @@ function StripeCardForm({ clientSecret, disabled, onConfirmed }: StripeCardFormP
 // ------- Billing Page Component -------
 export default function BillingPage() {
   const { token } = useAuth();
-  const { formatPrice } = useTheme();
+  const { formatPrice, isDark } = useTheme();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlanId, setCurrentPlanId] = useState<string>("free");
   const [currentEndDate, setCurrentEndDate] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [creatingPlanId, setCreatingPlanId] = useState<string | null>(null);
+  // Step: "select" = choose payment method, "pay" = stripe card form
+  const [modalStep, setModalStep] = useState<"select" | "pay">("select");
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [checkoutPlan, setCheckoutPlan] = useState<Plan | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<"stripe" | "paypal" | null>(null);
   const [paymentIntentData, setPaymentIntentData] = useState<PaymentIntentData | null>(null);
   const [stripePromise, setStripePromise] = useState<Promise<StripeType | null> | null>(null);
   const [activating, setActivating] = useState(false);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodsConfig | null>(null);
   const [renewingPlanId, setRenewingPlanId] = useState<string | null>(null);
+  const [proceedingStripe, setProceedingStripe] = useState(false);
 
   useEffect(() => {
     if (!token) return;
@@ -172,7 +177,8 @@ export default function BillingPage() {
       setPaymentMethods({
         stripe: { enabled: paymentRes.data.stripe?.enabled ?? false, publishableKey: paymentRes.data.stripe?.publishableKey },
         paypal: { enabled: paymentRes.data.paypal?.enabled ?? false, clientId: paymentRes.data.paypal?.clientId },
-        cashOnDelivery: { enabled: paymentRes.data.cashOnDelivery?.enabled ?? false },
+        // cashOnDelivery intentionally excluded from subscription flow
+        cashOnDelivery: { enabled: false },
       });
     }).catch(() => {}).finally(() => setLoading(false));
   }, [token]);
@@ -203,6 +209,7 @@ export default function BillingPage() {
     setRenewingPlanId(null);
   };
 
+  // Step 1: Open method selection modal
   const handleUpgradeClick = async (plan: Plan) => {
     if (!token) {
       toast.error("Please log in to continue");
@@ -210,21 +217,35 @@ export default function BillingPage() {
     }
     if (plan.id === "free" || plan.id === currentPlanId) return;
 
-    if (!stripePromise) {
-      toast.error("Stripe is not configured right now. Please contact admin.");
-      return;
-    }
+    setCheckoutPlan(plan);
+    setSelectedMethod(null);
+    setPaymentIntentData(null);
+    setModalStep("select");
+    setPaymentOpen(true);
+  };
 
-    setCreatingPlanId(plan.id);
-    try {
-      const paymentRes = await subscriptionApi.createPayment(plan.id, token);
-      setCheckoutPlan(plan);
-      setPaymentIntentData(paymentRes.data);
-      setPaymentOpen(true);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Unable to start payment");
-    } finally {
-      setCreatingPlanId(null);
+  // Step 2: User picks a method and proceeds
+  const handleProceedWithMethod = async (method: "stripe" | "paypal") => {
+    if (!token || !checkoutPlan) return;
+
+    if (method === "stripe") {
+      if (!stripePromise) {
+        toast.error("Stripe is not configured right now. Please contact admin.");
+        return;
+      }
+      setProceedingStripe(true);
+      try {
+        const paymentRes = await subscriptionApi.createPayment(checkoutPlan.id, token);
+        setPaymentIntentData(paymentRes.data);
+        setSelectedMethod("stripe");
+        setModalStep("pay");
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Unable to start payment");
+      } finally {
+        setProceedingStripe(false);
+      }
+    } else if (method === "paypal") {
+      toast.info("PayPal is available for store orders only. Please use Card for subscriptions.");
     }
   };
 
@@ -252,6 +273,14 @@ export default function BillingPage() {
       setActivating(false);
     }
   };
+
+  // Subscription-eligible payment methods (no Cash on Delivery)
+  const availableSubscriptionMethods = paymentMethods
+    ? [
+        paymentMethods.stripe.enabled ? "stripe" as const : null,
+        paymentMethods.paypal.enabled ? "paypal" as const : null,
+      ].filter(Boolean)
+    : [];
 
   return (
     <div className="space-y-6">
@@ -300,7 +329,6 @@ export default function BillingPage() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           {plans.map((plan) => {
             const isCurrent = plan.id === currentPlanId;
@@ -340,12 +368,12 @@ export default function BillingPage() {
         </div>
       )}
 
-      {}
+      {/* Payment Methods info — subscription-eligible only (no Cash on Delivery) */}
       {loading ? (
         <div className="rounded-2xl bg-white dark:bg-card border border-gray-200 dark:border-gray-800 shadow-sm p-5 animate-pulse">
           <div className="h-4 w-36 rounded bg-gray-200 dark:bg-gray-700 mb-4" />
           <div className="flex flex-wrap gap-3">
-            {[1, 2, 3].map((i) => (
+            {[1, 2].map((i) => (
               <div key={i} className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-100 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
                 <div className="h-5 w-5 rounded bg-gray-200 dark:bg-gray-700" />
                 <div className="space-y-1.5">
@@ -362,7 +390,7 @@ export default function BillingPage() {
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-gray-800 dark:text-gray-100 font-semibold">Payment Methods</h3>
           </div>
-          {!paymentMethods || (!paymentMethods.stripe.enabled && !paymentMethods.paypal.enabled && !paymentMethods.cashOnDelivery.enabled) ? (
+          {!paymentMethods || (!paymentMethods.stripe.enabled && !paymentMethods.paypal.enabled) ? (
             <p className="text-gray-400 text-sm">No payment methods configured. Contact admin.</p>
           ) : (
             <div className="flex flex-wrap gap-3">
@@ -386,42 +414,90 @@ export default function BillingPage() {
                   <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
                 </div>
               )}
-              {paymentMethods.cashOnDelivery.enabled && (
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
-                  <Banknote className="h-5 w-5 text-gray-500" />
-                  <div>
-                    <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Cash on Delivery</p>
-                    <p className="text-gray-500 dark:text-gray-400 text-xs">Available for store orders</p>
-                  </div>
-                  <Badge className="ml-2 bg-green-500/20 text-green-600 dark:text-green-400 border-0">Active</Badge>
-                </div>
-              )}
             </div>
           )}
         </div>
       )}
 
-      <Dialog open={paymentOpen} onOpenChange={(open) => { if (!activating) setPaymentOpen(open); }}>
+      {/* Payment Dialog — Step 1: Select Method, Step 2: Card Form */}
+      <Dialog open={paymentOpen} onOpenChange={(open) => { if (!activating && !proceedingStripe) setPaymentOpen(open); }}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Complete Subscription Payment</DialogTitle>
+            <DialogTitle>
+              {modalStep === "select" ? "Choose Payment Method" : "Complete Subscription Payment"}
+            </DialogTitle>
             <DialogDescription>
               {checkoutPlan
-                ? `${checkoutPlan.name} - ${getPriceLabel(checkoutPlan)}`
+                ? `${checkoutPlan.name} — ${getPriceLabel(checkoutPlan)}`
                 : "Complete payment to activate your plan."}
             </DialogDescription>
           </DialogHeader>
 
-          {stripePromise && paymentIntentData?.clientSecret ? (
-            <Elements stripe={stripePromise}>
-              <StripeCardForm
-                clientSecret={paymentIntentData.clientSecret}
+          {/* Step 1 — Payment Method Selection */}
+          {modalStep === "select" && (
+            <div className="space-y-3 pt-1">
+              {availableSubscriptionMethods.length === 0 && (
+                <p className="text-sm text-red-500">No payment methods available. Contact admin.</p>
+              )}
+
+              {paymentMethods?.stripe.enabled && (
+                <button
+                  onClick={() => handleProceedWithMethod("stripe")}
+                  disabled={proceedingStripe}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-primary hover:bg-primary/5 transition-colors text-left disabled:opacity-60"
+                >
+                  <CreditCard className="h-5 w-5 text-primary shrink-0" />
+                  <div className="flex-1">
+                    <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">Credit / Debit Card</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">Powered by Stripe · Secure payment</p>
+                  </div>
+                  {proceedingStripe ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  ) : (
+                    <span className="text-primary text-xs font-medium">Select →</span>
+                  )}
+                </button>
+              )}
+
+              {paymentMethods?.paypal.enabled && (
+                <button
+                  onClick={() => handleProceedWithMethod("paypal")}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 hover:border-primary hover:bg-primary/5 transition-colors text-left"
+                >
+                  <span className="text-blue-500 font-bold text-base w-5 text-center shrink-0">PP</span>
+                  <div className="flex-1">
+                    <p className="text-gray-800 dark:text-gray-100 text-sm font-medium">PayPal</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-xs">Store orders only</p>
+                  </div>
+                  <span className="text-gray-400 text-xs">Not available</span>
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Step 2 — Stripe Card Form */}
+          {modalStep === "pay" && selectedMethod === "stripe" && (
+            <>
+              <button
+                onClick={() => { setModalStep("select"); setPaymentIntentData(null); }}
                 disabled={activating}
-                onConfirmed={handlePaymentConfirmed}
-              />
-            </Elements>
-          ) : (
-            <div className="text-sm text-red-500">Unable to initialize payment. Please try again.</div>
+                className="text-xs text-gray-500 hover:text-primary transition-colors mb-1 text-left"
+              >
+                ← Back to payment methods
+              </button>
+              {stripePromise && paymentIntentData?.clientSecret ? (
+                <Elements stripe={stripePromise}>
+                  <StripeCardForm
+                    clientSecret={paymentIntentData.clientSecret}
+                    disabled={activating}
+                    isDark={isDark}
+                    onConfirmed={handlePaymentConfirmed}
+                  />
+                </Elements>
+              ) : (
+                <div className="text-sm text-red-500">Unable to initialize payment. Please try again.</div>
+              )}
+            </>
           )}
         </DialogContent>
       </Dialog>
